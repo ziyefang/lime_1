@@ -1,8 +1,14 @@
 var Explanation = function(class_names) {
   this.names = class_names;
   this.names.push('Other');
-  this.colors = d3.scale.category10().domain(this.names);
-  this.colors_i = d3.scale.category10().domain(_.range(this.names.length));
+  if (class_names.length < 10) {
+    this.colors = d3.scale.category10().domain(this.names);
+    this.colors_i = d3.scale.category10().domain(_.range(this.names.length));
+  }
+  else {
+    this.colors = d3.scale.category20().domain(this.names);
+    this.colors_i = d3.scale.category20().domain(_.range(this.names.length));
+  }
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
@@ -95,7 +101,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var x_offset = width / 2;
-  console.log(max_weight);
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
      .style('height', yshift + total_height + 10);
@@ -117,6 +122,9 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
+      if (this.names.length >= 20 && score < 0) {
+        color = '#5F9EA0';
+      }
     }
     var bar = svg.append('rect')
                  .attr('height', bar_height)
@@ -150,6 +158,10 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
 Explanation.prototype.UpdateColors = function(div, class_id) {
   var pos_color = this.colors_i(class_id);
   var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
+  if (this.names.length >= 20) {
+    neg_color = '#5F9EA0';
+  }
+
   div.selectAll('.pos').style('background-color', pos_color);
   div.selectAll('.neg').style('background-color', neg_color);
 }

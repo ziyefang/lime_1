@@ -87,6 +87,8 @@ class LimeTextExplainer(object):
         map_exp = lambda exp: [(mapping[x[0]], x[1]) for x in exp]
         if top_labels:
             labels = np.argsort(yss[0])[-top_labels:]
+            ret_exp.top_labels = list(labels)
+            ret_exp.top_labels.reverse()
         for label in labels:
             if local_explanation:
                 ret_exp.local_exp[label] = map_exp(

@@ -31,9 +31,12 @@ class Explanation(object):
         self.local_exp = {}
         self.top_pos = {}
         self.top_neg = {}
+        self.top_labels = None
         self.predict_proba = None
     def available_labels(self):
         """Returns the list of labels for which we have any explanations."""
+        if self.top_labels:
+            return self.top_labels
         return set(self.top_pos.keys() + self.top_neg.keys() + self.local_exp.keys())
     def as_list(self, label=1, explanation='local'):
         """Returns the explanation as a list.
