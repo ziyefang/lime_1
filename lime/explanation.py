@@ -7,6 +7,14 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+import cgi
+import string
+
+def id_generator(size=15):
+    """Helper function to generate random div ids. This is useful for embedding
+    HTML into ipython notebooks."""
+    chars = list(string.ascii_uppercase + string.digits)
+    return ''.join(np.random.choice(chars, size, replace=True))
 
 class Explanation(object):
     """Object returned by explainers."""
@@ -27,7 +35,7 @@ class Explanation(object):
     def available_labels(self):
         """Returns the list of labels for which we have any explanations."""
         return set(self.top_pos.keys() + self.top_neg.keys() + self.local_exp.keys())
-    def as_list(self, label, explanation='local'):
+    def as_list(self, label=1, explanation='local'):
         """Returns the explanation as a list.
 
         Args:
@@ -70,7 +78,7 @@ class Explanation(object):
         elif explanation == 'neg':
             return self.top_neg
 
-    def as_pyplot_figure(self, label, explanation='local'):
+    def as_pyplot_figure(self, label=1, explanation='local'):
         """Returns the explanation as a figure.
 
         Args:
@@ -97,9 +105,9 @@ class Explanation(object):
         if explanation == 'local':
             plt.title('Local explanation for class %s' % self.class_names[label])
         elif explanation == 'pos':
-            plt.title('Most positive towards %s' % self.class_names[label])
+            plt.title('Positive towards %s' % self.class_names[label])
         elif explanation == 'neg':
-            plt.title('Most negative towards %s' % self.class_names[label])
+            plt.title('Negative towards %s' % self.class_names[label])
         return fig
 
 
@@ -127,6 +135,10 @@ class Explanation(object):
         dthree = open(os.path.join(this_dir, 'd3.min.js')).read()
         lodash = open(os.path.join(this_dir, 'lodash.js')).read()
         exp_js = open(os.path.join(this_dir, 'explanation.js')).read()
+        # We embed random ids in the div and svg names, in case multiple of
+        # these HTML pages are embedded into an ipython notebook (which would
+        # cause interference if they all had the same name)
+        random_id = id_generator()
         out = '''<html><head><script>%s </script>
         <script>%s </script>
         <script>%s </script>
@@ -134,10 +146,11 @@ class Explanation(object):
         <body>
         ''' % (dthree, lodash, exp_js)
         out += '''
-        <div id="mychart%d" style="display:flex; justify-content:space-between;"></div>
-        ''' % (label)
+        <div id="mychart%s" style="display:flex; justify-content:space-between;"></div>
+        ''' % (random_id)
 
         if text is not None:
+            text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
             if 'pos' in include:
                 for word, _ in self.as_list(label, 'pos'):
                     text = re.sub(r'(\W|^)(%s)(\W|$)' % word,
@@ -155,7 +168,7 @@ class Explanation(object):
                                   r'\1<span class="%s">\2</span>\3' % class_,
                                   text)
             text = re.sub('\n', '<br />', text)
-            out += '<div id="mytext%d"><h3>Text with highlighted words</h3>%s</div>' % (label, text)
+            out += '<div id="mytext%s"><h3>Text with highlighted words</h3>%s</div>' % (random_id, text)
         out += '''
         <script>
         var exp = new Explanation(%s);
@@ -163,32 +176,32 @@ class Explanation(object):
 
         if 'predict_proba' in include:
             out += '''
-            var svg = d3.select('#mychart%d').append('svg');
+            var svg = d3.select('#mychart%s').append('svg');
             exp.PredictProba(svg, %s);
-            ''' % (label, json.dumps(list(self.predict_proba)))
+            ''' % (random_id, json.dumps(list(self.predict_proba)))
         if 'pos' in include:
             exp = json.dumps(self.as_list(label, 'pos'))
             out += '''
-                var svg2 = d3.select('#mychart%d').append('svg');
+                var svg2 = d3.select('#mychart%s').append('svg');
                 exp.ExplainFeatures(svg2, %d, %s, 'Most positive towards %s', false);
-            ''' % (label, label, exp, self.class_names[label])
+            ''' % (random_id, label, exp, self.class_names[label])
         if 'neg' in include:
             exp = json.dumps(self.as_list(label, 'neg'))
             out += '''
-                var svg3 = d3.select('#mychart%d').append('svg');
+                var svg3 = d3.select('#mychart%s').append('svg');
                 exp.ExplainFeatures(svg3, %d, %s, 'Most negative towards %s', false);
-            ''' % (label, label, exp, self.class_names[label])
+            ''' % (random_id, label, exp, self.class_names[label])
         if 'local' in include:
             exp = json.dumps(self.as_list(label, 'local'))
             out += '''
-                var svg4 = d3.select('#mychart%d').append('svg');
-                exp.ExplainFeatures(svg4, %d, %s, 'Local explanation at P(%s)=%.2f', true);
-            ''' % (label, label, exp, self.class_names[label], self.predict_proba[label])
+                var svg4 = d3.select('#mychart%s').append('svg');
+                exp.ExplainFeatures(svg4, %d, %s, 'Local explanation', true);
+            ''' % (random_id, label, exp)
         if text is not None:
             out += '''
-            var text_div = d3.select('#mytext%d');
+            var text_div = d3.select('#mytext%s');
             exp.UpdateColors(text_div, %d);
-            ''' % (label, label)
+            ''' % (random_id, label)
 
         out += '</script></body></html>'
         return out

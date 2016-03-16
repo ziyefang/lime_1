@@ -6,7 +6,7 @@ var Explanation = function(class_names) {
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
-     .style('width', 200);
+     .style('width', 250);
   this.bar_x = 90;
   this.bar_height = 17;
   this.space_between_bars = 5;
@@ -89,7 +89,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var bar_height = 17;
   var yshift = 20;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
-  var width = 300;
+  var width = 250;
   var bar_width = max_weight > .2 ? 110 : 500;
   var xscale = d3.scale.linear()
           .domain([0,1])

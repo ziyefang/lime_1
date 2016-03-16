@@ -31,6 +31,7 @@ class LimeTextExplainer(object):
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.base = lime_base.LimeBase(kernel, verbose)
         self.class_names = class_names
+        self.vocabulary = None
         if vocabulary:
             terms = np.array(list(vocabulary.keys()))
             indices = np.array(list(vocabulary.values()))
@@ -38,7 +39,7 @@ class LimeTextExplainer(object):
     def explain_instance(self,
                          instance,
                          classifier_fn,
-                         labels=(1),
+                         labels=(1,),
                          top_labels=None,
                          num_features=10,
                          num_samples=5000,
