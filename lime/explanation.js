@@ -36,7 +36,7 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", this.colors_i(i));
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
