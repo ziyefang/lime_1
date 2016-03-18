@@ -12,12 +12,12 @@ var Explanation = function(class_names) {
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
-     .style('width', 250);
+     .style('width', 225);
   this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
-  this.bar_width = this.width - this.bar_x - 33;
+  this.bar_width = this.width - this.bar_x - 31;
   this.x_scale = d3.scale.linear().range([0, this.bar_width]);
   svg.append('text')
      .text('Prediction probabilities')
@@ -95,11 +95,13 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var bar_height = 17;
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
-  var width = 250;
-  var bar_width = max_weight > .2 ? 110 : 500;
+  //var bar_width = max_weight > .2 ? 110 : 500;
+  var bar_width = 300;
   var xscale = d3.scale.linear()
           .domain([0,1])
           .range([0, bar_width]);
+  var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
+  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -144,7 +146,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
                   .text(name);
     if (show_numbers) {
       var bartext = svg.append('text')
-                     .attr('x', score > 0 ? x_offset + size + 5 : x_offset - size - 5)
+                     .attr('x', score > 0 ? x_offset + size + 1 : x_offset - size - 1)
                      .attr('text-anchor', score > 0 ? 'begin' : 'end')
                      .attr('y', yscale(i) + 30)
                      .text(score.toFixed(2));
