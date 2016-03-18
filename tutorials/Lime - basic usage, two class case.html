@@ -1903,7 +1903,7 @@ In&nbsp;[7]:
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
 Document id: 83
-Probability(christian) = 0.432
+Probability(christian) = 0.49
 True class: atheism
 
 </pre>
@@ -1947,12 +1947,12 @@ In&nbsp;[8]:
 
 <div class="output_text output_subarea output_pyout">
 <pre>
-[(u&apos;Posting&apos;, -0.12231300695271001),
- (u&apos;Host&apos;, -0.11657555721362646),
- (u&apos;NNTP&apos;, -0.094120599487673234),
- (u&apos;unm&apos;, 0.094010015457631102),
- (u&apos;Subject&apos;, 0.028612113238056389),
- (u&apos;obtain&apos;, 0.027527449506456934)]
+[(u&apos;Host&apos;, -0.14734602227239837),
+ (u&apos;Posting&apos;, -0.11400047791131808),
+ (u&apos;NNTP&apos;, -0.10109257117921416),
+ (u&apos;edu&apos;, -0.028540629623386941),
+ (u&apos;There&apos;, -0.016225589867137624),
+ (u&apos;University&apos;, 0.0098423216357678891)]
 </pre>
 </div>
 
@@ -1967,7 +1967,7 @@ In&nbsp;[8]:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>These weighted features approximate the random forest classifier in the vicinity of the test example. Roughly, if we remove &#39;Posting&#39; and &#39;Host&#39; from the document , the prediction should move towards the opposite class (Christianity) by about 0.24 (the sum of the weights for both features). Let&#39;s see if this is the case.</p>
+<p>These weighted features are a linear model, which approximates the behaviour of the random forest classifier in the vicinity of the test example. Roughly, if we remove &#39;Posting&#39; and &#39;Host&#39; from the document , the prediction should move towards the opposite class (Christianity) by about 0.25 (the sum of the weights for both features). Let&#39;s see if this is the case.</p>
 </div>
 </div>
 </div>
@@ -1997,9 +1997,9 @@ In&nbsp;[9]:
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
-Original prediction: 0.432
-Prediction removing some features: 0.698
-Difference: 0.266
+Original prediction: 0.49
+Prediction removing some features: 0.728
+Difference: 0.238
 
 </pre>
 </div>
@@ -2014,65 +2014,9 @@ Difference: 0.266
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Pretty close!<br>The words that explain the model around this document seem very arbitrary - not much to do with either Christianity or Atheism.<br>In fact, these are words that appear in the email headers, which make distinguishing between the classes much easier.</p>
+<p>Pretty close!<br>The words that explain the model around this document seem very arbitrary - not much to do with either Christianity or Atheism.<br>In fact, these are words that appear in the email headers (you will see this clearly soon), which make distinguishing between the classes much easier.</p>
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The explanation we showed before gave us a linear model, which approximates the behaviour of the original model (random forests) close to the example. These explanations are the default, and correspond to setting the parameter explanation=&#39;local&#39;.<br>Lime also supports explanations that present the most positive and most negative words around the example.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">
-In&nbsp;[10]:
-</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="k">print</span> <span class="s">&#39;Most positive words:&#39;</span>
-<span class="k">print</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">exp</span><span class="o">.</span><span class="n">as_list</span><span class="p">(</span><span class="n">explanation</span><span class="o">=</span><span class="s">&#39;pos&#39;</span><span class="p">)))</span>
-<span class="k">print</span> <span class="s">&#39;Most negative words:&#39;</span>
-<span class="k">print</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">exp</span><span class="o">.</span><span class="n">as_list</span><span class="p">(</span><span class="n">explanation</span><span class="o">=</span><span class="s">&#39;neg&#39;</span><span class="p">)))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-Most positive words:
-(u&apos;unm&apos;, 0.069063685887780002)
-(u&apos;anyone&apos;, 0.013922823800827726)
-(u&apos;New&apos;, 0.012442041655769306)
-(u&apos;Subject&apos;, 0.010746715208668269)
-(u&apos;obtain&apos;, 0.0095627750763199043)
-(u&apos;Fish&apos;, 0.0091235187143477118)
-Most negative words:
-(u&apos;Posting&apos;, -0.13999490066549689)
-(u&apos;Host&apos;, -0.13516354159305322)
-(u&apos;NNTP&apos;, -0.10953508101383906)
-(u&apos;edu&apos;, -0.038412011452849178)
-(u&apos;an&apos;, -0.0071120872995531588)
-(u&apos;There&apos;, -0.0061164680249299599)
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
@@ -2086,13 +2030,12 @@ Most negative words:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[11]:
+In&nbsp;[10]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="o">%</span><span class="k">matplotlib</span> <span class="n">inline</span>
-<span class="k">print</span> <span class="s">&#39;Local explanation&#39;</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">as_pyplot_figure</span><span class="p">(</span><span class="n">explanation</span><span class="o">=</span><span class="s">&#39;local&#39;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">as_pyplot_figure</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -2104,295 +2047,134 @@ In&nbsp;[11]:
 
 
 <div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-Local explanation
-
-</pre>
-</div>
-</div>
-
-<div class="output_area"><div class="prompt"></div>
 
 
 <div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-N9SUAAAAAElFTkSuQmCC
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">
-In&nbsp;[12]:
-</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="k">print</span> <span class="s">&#39;Most positive towards Christianity&#39;</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">as_pyplot_figure</span><span class="p">(</span><span class="n">explanation</span><span class="o">=</span><span class="s">&#39;pos&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-Most positive towards Christianity
-
-</pre>
-</div>
-</div>
-
-<div class="output_area"><div class="prompt"></div>
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ0AAAEKCAYAAADJvIhZAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAALEgAACxIB0t1+/AAAG3BJREFUeJzt3XuYXFWZ7/HvD0gwQBACDAxyCYIgIA4BBgRBCzhzAFHB
+GbkZ5aLniJfDZQTH20g6eWaOgAdBmYeH4SiCOHgERPCCCJ5JcYncSUIAQVCUqxgugUQ4BMh7/tir
+w+5KVXd1d/Wq3dW/z/Psp/d1rXfv2l1vrVW79lZEYGZmlsNq3Q7AzMwmDicdMzPLxknHzMyycdIx
+M7NsnHTMzCwbJx0zM8vGScc6TlJN0mOZ65wuaYWk7Oe0pJmSfjlGZX9a0tOSXpS0/ljUkeo5VtJN
+Y1X+WMYh6RpJHxtBXftIemC429noOOlMEJL+IGn/bscx3jVLbhHxHxFxwBjUNQk4C9g/ItaNiOc7
+XUcviIj3RcQlQ62XXre3lra7KSLePrbRWSMnnYkj0mCdoQx1bAK8CfjNcDdU0vmQqmOE+9jTx2Q8
+cNKZ4CStKekcSU+k4WxJk0vLD5G0QNILkh6WdECaf5yk+1O3z+8kfXIYdb5d0vWSnpX0gKTD0vyt
+07wZaXpTSYslvSdN1yV9TdJtKZ6rWnU5DRZf6v57XNLnUtfVk5KOLS0/WNL8VMejkmaVir4x/V2S
+yn5XY5eQpL0k3SFpiaTbJe1ZWlaXNEfSzWn7X0raoEn82/JGslki6Vdtlv0vkuYBfwG2alLu5pKu
+lPRnSc9IOrfF8ftm2vcXJN0pae/Sst3TvBck/UnSWWn+myR9P5X7fIrvr1qUP2gckr4u6TlJv5d0
+YIt9XAa8Nc37RFq+jaQb0vFZLOkHaX7/67ZQ0lJJh6mhG1jSF9M5/qKk+yQdWlp2bHrNmsZlwxAR
+HibAADwC7Ndk/hzg18CGaZgHzEnLdgeWUHTvAGwKbJfG3wdslcbfQ/EmNyNN14DHWsSxNvAYcAzF
+h56dgcXA9mn5fwPuA6YAvwTOLG1bBx4HdgDWAq4ALknLpgMrgNXajO9VoA9YHTgoLX9zWv5eYMc0
+vhPwJ+CQNL1luZ4071jgpjQ+DXgemJn270jgOWD90j48BGxD0YqZC3ytxbEaUFebZf8B2D4tX6Oh
+vNWBhRRddlOANYG9GvchTc8E1k/lfA54Cpiclt0CzEzjawG7p/HjgZ+k/RIwA5jaZL+GimM58IlU
+xqeAJxrOgQH7mI7hx9PyHwBfSuOT+8tN0yuAt5ama5TOU+DDwCZp/HCKpLZxO3F5GMZ7UbcD8JDp
+hW6ddB4GDixN/1fgkTT+78BZbZb/Y+DEND7gn7lhvSOAGxvm/TtwWmn6amARsACYVJo/F/ifpent
+gVfSm8B0GpLBEPG9xMDE8XT/m2eTbc8BvpHGV6mHgUnnY8CtDdv/GjimtA9fLi37NPCLFvUOqKvN
+svsGeY32BP7c7BjRkHSaLH8O2CmN30CRsDdsWOc4ig8tOw1xrgwVx0Ol6bXSMfirVvvIwKRzcTqf
+3tKk7EGTTpP15wMfbCcuD+0P7l6zTYE/lqYfTfMANgN+12wjSQdJujV1hz1P0bJYpZuoiS2BPVL3
+y/Np248AG5fW+TawI3BuRLzasH35qrhHgUkULbThxvdsRKwoTb8ErJO23UPS3NT1s4TiE3w7+wbF
+sXu0Yd4feeOYQtFy6vdyf70dKnuwqwY3B/7YsN9NSTo1dU8uScfvzbxxnD8BbAv8JnWhHZzmX0LR
+Ov0/Krpqz5C0xgjiWHl8IuKlNFo+RoPt4z9RfAi5XdK9ko4bbD/LJB2dulX7z8t3MPB1Hyoua4OT
+jj1J8Ym63xbAE2n8MYpuoAEkrQn8CDiT4pPe+sA1tPcl7aPADRGxfmmYGhGfTWWvQ9Gy+DYwW6t+
+Z7NFw/irwDMdjA/gUuAqYLOIWA84nzf+V4a6GOMJisRatiVvHNPRaKfsweJ7DNhC0uqDVSJpH+Dz
+wGERsV46fi+Qjl9EPBwRH4mIjYAzgCskTYmI1yJiTkTsCOwFvB84eqRxDKLlPkbE0xHxyYh4C8WH
+hfNUumKtFUlbAhcAnwWmpX2+F1940HFOOhPL5PRlb/+wBkUf+D9L2lDShsBpwPfT+t8BjpO0n6TV
+JL1F0nYUfeWTKd7sV0g6iKJbrh0/A7aV9FFJk9Lwt5L6L139JnB7RHwS+DnFG34/AR+VtL2ktSi+
+j7o8Un9HeT9HER8Un16fj4jlknanaIn117GYoltl6xbb/iLt31GS1pB0BPD2tN/l/RiJa0ZZ9m0U
+382cLmmtdA7s1WS9qcBrwDOSJks6DVh3ZQXFa7dRmnyB4tiskLSvpJ1SMllK8YHg9VHE0UrLfUwX
+CGyWJpf0x5amn6b167Z2WvcZYLXUQnrHMGKyNjnpTCzXUHQj9Q+nAf8C3Anck4Y70zwi4g6Kfvqz
+Kf6B68AWEbEUOBG4jKKv/yiK72HKmn4ajYhlFAngSIpP6E8BXwPWlHRIWvbptPrngF0kHVUq8xLg
+orTd5BTHgDpHE1/yGWCOpBeBrwI/LMX/EvCvwLx0FdMelC5Hj4hnKT7hn0LxBnYq8P6IeK5F3UNd
+yr5yWSpjOGUPLKjozvoARev1UYoWx+FN4rg2Db+l+NL+ZQZ26x0A3CtpKcW5cWREvELRRXo5RSK6
+n+J8WeX3M8OIo9U+DXa8dgNuTbFdTfE93h/Ssj7g4tR99mEGvm73U1zYcAtFN9o7gJsb6hxOHNaC
+Vv2QaFZNkuZSXK12YbdjMbORcUvHxhv3sZuNY046Nt64aW42jrl7zczMsnFLx8zMsmn2w62eJ8nN
+OzOzEYiIUX2vOmFbOt2+FUTjMGvWrK7H4Jh6J6aqxuWYxndMnTBhk46ZmeU3IS8kkBRjtd/q7UeY
+mFkmVXtv7uvrY/bs2YS716onRjDMHeF2Yzk4pvEbU1XjckztDVVUq9U6Uo5bOp0vu7InjZmND4LK
+tXQgvb+5pWNmZuOFk46ZmWXjpGNmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNpVKOpKW
+NUwfK+ncEZTzN5IO6lxkZmbWCZVKOqx6B4iR/iR3BvC+UcZiZmYdVrWk02jl7RYkTZf0n5IWSvqV
+pM3T/MMkLZK0QFJd0iRgDnCEpPmSDutW8GZmNlCl7r0m6TVgUWnWNODqiDhR0k+ByyLiEknHAR+M
+iA9Jugc4ICKekrRuRLwo6Rhg14g4sUU9vveamVVWL997rWpPDn05Imb0T6TksVuafBdwaBr/PnBm
+Gp8HXCzpMuDK/k0ptZKa6evrWzleq9U6dgdVM7NeUa/XqdfrHS2zai2dpRExtTR9LEWL5QRJi4G/
+jojXUhfakxGxUVpvd+Bg4GhgV+CD/du1qMctHTOrrF5u6VT9O52yXwNHpvGZwI0AkraOiNsjYhaw
+GNgMeBGY2rQUMzPrmqolnWZXr/XPOwE4TtJCiqRzUpp/pqR7JC0C5kXEPRTPZdrBFxKYmVVLpbrX
+cnH3mplVmbvXzMzMOsBJx8zMsnHSMTOzbJx0zMwsGycdMzPLxknHzMyycdIxM7NsnHTMzCwbJx0z
+M8vGScfMzLKp2qMNesKo7hFhZtbDnHQ6rIr3SzIzqwp3r5mZWTZOOmZmlo2TjpmZZeOkY2Zm2Tjp
+mJlZNk46ZmaWjS+Zto6Q/Osks07q1Z9fOOlYx/Tmv4hZfr38Ec7da2Zmlo2TjpmZZeOkY2Zm2Tjp
+mJlZNk46ZmaWjZOOmZll46RjZmbZOOmYmVk2Y5Z0JL0uab6kRZIukzRlmNtvKemo0vSukr7Z+UjN
+zCyXsWzpvBQRMyJiJ2A58Klhbr8V8JH+iYi4KyJO6mSAZmaWV67utZuBbSStL+kqSQsl3SJpJwBJ
+702tovmS7pK0DnA6sE+ad7KkmqSfpvX7JF0oaa6k30k6ob8iSV+V9ICkmyRdKumUTPtoZmZDGPN7
+r0laAzgQ+AUwB7grIg6VtC/wPWAGcArwmYi4RdJawCvAF4BTI+IDqZxaQ9HbAvsC6wIPSjoP2AX4
+e+CdwGTgbuDOsd1DMzNr11gmnSmS5qfxG4ELgdsokgIRMVfSBpKmAvOAsyX9B3BlRDyhwW9bHMDP
+I+JV4FlJfwY2Ad4NXBURy4HlqWXUtJy+vr6V47VajVqtNvI9NTPrQfV6nXq93tEyxzLpvBwRM8oz
+Uh5pTAIREWdI+hlwMDBP0gFtlL+8NP46xb5EQ/ktE1c56ZiZ2aoaP5DPnj171GXmvmT6JmAmrOwu
+WxwRyyRtHRH3RcSZwB3AdsCLwNQW5TRLJkHRYvqApDXT90IH4zvum5lVxli2dJq92fcBF0paCPwF
+OCbNPyl9x7MCuJfi+58AXpe0ALgImF8qM5qVHxF3SvoJcA/wNLAIeKFD+2NmZqOkXns6naS1I+Iv
+6YKEG4D/HhELGtaJXtvvbpPkJqVZh4hqPjlUEhExqmfM9eKTQy+QtAPwJuCixoRjZmbd03MtnXa4
+pdN5bumYdU4vt3R87zUzM8vGScfMzLJx0jEzs2ycdMzMLBsnHTMzy8ZJx8zMsnHSMTOzbJx0zMws
+m168I4F1yah+MWZmE4KTjnVEFX89bWbV4+41MzPLxknHzMyycdIxM7NsnHTMzCwbJx0zM8vGScfM
+zLLxJdM2Lkj+FZBNLL36MwQnHRs3evNf0GxVvfwRy91rZmaWjZOOmZll46RjZmbZOOmYmVk2Tjpm
+ZpaNk46ZmWXjpGNmZtk46ZiZWTZdTTqSVkj6X6XpUyXNSuN9kv4iaaPS8qWSpklaIGm+pKckPZ7G
+75Y0SdLraXqRpMskTenGvpmZ2aq63dJZDnxI0gZpuvFH588Ap5RnRMRzEbFzRMwAzge+EREzImKX
+iHgVeClN75TK/9QY74OZmbWp20nnVeAC4B+bLAvgQuAISesNUsZgd4y4Gdhm5OGZmVkndTvpAJwH
+zJS0bpNlyygSz8nDLVTSGsBBwD2jC8/MzDql60knIpYC3wNObLYY+BZwjKR12ixyiqT5wB3AH4Dv
+dCJOMzMbvarcZfoc4G7guw3zFREvSLoU+B9tlvVy+r5nUH19fSvHa7UatVqtzeLNzCaGer1OvV7v
+aJnq5jMbJC2NiKlp/AzgSOA7ETFHUh+wNCLOShca3AlsEhFTStvPApZFxFnNyhyk3ujVZ1X0Kkl+
+tIFNGKKaz9ORRESM6skL3e5eKx/Vs4ANG5YFQEQ8C1wJTB6ijGbTZmZWEV1t6XSLWzrjj1s6NpG4
+pWNmZtYBTjpmZpaNk46ZmWXjpGNmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNk46ZmaW
+TVXuMm02pFHde8PMKsFJx8aFKt6HysyGz91rZmaWjZOOmZll46RjZmbZOOmYmVk2TjpmZpaNk46Z
+mWXjS6bNbFyTevMXXL36MwEnHTMb93rt7bk302jB3WtmZpaNk46ZmWXjpGNmZtk46ZiZWTZOOmZm
+lo2TjpmZZeOkY2Zm2TjpmJlZNuM+6Ug6VtK53Y7DzMyGNu6TjpmZjR+VTzqSPirpNknzJZ0vaTVJ
+x0l6UNJtwF6ldS+S9A+l6WVdCdrMzJqqdNKRtD1wOLBXRMwAXgc+BvRRJJu9gR1449ZLjbdg6rVb
+MpmZjWtVv+Hn/sCuwJ3pTrJTKJLN3Ih4FkDSD4FtuxahmZm1repJB+DiiPhy/4SkQ4C/Ly0v35D1
+NVLrTdJqwORWhfb19a0cr9Vq1Gq1zkRrZtYj6vU69Xq9o2Wqys9sSN1rVwPvjojFkqYBU4EbgF2A
+pcB/AvMj4kRJXwGmRsQXJR0KXBkRq3QhSooq77eZtU9Sz/Wji2o+T0cSETGqJy9UuqUTEb+R9M/A
+danl8irwWYrvdG4BlgDzS5v8b+BqSQuAawFfSGBmViGVbumMFbd0zHqHWzr5dKKlU+mr18zMrLc4
+6ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNk46ZmaWjZOOmZll46RjZmbZOOmYmVk2TjpmZpZN
+pW/4aWbWjlHdDMyyctIxs3GtijfGtNbcvWZmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2fjqNTOz
+FqTuXYzdq1flOemYmQ2iG2/9vfy7I3evmZlZNk46ZmaWjZOOmZll46RjZmbZOOmYmVk2TjpmZpaN
+k46ZmWXjpGNmZtk46ZiZWTZduSOBpA2AX6XJTYDXgcXAdODJiNixG3GZmdnY6kpLJyKejYgZETED
+OB/4RhrfGVgx0nIlrd6pGM3MrPOq0r2m0t/VJV0g6V5Jv5T0JgBJW0v6haQ7Jd0oabs0/yJJ50u6
+FTij1XpmZtZ9VUk6ZW8D/i0i3gEsAf4hzb8AOCEidgM+D5xX2mZTYM+IOHWI9czMrIuqeJfpRyLi
+njR+FzBd0trAXsDlpVuNT05/A7g8IkLSOsCeLdYboK+vb+V4rVajVqt1cBfMzMa/er1OvV7vaJnq
+9jMbJM0ClkXEWZKmAz+NiJ3SslOAtYGzgQcjYtMm238X+FlE/EjSusADzdZr2Ca6vd9mVn2SuvZo
+gyq+R0kiIkb15IUqdq81UkQsBR6R9GEAFd7ZuGJEvNjOemZm1h1VSTrRYrw8PRP4hKQFwL3AB1ts
+M9h6ZmbWRV3vXusGd6+ZWTvcvTbQROleMzOzHuGkY2Zm2TjpmJlZNk46ZmaWjZOOmZll46RjZmbZ
+OOmYmVk2TjpmZpaNk46ZmWXjpGNmZtlU8dEGZmaVMap7vtgqnHTMzFqo4v3Pxjt3r5mZWTZOOmZm
+lo2TjpmZZeOkY2Zm2TjpmJlZNr56zcysYqTOXqhdpavwnHTMzKqor2LldIi718zMLBsnHTMzy8ZJ
+x8zMsnHSMTOzbJx0zMwsGycdMzPLxknHzMyycdIxM7NsnHTMzCybQZOOpOmSFjXM65N0yiDb7Crp
+m50KsEUd89LfLSUdNZZ1mZlZ54ykpTPoTXwi4q6IOGmE8awkqeUteiLi3Wl0K+Ajo63LzMzyGHH3
+mqS5kk6XdJukByXtnebXJP1UhUckvbm0zUOSNkrDFZJuT8NeaXmfpEsk3QxcLGnHtHy+pIWStk7r
+LUtFng7sk5afLOkGSX9Tqu9mSTuNdB/NzKyzRnvDz9UjYg9JBwGzgL/rXxARIelq4EPARZL2AB6J
+iMWSLgXOjoh5krYArgV2SJu+Hdg7Il6R9C3gnIi4NLV8+uPtb219ATg1Ij4AIOk54FjgHyVtC6wZ
+EQO6B83MrHuGSjqtutL651+Z/t4NTG+y3g+B04CLgCPTNMB/AbYv3b57qqS1U7k/iYhX0vxbgK9I
+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
 "
 >
 </div>
@@ -2408,19 +2190,18 @@ iCSpEwNEktSJASJJ6sQAkSR1YoBIkjoxQCRJnRggkqRO/j9/hhA6h3TboQAAAABJRU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The explanations can also be exported as an html page (which we can render here in this notebook), which uses D3.js to render graphs.<br>Note that which graphs appear can be controlled by the &#39;include&#39; parameter.</p>
+<p>The explanations can also be exported as an html page (which we can render here in this notebook), which uses D3.js to render graphs.  </p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[13]:
+In&nbsp;[11]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
-<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">as_html</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;predict_proba&#39;</span><span class="p">,</span> <span class="s">&#39;pos&#39;</span><span class="p">,</span> <span class="s">&#39;neg&#39;</span><span class="p">,</span> <span class="s">&#39;local&#39;</span><span class="p">])))</span>
+<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -14609,13 +14390,19 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
         <script>var Explanation = function(class_names) {
   this.names = class_names;
   this.names.push('Other');
-  this.colors = d3.scale.category10().domain(this.names);
-  this.colors_i = d3.scale.category10().domain(_.range(this.names.length));
+  if (class_names.length < 10) {
+    this.colors = d3.scale.category10().domain(this.names);
+    this.colors_i = d3.scale.category10().domain(_.range(this.names.length));
+  }
+  else {
+    this.colors = d3.scale.category20().domain(this.names);
+    this.colors_i = d3.scale.category20().domain(_.range(this.names.length));
+  }
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
      .style('width', 250);
-  this.bar_x = 90;
+  this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
@@ -14695,7 +14482,7 @@ Explanation.prototype.MapClasses = function(class_names, predict_proba) {
 
 Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title, show_numbers) {
   var bar_height = 17;
-  var yshift = 20;
+  var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var width = 250;
   var bar_width = max_weight > .2 ? 110 : 500;
@@ -14703,13 +14490,17 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var x_offset = width / 2;
-  console.log(max_weight);
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
      .style('height', yshift + total_height + 10);
   svg.append('text')
      .text(title)
      .attr('y', 20)
+     .attr('x', x_offset)
+     .attr('text-anchor', 'middle')
+  svg.append('text')
+     .text('(' + this.names[class_id] + ')')
+     .attr('y', 35)
      .attr('x', x_offset)
      .attr('text-anchor', 'middle')
   var yscale = d3.scale.linear()
@@ -14725,6 +14516,9 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
+      if (this.names.length >= 20 && score < 0) {
+        color = '#5F9EA0';
+      }
     }
     var bar = svg.append('rect')
                  .attr('height', bar_height)
@@ -14756,8 +14550,14 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
 }
 
 Explanation.prototype.UpdateColors = function(div, class_id) {
+  div.style('width', '550px')
+     .style('float', 'left');
   var pos_color = this.colors_i(class_id);
   var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
+  if (this.names.length >= 20) {
+    neg_color = '#5F9EA0';
+  }
+
   div.selectAll('.pos').style('background-color', pos_color);
   div.selectAll('.neg').style('background-color', neg_color);
 }
@@ -14765,22 +14565,16 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartFCS2PR3OHF5NRKO" style="display:flex; justify-content:space-between;"></div>
+        <div id="mychartHZ6BJM19MMBJHRI" style="float:left"></div>
         
         <script>
         var exp = new Explanation(["atheism", "christian"]);
         
-            var svg = d3.select('#mychartFCS2PR3OHF5NRKO').append('svg');
-            exp.PredictProba(svg, [0.56799999999999995, 0.432]);
+            var svg = d3.select('#mychartHZ6BJM19MMBJHRI').append('svg');
+            exp.PredictProba(svg, [0.51000000000000001, 0.48999999999999999]);
             
-                var svg2 = d3.select('#mychartFCS2PR3OHF5NRKO').append('svg');
-                exp.ExplainFeatures(svg2, 1, [["unm", 0.069063685887780002], ["anyone", 0.013922823800827726], ["New", 0.012442041655769306], ["Subject", 0.010746715208668269], ["obtain", 0.0095627750763199043], ["Fish", 0.0091235187143477118]], 'Most positive towards christian', false);
-            
-                var svg3 = d3.select('#mychartFCS2PR3OHF5NRKO').append('svg');
-                exp.ExplainFeatures(svg3, 1, [["Posting", -0.13999490066549689], ["Host", -0.13516354159305322], ["NNTP", -0.10953508101383906], ["edu", -0.038412011452849178], ["an", -0.0071120872995531588], ["There", -0.0061164680249299599]], 'Most negative towards christian', false);
-            
-                var svg4 = d3.select('#mychartFCS2PR3OHF5NRKO').append('svg');
-                exp.ExplainFeatures(svg4, 1, [["Posting", -0.12231300695271001], ["Host", -0.11657555721362646], ["NNTP", -0.094120599487673234], ["unm", 0.094010015457631102], ["Subject", 0.028612113238056389], ["obtain", 0.027527449506456934]], 'Local explanation', true);
+                var svg0 = d3.select('#mychartHZ6BJM19MMBJHRI').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["Host", -0.14734602227239837], ["Posting", -0.11400047791131808], ["NNTP", -0.10109257117921416], ["edu", -0.028540629623386941], ["There", -0.016225589867137624], ["University", 0.0098423216357678891]], 'Local explanation', true);
             </script></body></html>
 </div>
 
@@ -14795,18 +14589,18 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, we can also include a visualization of the original document, with the words in the explanations highlighted.</p>
+<p>Finally, we can also include a visualization of the original document, with the words in the explanations highlighted. Notice how the words that affect the classifier the most are all in the email header.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[14]:
+In&nbsp;[12]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">as_html</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">])))</span>
+<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -26995,13 +26789,19 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
         <script>var Explanation = function(class_names) {
   this.names = class_names;
   this.names.push('Other');
-  this.colors = d3.scale.category10().domain(this.names);
-  this.colors_i = d3.scale.category10().domain(_.range(this.names.length));
+  if (class_names.length < 10) {
+    this.colors = d3.scale.category10().domain(this.names);
+    this.colors_i = d3.scale.category10().domain(_.range(this.names.length));
+  }
+  else {
+    this.colors = d3.scale.category20().domain(this.names);
+    this.colors_i = d3.scale.category20().domain(_.range(this.names.length));
+  }
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
      .style('width', 250);
-  this.bar_x = 90;
+  this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
@@ -27081,7 +26881,7 @@ Explanation.prototype.MapClasses = function(class_names, predict_proba) {
 
 Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title, show_numbers) {
   var bar_height = 17;
-  var yshift = 20;
+  var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var width = 250;
   var bar_width = max_weight > .2 ? 110 : 500;
@@ -27089,13 +26889,17 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var x_offset = width / 2;
-  console.log(max_weight);
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
      .style('height', yshift + total_height + 10);
   svg.append('text')
      .text(title)
      .attr('y', 20)
+     .attr('x', x_offset)
+     .attr('text-anchor', 'middle')
+  svg.append('text')
+     .text('(' + this.names[class_id] + ')')
+     .attr('y', 35)
      .attr('x', x_offset)
      .attr('text-anchor', 'middle')
   var yscale = d3.scale.linear()
@@ -27111,6 +26915,9 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
+      if (this.names.length >= 20 && score < 0) {
+        color = '#5F9EA0';
+      }
     }
     var bar = svg.append('rect')
                  .attr('height', bar_height)
@@ -27142,8 +26949,14 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
 }
 
 Explanation.prototype.UpdateColors = function(div, class_id) {
+  div.style('width', '550px')
+     .style('float', 'left');
   var pos_color = this.colors_i(class_id);
   var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
+  if (this.names.length >= 20) {
+    neg_color = '#5F9EA0';
+  }
+
   div.selectAll('.pos').style('background-color', pos_color);
   div.selectAll('.neg').style('background-color', neg_color);
 }
@@ -27151,24 +26964,18 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartI70BGL427T3BQG6" style="display:flex; justify-content:space-between;"></div>
-        <div id="mytextI70BGL427T3BQG6"><h3>Text with highlighted words</h3>From: johnchad@triton.<span class="pos">unm</span>.<span class="neg">edu</span> (jchadwic)<br /><span class="pos">Subject</span>: Another request for Darwin <span class="pos">Fish</span><br />Organization: University of <span class="pos">New</span> Mexico, Albuquerque<br />Lines: 11<br /><span class="neg">NNTP</span>-<span class="neg">Posting</span>-<span class="neg">Host</span>: triton.<span class="pos">unm</span>.<span class="neg">edu</span><br /><br />Hello Gang,<br /><br /><span class="neg">There</span> have been some notes recently asking where to <span class="pos">obtain</span> the DARWIN fish.<br />This is the same question I have and I have not seen <span class="neg">an</span> answer on the<br />net. If <span class="pos">anyone</span> has a contact please post on the net or email me.<br /><br />Thanks,<br /><br />john chadwick<br />johnchad@triton.<span class="pos">unm</span>.<span class="neg">edu</span><br />or<br /></div>
+        <div id="mychartC4ZFA09KR7L7Z1E" style="float:left"></div>
+        <div id="mytextC4ZFA09KR7L7Z1E"><h3>Text with highlighted words</h3>From: johnchad@triton.unm.<span class="neg">edu</span> (jchadwic)<br />Subject: Another request for Darwin Fish<br />Organization: <span class="pos">University</span> of New Mexico, Albuquerque<br />Lines: 11<br /><span class="neg">NNTP</span>-<span class="neg">Posting</span>-<span class="neg">Host</span>: triton.unm.<span class="neg">edu</span><br /><br />Hello Gang,<br /><br /><span class="neg">There</span> have been some notes recently asking where to obtain the DARWIN fish.<br />This is the same question I have and I have not seen an answer on the<br />net. If anyone has a contact please post on the net or email me.<br /><br />Thanks,<br /><br />john chadwick<br />johnchad@triton.unm.<span class="neg">edu</span><br />or<br /></div>
         <script>
         var exp = new Explanation(["atheism", "christian"]);
         
-            var svg = d3.select('#mychartI70BGL427T3BQG6').append('svg');
-            exp.PredictProba(svg, [0.56799999999999995, 0.432]);
+            var svg = d3.select('#mychartC4ZFA09KR7L7Z1E').append('svg');
+            exp.PredictProba(svg, [0.51000000000000001, 0.48999999999999999]);
             
-                var svg2 = d3.select('#mychartI70BGL427T3BQG6').append('svg');
-                exp.ExplainFeatures(svg2, 1, [["unm", 0.069063685887780002], ["anyone", 0.013922823800827726], ["New", 0.012442041655769306], ["Subject", 0.010746715208668269], ["obtain", 0.0095627750763199043], ["Fish", 0.0091235187143477118]], 'Most positive towards christian', false);
+                var svg0 = d3.select('#mychartC4ZFA09KR7L7Z1E').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["Host", -0.14734602227239837], ["Posting", -0.11400047791131808], ["NNTP", -0.10109257117921416], ["edu", -0.028540629623386941], ["There", -0.016225589867137624], ["University", 0.0098423216357678891]], 'Local explanation', true);
             
-                var svg3 = d3.select('#mychartI70BGL427T3BQG6').append('svg');
-                exp.ExplainFeatures(svg3, 1, [["Posting", -0.13999490066549689], ["Host", -0.13516354159305322], ["NNTP", -0.10953508101383906], ["edu", -0.038412011452849178], ["an", -0.0071120872995531588], ["There", -0.0061164680249299599]], 'Most negative towards christian', false);
-            
-                var svg4 = d3.select('#mychartI70BGL427T3BQG6').append('svg');
-                exp.ExplainFeatures(svg4, 1, [["Posting", -0.12231300695271001], ["Host", -0.11657555721362646], ["NNTP", -0.094120599487673234], ["unm", 0.094010015457631102], ["Subject", 0.028612113238056389], ["obtain", 0.027527449506456934]], 'Local explanation', true);
-            
-            var text_div = d3.select('#mytextI70BGL427T3BQG6');
+            var text_div = d3.select('#mytextC4ZFA09KR7L7Z1E');
             exp.UpdateColors(text_div, 1);
             </script></body></html>
 </div>
@@ -27178,6 +26985,15 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>That&#39;s it for this tutorial. Random forests were just an example, this explainer works for any classifier you may want to use, as long as it implements predict_proba.</p>
+</div>
+</div>
 </div>
     </div>
   </div>
