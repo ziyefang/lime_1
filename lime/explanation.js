@@ -13,7 +13,7 @@ var Explanation = function(class_names) {
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
      .style('width', 250);
-  this.bar_x = 90;
+  this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
@@ -93,7 +93,7 @@ Explanation.prototype.MapClasses = function(class_names, predict_proba) {
 
 Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title, show_numbers) {
   var bar_height = 17;
-  var yshift = 20;
+  var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var width = 250;
   var bar_width = max_weight > .2 ? 110 : 500;
@@ -107,6 +107,11 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   svg.append('text')
      .text(title)
      .attr('y', 20)
+     .attr('x', x_offset)
+     .attr('text-anchor', 'middle')
+  svg.append('text')
+     .text('(' + this.names[class_id] + ')')
+     .attr('y', 35)
      .attr('x', x_offset)
      .attr('text-anchor', 'middle')
   var yscale = d3.scale.linear()
@@ -156,6 +161,8 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
 }
 
 Explanation.prototype.UpdateColors = function(div, class_id) {
+  div.style('width', '550px')
+     .style('float', 'left');
   var pos_color = this.colors_i(class_id);
   var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
   if (this.names.length >= 20) {

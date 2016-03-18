@@ -11,8 +11,7 @@ setup(name='lime',
       install_requires=[
           'numpy',
           'scipy',
-          'scikit-learn',
-          'matplotlib'
+          'scikit-learn'
       ],
       include_package_data=True,
       zip_safe=False)

@@ -49,9 +49,7 @@ class LimeTextExplainer(object):
                          labels=(1,),
                          top_labels=None,
                          num_features=10,
-                         num_samples=5000,
-                         local_explanation=True,
-                         top_words=True):
+                         num_samples=5000):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly hiding features from
@@ -71,13 +69,6 @@ class LimeTextExplainer(object):
                         where K is this parameter.
             num_features: maximum number of features present in explanation
             num_samples: size of the neighborhood to learn the linear model
-            local_explanation: if true, learn a local explanation where features
-                               can be positive or negative. This should provide
-                               you with an understanding of how the classifier
-                               behaves around the example.
-            top_words: if true, also include in the returned object lists of the
-                       most positive and most negative words towards the labels
-                       of interest.
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
@@ -97,17 +88,10 @@ class LimeTextExplainer(object):
             ret_exp.top_labels = list(labels)
             ret_exp.top_labels.reverse()
         for label in labels:
-            if local_explanation:
-                ret_exp.local_exp[label] = map_exp(
-                    self.base.explain_instance_with_data(
-                        data, yss, distances, label, num_features,
-                        feature_selection=self.feature_selection))
-            if top_words:
-                exp = map_exp(self.base.explain_instance_with_data(
-                    data, yss, distances, label, num_features, feature_selection='none'))
-                sign = lambda z: 1 if z > 0 else -1
-                ret_exp.top_pos[label] = [x for x in exp if sign(x[1]) == 1][:num_features]
-                ret_exp.top_neg[label] = [x for x in exp if sign(x[1]) == -1][:num_features]
+            ret_exp.local_exp[label] = map_exp(
+                self.base.explain_instance_with_data(
+                    data, yss, distances, label, num_features,
+                    feature_selection=self.feature_selection))
         return ret_exp
     @staticmethod
     def __data_labels_distances_mapping(instance, classifier_fn, num_samples):
