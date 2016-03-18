@@ -35,13 +35,72 @@ class LimeBase(object):
                                                   method='lasso',
                                                   verbose=False)
         return alphas, coefs
+    @staticmethod
+    def forward_selection(data, labels, weights, num_features):
+        """Iteratively adds features to the model"""
+        clf = linear_model.Ridge(alpha=0, fit_intercept=True)
+        used_features = []
+        for _ in range(num_features):
+            max_ = -100000000
+            best = 0
+            for feature in range(data.shape[1]):
+                if feature in used_features:
+                    continue
+                clf.fit(data[:, used_features + [feature]], labels, sample_weight=weights)
+                score = clf.score(data[:, used_features + [feature]],
+                                  labels,
+                                  sample_weight=weights)
+                if score > max_:
+                    best = feature
+                    max_ = score
+            used_features.append(best)
+        return np.array(used_features)
+
+    def feature_selection(self, data, labels, weights, num_features, method):
+        """Selects features for the model. see explain_instance_with_data to
+           understand the parameters."""
+        if method == 'none':
+            return np.array(range(data.shape[1]))
+        elif method == 'forward_selection':
+            return self.forward_selection(data, labels, weights, num_features)
+        elif method == 'highest_weights':
+            clf = linear_model.Ridge(alpha=0, fit_intercept=True)
+            clf.fit(data, labels, sample_weight=weights)
+            feature_weights = sorted(zip(range(data.shape[0]), clf.coef_),
+                                     key=lambda x: np.abs(x[1]),
+                                     reverse=True)
+            return np.array([x[0] for x in feature_weights[:num_features]])
+        elif method == 'lasso_path':
+            weighted_data = data * weights[:, np.newaxis]
+            mean = np.mean(labels)
+            shifted_labels = labels - mean
+            weighted_labels = shifted_labels * weights
+            used_features = range(weighted_data.shape[1])
+            nonzero = range(weighted_data.shape[1])
+            _, coefs = self.generate_lars_path(weighted_data,
+                                               weighted_labels)
+            for i in range(len(coefs.T) - 1, 0, -1):
+                nonzero = coefs.T[i].nonzero()[0]
+                if len(nonzero) <= num_features:
+                    break
+            used_features = nonzero
+            return used_features
+        elif method == 'auto':
+            if num_features <= 6:
+                n_method = 'forward_selection'
+            else:
+                n_method = 'highest_weights'
+            return self.feature_selection(data, labels, weights,
+                                          num_features, n_method)
+
+
     def explain_instance_with_data(self,
                                    neighborhood_data,
                                    neighborhood_labels,
                                    distances,
                                    label,
                                    num_features,
-                                   all_features=False):
+                                   feature_selection='auto'):
         """Takes perturbed data, labels and distances, returns explanation.
 
         Args:
@@ -52,8 +111,17 @@ class LimeBase(object):
             distances: distances to original data point.
             label: label for which we want an explanation
             num_features: maximum number of features in explanation
-            all_features: if true, ignore num_features and explain using all the
-                          features.
+            feature_selection: how to select num_features. options are:
+                'forward_selection': iteratively add features to the model. This
+                                     is costly when num_features is high
+                'highest_weights': selects the features that have the highest
+                                   absolute weights when learning with all the
+                                   features
+                'lasso_path': chooses features based on the lasso regularization
+                              path
+                'none': uses all features, ignores num_features
+                'auto': uses forward_selection if num_features <= 6, and
+                        'highest_weights' otherwise.
 
         Returns:
             A sorted list of tuples, where each tuple (x,y) corresponds to the
@@ -61,29 +129,21 @@ class LimeBase(object):
             decreasing absolute value of y.
         """
         weights = self.kernel_fn(distances)
-        weighted_data = neighborhood_data * weights[:, np.newaxis]
-        mean = np.mean(neighborhood_labels[:, label])
-        shifted_labels = neighborhood_labels[:, label] - mean
-        if self.verbose:
-            print 'Explaining from mean=', mean
-        weighted_labels = shifted_labels * weights
-        used_features = range(weighted_data.shape[1])
-        if not all_features:
-            nonzero = used_features
-            _, coefs = self.generate_lars_path(weighted_data,
-                                               weighted_labels)
-            for i in range(len(coefs.T) - 1, 0, -1):
-                nonzero = coefs.T[i].nonzero()[0]
-                if len(nonzero) <= num_features:
-                    break
-            used_features = nonzero
+        labels_column = neighborhood_labels[:, label]
+        used_features = self.feature_selection(neighborhood_data,
+                                               labels_column,
+                                               weights,
+                                               num_features,
+                                               feature_selection)
 
-        debiased_model = linear_model.Ridge(alpha=0, fit_intercept=False)
-        debiased_model.fit(weighted_data[:, used_features], weighted_labels)
+        easy_model = linear_model.Ridge(alpha=1, fit_intercept=True)
+        easy_model.fit(neighborhood_data[:, used_features],
+                       labels_column, sample_weight=weights)
         if self.verbose:
-            local_pred = debiased_model.predict(
-                neighborhood_data[0, used_features].reshape(1, -1)) + mean
+            local_pred = easy_model.predict(
+                neighborhood_data[0, used_features].reshape(1, -1))
+            print 'Intercept', easy_model.intercept_
             print 'Prediction_local', local_pred,
             print 'Right:', neighborhood_labels[0, label]
-        return sorted(zip(used_features, debiased_model.coef_),
+        return sorted(zip(used_features, easy_model.coef_),
                       key=lambda x: np.abs(x[1]), reverse=True)

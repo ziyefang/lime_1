@@ -15,7 +15,8 @@ class LimeTextExplainer(object):
                  kernel_width=25,
                  verbose=False,
                  vocabulary=None,
-                 class_names=None):
+                 class_names=None,
+                 feature_selection='auto'):
         """Init function.
 
         Args:
@@ -26,12 +27,18 @@ class LimeTextExplainer(object):
             class_names: list of class names, ordered according to whatever the
                          classifier is using. If not present, class names will
                          be '0', '1', ...
+            feature_selection: feature selection method. can be
+                'forward_selection', 'lasso_path', 'none' or 'auto'.
+                See function 'explain_instance_with_data' in lime_base.py for
+                details on what each of the options does.
+
         """
         # exponential kernel
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.base = lime_base.LimeBase(kernel, verbose)
         self.class_names = class_names
         self.vocabulary = None
+        self.feature_selection = feature_selection
         if vocabulary:
             terms = np.array(list(vocabulary.keys()))
             indices = np.array(list(vocabulary.values()))
@@ -93,10 +100,11 @@ class LimeTextExplainer(object):
             if local_explanation:
                 ret_exp.local_exp[label] = map_exp(
                     self.base.explain_instance_with_data(
-                        data, yss, distances, label, num_features))
+                        data, yss, distances, label, num_features,
+                        feature_selection=self.feature_selection))
             if top_words:
                 exp = map_exp(self.base.explain_instance_with_data(
-                    data, yss, distances, label, num_features, all_features=True))
+                    data, yss, distances, label, num_features, feature_selection='none'))
                 sign = lambda z: 1 if z > 0 else -1
                 ret_exp.top_pos[label] = [x for x in exp if sign(x[1]) == 1][:num_features]
                 ret_exp.top_neg[label] = [x for x in exp if sign(x[1]) == -1][:num_features]
