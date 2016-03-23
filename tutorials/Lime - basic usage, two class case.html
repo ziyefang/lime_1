@@ -1776,8 +1776,8 @@ In&nbsp;[4]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">c</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">ensemble</span><span class="o">.</span><span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+<div class="highlight"><pre><span class="n">rf</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">ensemble</span><span class="o">.</span><span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -1816,7 +1816,7 @@ In&nbsp;[5]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">pred</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">)</span>
+<div class="highlight"><pre><span class="n">pred</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">)</span>
 <span class="n">sklearn</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">f1_score</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="s">&#39;binary&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -1834,7 +1834,7 @@ In&nbsp;[5]:
 
 <div class="output_text output_subarea output_pyout">
 <pre>
-0.92093023255813955
+0.92200232828870776
 </pre>
 </div>
 
@@ -1868,7 +1868,7 @@ In&nbsp;[5]:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>First, we create an explainer object. We have as arguments the class names and the vocabulary for ease of display later. If you don&#39;t include the vocabulary, explanations are based on feature IDs instead of words.</p>
+<p>Lime explainers assume that classifiers act on raw text, but sklearn classifiers act on vectorized representation of texts. For this purpose, we provide a class that takes in a classifier and vectorizer, and implements predict_proba on raw_text lists.</p>
 </div>
 </div>
 </div>
@@ -1880,7 +1880,64 @@ In&nbsp;[6]:
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">lime</span> <span class="kn">import</span> <span class="n">lime_text</span>
-<span class="n">explainer</span> <span class="o">=</span> <span class="n">lime_text</span><span class="o">.</span><span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">=</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">lime.lime_text</span> <span class="kn">import</span> <span class="n">ScikitClassifier</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ScikitClassifier</span><span class="p">(</span><span class="n">rf</span><span class="p">,</span> <span class="n">vectorizer</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">
+In&nbsp;[7]:
+</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class="highlight"><pre><span class="k">print</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">([</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+[[ 0.266  0.734]]
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we create an explainer object. We pass the class_names a an argument for prettier display.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">
+In&nbsp;[8]:
+</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">lime.lime_text</span> <span class="kn">import</span> <span class="n">LimeTextExplainer</span>
+<span class="n">explainer</span> <span class="o">=</span> <span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -1900,14 +1957,14 @@ In&nbsp;[6]:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[7]:
+In&nbsp;[9]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="n">idx</span> <span class="o">=</span> <span class="mi">83</span>
-<span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 <span class="k">print</span> <span class="s">&#39;Document id: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">idx</span>
-<span class="k">print</span> <span class="s">&#39;Probability(christian) =&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span> <span class="s">&#39;Probability(christian) =&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">([</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]])[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
 <span class="k">print</span> <span class="s">&#39;True class: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">class_names</span><span class="p">[</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span>
 </pre></div>
 
@@ -1923,7 +1980,7 @@ In&nbsp;[7]:
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
 Document id: 83
-Probability(christian) = 0.49
+Probability(christian) = 0.428
 True class: atheism
 
 </pre>
@@ -1946,7 +2003,7 @@ True class: atheism
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[8]:
+In&nbsp;[10]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
@@ -1962,17 +2019,17 @@ In&nbsp;[8]:
 
 
 <div class="output_area"><div class="prompt output_prompt">
-    Out[8]:</div>
+    Out[10]:</div>
 
 
 <div class="output_text output_subarea output_pyout">
 <pre>
-[(u&apos;Host&apos;, -0.14734602227239837),
- (u&apos;Posting&apos;, -0.11400047791131808),
- (u&apos;NNTP&apos;, -0.10109257117921416),
- (u&apos;edu&apos;, -0.028540629623386941),
- (u&apos;There&apos;, -0.016225589867137624),
- (u&apos;University&apos;, 0.0098423216357678891)]
+[(u&apos;Host&apos;, -0.14329044450524472),
+ (u&apos;Posting&apos;, -0.13758664801145776),
+ (u&apos;NNTP&apos;, -0.11661675258723078),
+ (u&apos;edu&apos;, -0.045045062939243548),
+ (u&apos;University&apos;, 0.013943294921436089),
+ (u&apos;There&apos;, -0.011682855655710912)]
 </pre>
 </div>
 
@@ -1987,23 +2044,23 @@ In&nbsp;[8]:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>These weighted features are a linear model, which approximates the behaviour of the random forest classifier in the vicinity of the test example. Roughly, if we remove &#39;Posting&#39; and &#39;Host&#39; from the document , the prediction should move towards the opposite class (Christianity) by about 0.25 (the sum of the weights for both features). Let&#39;s see if this is the case.</p>
+<p>These weighted features are a linear model, which approximates the behaviour of the random forest classifier in the vicinity of the test example. Roughly, if we remove &#39;Posting&#39; and &#39;Host&#39; from the document , the prediction should move towards the opposite class (Christianity) by about 0.27 (the sum of the weights for both features). Let&#39;s see if this is the case.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[9]:
+In&nbsp;[11]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="k">print</span> <span class="s">&#39;Original prediction:&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<div class="highlight"><pre><span class="k">print</span> <span class="s">&#39;Original prediction:&#39;</span><span class="p">,</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">tmp</span> <span class="o">=</span> <span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">[</span><span class="s">&#39;Posting&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">[</span><span class="s">&#39;Host&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">print</span> <span class="s">&#39;Prediction removing some features:&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">tmp</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&#39;Difference:&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">tmp</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span> <span class="s">&#39;Prediction removing some features:&#39;</span><span class="p">,</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">tmp</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span> <span class="s">&#39;Difference:&#39;</span><span class="p">,</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">tmp</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -2017,9 +2074,9 @@ In&nbsp;[9]:
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
-Original prediction: 0.49
-Prediction removing some features: 0.728
-Difference: 0.238
+Original prediction: 0.428
+Prediction removing some features: 0.688
+Difference: 0.26
 
 </pre>
 </div>
@@ -2060,7 +2117,7 @@ Difference: 0.238
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[10]:
+In&nbsp;[12]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
@@ -2081,130 +2138,130 @@ In&nbsp;[10]:
 
 <div class="output_png output_subarea ">
 <img src="data:image/png;base64,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
-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
-iHgVeClN75TK/9QY74OZmbWp20nnVeAC4B+bLAvgQuAISesNUsZgd4y4Gdhm5OGZmVkndTvpAJwH
-zJS0bpNlyygSz8nDLVTSGsBBwD2jC8/MzDql60knIpYC3wNObLYY+BZwjKR12ixyiqT5wB3AH4Dv
-dCJOMzMbvarcZfoc4G7guw3zFREvSLoU+B9tlvVy+r5nUH19fSvHa7UatVqtzeLNzCaGer1OvV7v
-aJnq5jMbJC2NiKlp/AzgSOA7ETFHUh+wNCLOShca3AlsEhFTStvPApZFxFnNyhyk3ujVZ1X0Kkl+
-tIFNGKKaz9ORRESM6skL3e5eKx/Vs4ANG5YFQEQ8C1wJTB6ijGbTZmZWEV1t6XSLWzrjj1s6NpG4
-pWNmZtYBTjpmZpaNk46ZmWXjpGNmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNk46ZmaW
-TVXuMm02pFHde8PMKsFJx8aFKt6HysyGz91rZmaWjZOOmZll46RjZmbZOOmYmVk2TjpmZpaNk46Z
-mWXjS6bNbFyTevMXXL36MwEnHTMb93rt7bk302jB3WtmZpaNk46ZmWXjpGNmZtk46ZiZWTZOOmZm
-lo2TjpmZZeOkY2Zm2TjpmJlZNuM+6Ug6VtK53Y7DzMyGNu6TjpmZjR+VTzqSPirpNknzJZ0vaTVJ
-x0l6UNJtwF6ldS+S9A+l6WVdCdrMzJqqdNKRtD1wOLBXRMwAXgc+BvRRJJu9gR1449ZLjbdg6rVb
-MpmZjWtVv+Hn/sCuwJ3pTrJTKJLN3Ih4FkDSD4FtuxahmZm1repJB+DiiPhy/4SkQ4C/Ly0v35D1
-NVLrTdJqwORWhfb19a0cr9Vq1Gq1zkRrZtYj6vU69Xq9o2Wqys9sSN1rVwPvjojFkqYBU4EbgF2A
-pcB/AvMj4kRJXwGmRsQXJR0KXBkRq3QhSooq77eZtU9Sz/Wji2o+T0cSETGqJy9UuqUTEb+R9M/A
-danl8irwWYrvdG4BlgDzS5v8b+BqSQuAawFfSGBmViGVbumMFbd0zHqHWzr5dKKlU+mr18zMrLc4
-6ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNk46ZmaWjZOOmZll46RjZmbZOOmYmVk2TjpmZpZN
-pW/4aWbWjlHdDMyyctIxs3GtijfGtNbcvWZmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2fjqNTOz
-FqTuXYzdq1flOemYmQ2iG2/9vfy7I3evmZlZNk46ZmaWjZOOmZll46RjZmbZOOmYmVk2TjpmZpaN
-k46ZmWXjpGNmZtk46ZiZWTZduSOBpA2AX6XJTYDXgcXAdODJiNixG3GZmdnY6kpLJyKejYgZETED
-OB/4RhrfGVgx0nIlrd6pGM3MrPOq0r2m0t/VJV0g6V5Jv5T0JgBJW0v6haQ7Jd0oabs0/yJJ50u6
-FTij1XpmZtZ9VUk6ZW8D/i0i3gEsAf4hzb8AOCEidgM+D5xX2mZTYM+IOHWI9czMrIuqeJfpRyLi
-njR+FzBd0trAXsDlpVuNT05/A7g8IkLSOsCeLdYboK+vb+V4rVajVqt1cBfMzMa/er1OvV7vaJnq
-9jMbJM0ClkXEWZKmAz+NiJ3SslOAtYGzgQcjYtMm238X+FlE/EjSusADzdZr2Ca6vd9mVn2SuvZo
-gyq+R0kiIkb15IUqdq81UkQsBR6R9GEAFd7ZuGJEvNjOemZm1h1VSTrRYrw8PRP4hKQFwL3AB1ts
-M9h6ZmbWRV3vXusGd6+ZWTvcvTbQROleMzOzHuGkY2Zm2TjpmJlZNk46ZmaWjZOOmZll46RjZmbZ
-OOmYmVk2TjpmZpaNk46ZmWXjpGNmZtlU8dEGZmaVMap7vtgqnHTMzFqo4v3Pxjt3r5mZWTZOOmZm
-lo2TjpmZZeOkY2Zm2TjpmJlZNr56zcysYqTOXqhdpavwnHTMzKqor2LldIi718zMLBsnHTMzy8ZJ
-x8zMsnHSMTOzbJx0zMwsGycdMzPLxknHzMyycdIxM7NsnHTMzCybQZOOpOmSFjXM65N0yiDb7Crp
-m50KsEUd89LfLSUdNZZ1mZlZ54ykpTPoTXwi4q6IOGmE8awkqeUteiLi3Wl0K+Ajo63LzMzyGHH3
-mqS5kk6XdJukByXtnebXJP1UhUckvbm0zUOSNkrDFZJuT8NeaXmfpEsk3QxcLGnHtHy+pIWStk7r
-LUtFng7sk5afLOkGSX9Tqu9mSTuNdB/NzKyzRnvDz9UjYg9JBwGzgL/rXxARIelq4EPARZL2AB6J
-iMWSLgXOjoh5krYArgV2SJu+Hdg7Il6R9C3gnIi4NLV8+uPtb219ATg1Ij4AIOk54FjgHyVtC6wZ
-EQO6B83MrHuGSjqtutL651+Z/t4NTG+y3g+B04CLgCPTNMB/AbYv3b57qqS1U7k/iYhX0vxbgK9I
-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
+AAALEgAACxIB0t1+/AAAG2hJREFUeJzt3Xm4XFWZ7/HvD0gwQBACNDQyBEEQEJsADYKgBdy+gKhg
+t0yiDHqvOFyGFmynlpzk6b4CXgSlHx6aqwhi4xUQwQERvJ1ikpkkBBAERRnFMAQS4RIg7/1jrxN2
+KlXn1DlVZ9U+dX6f59nP2eNa7961T721Vu3aWxGBmZlZDqv0OgAzM5s4nHTMzCwbJx0zM8vGScfM
+zLJx0jEzs2ycdMzMLBsnHes6STVJj2Wuc7qkZZKyn9OSjpT0yzEq+9OSnpb0oqR1x6KOVM8xkm4c
+q/LHMg5JV0v62Cjq2kvSAyPdzjrjpDNBSPqDpH17Hcd41yy5RcR/RMR+Y1DXJOBMYN+IWDsinu92
+Hf0gIt4XERcPt1563d5a2u7GiHj72EZnjZx0Jo5Ig3WHMtSxEfAm4Dcj3VBJ90OqjlHuY18fk/HA
+SWeCk7S6pLMlPZGGsyRNLi0/SNI8SS9IeljSfmn+sZLuT90+v5P0yRHU+XZJ10l6VtIDkg5J87dM
+82ak6Y0lLZT0njRdl/Q1SbeleK5s1eU0VHyp++9xSZ9LXVdPSjqmtPxASXNTHY9Kmlkq+ob0d1Eq
++12NXUKS9pB0h6RFkm6XtHtpWV3SbEk3pe1/KWm9JvFvzRvJZpGkX7VZ9r9Iuhn4C7BFk3I3lXSF
+pD9LekbSOS2O3zfTvr8g6U5Je5aW7ZrmvSDpT5LOTPPfJOn7qdznU3x/1aL8IeOQ9HVJz0n6vaT9
+W+zjEuCtad4n0vKtJF2fjs9CST9I8wdft/mSFks6RA3dwJK+mM7xFyXdJ+ng0rJj0mvWNC4bgYjw
+MAEG4BFgnybzZwO/BtZPw83A7LRsV2ARRfcOwMbANmn8fcAWafw9FG9yM9J0DXisRRxrAo8BR1N8
+6NkRWAhsm5b/N+A+YArwS+CM0rZ14HFgO2AN4HLg4rRsOrAMWKXN+F4FBoBVgQPS8jen5e8Ftk/j
+OwB/Ag5K05uX60nzjgFuTOPTgOeBI9P+HQ48B6xb2oeHgK0oWjFzgK+1OFYr1NVm2X8Atk3LV2so
+b1VgPkWX3RRgdWCPxn1I00cC66ZyPgc8BUxOy24BjkzjawC7pvHjgJ+k/RIwA5jaZL+Gi2Mp8IlU
+xqeAJxrOgRX2MR3Dj6flPwC+lMYnD5abppcBby1N1yidp8CHgY3S+KEUSW3DduLyMIL3ol4H4CHT
+C9066TwM7F+a/q/AI2n834Ez2yz/x8AJaXyFf+aG9Q4DbmiY9+/AqaXpq4AFwDxgUmn+HOB/lqa3
+BV5JbwLTaUgGw8T3EismjqcH3zybbHs28I00vlI9rJh0Pgbc2rD9r4GjS/vw5dKyTwO/aFHvCnW1
+WfbAEK/R7sCfmx0jGpJOk+XPATuk8espEvb6DescS/GhZYdhzpXh4nioNL1GOgZ/1WofWTHpXJTO
+p7c0KXvIpNNk/bnAB9uJy0P7g7vXbGPgj6XpR9M8gE2A3zXbSNIBkm5N3WHPU7QsVuomamJzYLfU
+/fJ82vYjwIaldb4NbA+cExGvNmxfviruUWASRQttpPE9GxHLStMvAWulbXeTNCd1/Syi+ATfzr5B
+cewebZj3R944plC0nAa9PFhvl8oe6qrBTYE/Nux3U5JOSd2Ti9LxezNvHOdPAFsDv0ldaAem+RdT
+tE7/j4qu2tMlrTaKOJYfn4h4KY2Wj9FQ+/hPFB9Cbpd0r6Rjh9rPMklHpW7VwfPyHaz4ug8Xl7XB
+SceepPhEPWgz4Ik0/hhFN9AKJK0O/Ag4g+KT3rrA1bT3Je2jwPURsW5pmBoRn01lr0XRsvg2MEsr
+f2ezWcP4q8AzXYwP4BLgSmCTiFgHOI83/leGuxjjCYrEWrY5bxzTTrRT9lDxPQZsJmnVoSqRtBfw
+eeCQiFgnHb8XSMcvIh6OiI9ExAbA6cDlkqZExGsRMTsitgf2AN4PHDXaOIbQch8j4umI+GREvIXi
+w8K5Kl2x1oqkzYHzgc8C09I+34svPOg6J52JZXL6sndwWI2iD/yfJa0vaX3gVOD7af3vAMdK2kfS
+KpLeImkbir7yyRRv9sskHUDRLdeOnwFbS/qopElp+FtJg5eufhO4PSI+Cfyc4g1/kICPStpW0hoU
+30ddFqm/o7yfHcQHxafX5yNiqaRdKVpig3UspOhW2bLFtr9I+3eEpNUkHQa8Pe13eT9G4+oOy76N
+4ruZ0yStkc6BPZqsNxV4DXhG0mRJpwJrL6+geO02SJMvUBybZZL2lrRDSiaLKT4QvN5BHK203Md0
+gcAmaXLRYGxp+mlav25rpnWfAVZJLaR3jCAma5OTzsRyNUU30uBwKvAvwJ3APWm4M80jIu6g6Kc/
+i+IfuA5sFhGLgROASyn6+o+g+B6mrOmn0YhYQpEADqf4hP4U8DVgdUkHpWWfTqt/DthJ0hGlMi8G
+LkzbTU5xrFBnJ/ElnwFmS3oR+Crww1L8LwH/CtycrmLajdLl6BHxLMUn/JMp3sBOAd4fEc+1qHu4
+S9mXL0tljKTsFQsqurM+QNF6fZSixXFokziuScNvKb60f5kVu/X2A+6VtJji3Dg8Il6h6CK9jCIR
+3U9xvqz0+5kRxNFqn4Y6XrsAt6bYrqL4Hu8PadkAcFHqPvswK75u91Nc2HALRTfaO4CbGuocSRzW
+glb+kGhWTZLmUFytdkGvYzGz0XFLx8Yb97GbjWNOOjbeuGluNo65e83MzLJxS8fMzLJp9sOtvifJ
+zTszs1GIiI6+V52wLZ1e3wqicZg5c2bPY3BM/RNTVeNyTOM7pm6YsEnHzMzym5AXEkiKXu23+vsR
+J2bWJVV7bx4YGGDWrFmEu9fGn2gyzGkxv5eDYxq/MVU1LsfU3lBFtVqtK+W4pZO/7sqeVGZWDYLK
+tXQgvX+5pWNmZuOFk46ZmWXjpGNmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNpVKOpKW
+NEwfI+mcUZTzN5IO6F5kZmbWDZVKOqx8B4jR/iR3BvC+DmMxM7Muq1rSabT8dguSpkv6T0nzJf1K
+0qZp/iGSFkiaJ6kuaRIwGzhM0lxJh/QqeDMzW1Gl7r0m6TVgQWnWNOCqiDhB0k+BSyPiYknHAh+M
+iA9JugfYLyKekrR2RLwo6Whg54g4oUU9vveamVVWP997rWpPDn05ImYMTqTksUuafBdwcBr/PnBG
+Gr8ZuEjSpcAVg5tSaiU1MzAwsHy8Vqt17Q6qZmb9ol6vU6/Xu1pm1Vo6iyNiamn6GIoWy/GSFgJ/
+HRGvpS60JyNig7TersCBwFHAzsAHB7drUY9bOmZWWf3c0qn6dzplvwYOT+NHAjcASNoyIm6PiJnA
+QmAT4EVgatNSzMysZ6qWdJpdvTY473jgWEnzKZLOiWn+GZLukbQAuDki7qF4LtN2vpDAzKxaKtW9
+lou718ysyty9ZmZm1gVOOmZmlo2TjpmZZeOkY2Zm2TjpmJlZNk46ZmaWjZOOmZll46RjZmbZOOmY
+mVk2TjpmZpZN1R5tMCF0dA8JM7NxzEknsyreT8nMLBd3r5mZWTZOOmZmlo2TjpmZZeOkY2Zm2Tjp
+mJlZNk46ZmaWjS+ZrijJv+Yxm8j69ecVTjoV1p+nnJkNp58/crp7zczMsnHSMTOzbJx0zMwsGycd
+MzPLxknHzMyycdIxM7NsnHTMzCwbJx0zM8tmzJKOpNclzZW0QNKlkqaMcPvNJR1Rmt5Z0je7H6mZ
+meUyli2dlyJiRkTsACwFPjXC7bcAPjI4ERF3RcSJ3QzQzMzyytW9dhOwlaR1JV0pab6kWyTtACDp
+valVNFfSXZLWAk4D9krzTpJUk/TTtP6ApAskzZH0O0nHD1Yk6auSHpB0o6RLJJ2caR/NzGwYY37v
+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
 "
 >
 </div>
@@ -2227,11 +2284,11 @@ pGNmZtk46ZiZWTZOOmZmlo2TjpmZZeOkY2Zm2fx/vWUkjLtR3osAAAAASUVORK5CYII=
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[11]:
+In&nbsp;[13]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">()</span>
+<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -14431,12 +14488,12 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
-     .style('width', 250);
+     .style('width', 225);
   this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
-  this.bar_width = this.width - this.bar_x - 33;
+  this.bar_width = this.width - this.bar_x - 31;
   this.x_scale = d3.scale.linear().range([0, this.bar_width]);
   svg.append('text')
      .text('Prediction probabilities')
@@ -14455,7 +14512,7 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", this.colors_i(i));
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -14514,11 +14571,13 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var bar_height = 17;
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
-  var width = 250;
-  var bar_width = max_weight > .2 ? 110 : 500;
+  //var bar_width = max_weight > .2 ? 110 : 500;
+  var bar_width = 300;
   var xscale = d3.scale.linear()
           .domain([0,1])
           .range([0, bar_width]);
+  var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
+  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -14563,7 +14622,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
                   .text(name);
     if (show_numbers) {
       var bartext = svg.append('text')
-                     .attr('x', score > 0 ? x_offset + size + 5 : x_offset - size - 5)
+                     .attr('x', score > 0 ? x_offset + size + 1 : x_offset - size - 1)
                      .attr('text-anchor', score > 0 ? 'begin' : 'end')
                      .attr('y', yscale(i) + 30)
                      .text(score.toFixed(2));
@@ -14595,16 +14654,19 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartHZ6BJM19MMBJHRI" style="float:left"></div>
+        <div id="mychart3JDKPD637EHOZEI" style="float:left"></div>
         
         <script>
         var exp = new Explanation(["atheism", "christian"]);
         
-            var svg = d3.select('#mychartHZ6BJM19MMBJHRI').append('svg');
-            exp.PredictProba(svg, [0.51000000000000001, 0.48999999999999999]);
+            var svg = d3.select('#mychart3JDKPD637EHOZEI').append('svg');
+            exp.PredictProba(svg, [0.57199999999999995, 0.42799999999999999]);
             
-                var svg0 = d3.select('#mychartHZ6BJM19MMBJHRI').append('svg');
-                exp.ExplainFeatures(svg0, 1, [["Host", -0.14734602227239837], ["Posting", -0.11400047791131808], ["NNTP", -0.10109257117921416], ["edu", -0.028540629623386941], ["There", -0.016225589867137624], ["University", 0.0098423216357678891]], 'Local explanation', true);
+                var svg0 = d3.select('#mychart3JDKPD637EHOZEI').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["Host", -0.14329044450524472], ["Posting", -0.13758664801145776], ["NNTP", -0.11661675258723078], ["edu", -0.045045062939243548], ["University", 0.013943294921436089], ["There", -0.011682855655710912]], 'Local explanation', true);
+            
+            var text_div = d3.select('#mytext3JDKPD637EHOZEI');
+            exp.UpdateColors(text_div, 1);
             </script></body></html>
 </div>
 
@@ -14626,11 +14688,11 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[12]:
+In&nbsp;[14]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -26830,12 +26892,12 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
   svg.style('float', 'left')
-     .style('width', 250);
+     .style('width', 225);
   this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
-  this.bar_width = this.width - this.bar_x - 33;
+  this.bar_width = this.width - this.bar_x - 31;
   this.x_scale = d3.scale.linear().range([0, this.bar_width]);
   svg.append('text')
      .text('Prediction probabilities')
@@ -26854,7 +26916,7 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", this.colors_i(i));
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -26913,11 +26975,13 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var bar_height = 17;
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
-  var width = 250;
-  var bar_width = max_weight > .2 ? 110 : 500;
+  //var bar_width = max_weight > .2 ? 110 : 500;
+  var bar_width = 300;
   var xscale = d3.scale.linear()
           .domain([0,1])
           .range([0, bar_width]);
+  var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
+  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -26962,7 +27026,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
                   .text(name);
     if (show_numbers) {
       var bartext = svg.append('text')
-                     .attr('x', score > 0 ? x_offset + size + 5 : x_offset - size - 5)
+                     .attr('x', score > 0 ? x_offset + size + 1 : x_offset - size - 1)
                      .attr('text-anchor', score > 0 ? 'begin' : 'end')
                      .attr('y', yscale(i) + 30)
                      .text(score.toFixed(2));
@@ -26994,18 +27058,18 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartC4ZFA09KR7L7Z1E" style="float:left"></div>
-        <div id="mytextC4ZFA09KR7L7Z1E"><h3>Text with highlighted words</h3>From: johnchad@triton.unm.<span class="neg">edu</span> (jchadwic)<br />Subject: Another request for Darwin Fish<br />Organization: <span class="pos">University</span> of New Mexico, Albuquerque<br />Lines: 11<br /><span class="neg">NNTP</span>-<span class="neg">Posting</span>-<span class="neg">Host</span>: triton.unm.<span class="neg">edu</span><br /><br />Hello Gang,<br /><br /><span class="neg">There</span> have been some notes recently asking where to obtain the DARWIN fish.<br />This is the same question I have and I have not seen an answer on the<br />net. If anyone has a contact please post on the net or email me.<br /><br />Thanks,<br /><br />john chadwick<br />johnchad@triton.unm.<span class="neg">edu</span><br />or<br /></div>
+        <div id="mychart9604XYHN3M5RIGY" style="float:left"></div>
+        <div id="mytext9604XYHN3M5RIGY"><h3>Text with highlighted words</h3>From: johnchad@triton.unm.<span class="neg">edu</span> (jchadwic)<br />Subject: Another request for Darwin Fish<br />Organization: <span class="pos">University</span> of New Mexico, Albuquerque<br />Lines: 11<br /><span class="neg">NNTP</span>-<span class="neg">Posting</span>-<span class="neg">Host</span>: triton.unm.<span class="neg">edu</span><br /><br />Hello Gang,<br /><br /><span class="neg">There</span> have been some notes recently asking where to obtain the DARWIN fish.<br />This is the same question I have and I have not seen an answer on the<br />net. If anyone has a contact please post on the net or email me.<br /><br />Thanks,<br /><br />john chadwick<br />johnchad@triton.unm.<span class="neg">edu</span><br />or<br /></div>
         <script>
         var exp = new Explanation(["atheism", "christian"]);
         
-            var svg = d3.select('#mychartC4ZFA09KR7L7Z1E').append('svg');
-            exp.PredictProba(svg, [0.51000000000000001, 0.48999999999999999]);
+            var svg = d3.select('#mychart9604XYHN3M5RIGY').append('svg');
+            exp.PredictProba(svg, [0.57199999999999995, 0.42799999999999999]);
             
-                var svg0 = d3.select('#mychartC4ZFA09KR7L7Z1E').append('svg');
-                exp.ExplainFeatures(svg0, 1, [["Host", -0.14734602227239837], ["Posting", -0.11400047791131808], ["NNTP", -0.10109257117921416], ["edu", -0.028540629623386941], ["There", -0.016225589867137624], ["University", 0.0098423216357678891]], 'Local explanation', true);
+                var svg0 = d3.select('#mychart9604XYHN3M5RIGY').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["Host", -0.14329044450524472], ["Posting", -0.13758664801145776], ["NNTP", -0.11661675258723078], ["edu", -0.045045062939243548], ["University", 0.013943294921436089], ["There", -0.011682855655710912]], 'Local explanation', true);
             
-            var text_div = d3.select('#mytextC4ZFA09KR7L7Z1E');
+            var text_div = d3.select('#mytext9604XYHN3M5RIGY');
             exp.UpdateColors(text_div, 1);
             </script></body></html>
 </div>

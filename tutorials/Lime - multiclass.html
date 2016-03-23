@@ -1810,8 +1810,8 @@ In&nbsp;[5]:
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=.</span><span class="mo">01</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+<span class="n">nb</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=.</span><span class="mo">01</span><span class="p">)</span>
+<span class="n">nb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -1845,7 +1845,7 @@ In&nbsp;[6]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">pred</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">)</span>
+<div class="highlight"><pre><span class="n">pred</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">)</span>
 <span class="n">sklearn</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">f1_score</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="s">&#39;weighted&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -1900,7 +1900,56 @@ In&nbsp;[7]:
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">lime</span> <span class="kn">import</span> <span class="n">lime_text</span>
-<span class="n">explainer</span> <span class="o">=</span> <span class="n">lime_text</span><span class="o">.</span><span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">=</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">lime.lime_text</span> <span class="kn">import</span> <span class="n">ScikitClassifier</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ScikitClassifier</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span> <span class="n">vectorizer</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">
+In&nbsp;[8]:
+</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class="highlight"><pre><span class="k">print</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">([</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+[[ 0.001  0.01   0.003  0.047  0.006  0.002  0.003  0.521  0.022  0.008
+   0.025  0.     0.331  0.003  0.006  0.     0.003  0.     0.001  0.009]]
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">
+In&nbsp;[9]:
+</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">lime.lime_text</span> <span class="kn">import</span> <span class="n">LimeTextExplainer</span>
+<span class="n">explainer</span> <span class="o">=</span> <span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -1920,14 +1969,14 @@ In&nbsp;[7]:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[8]:
+In&nbsp;[10]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="n">idx</span> <span class="o">=</span> <span class="mi">1340</span>
-<span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">17</span><span class="p">])</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">17</span><span class="p">])</span>
 <span class="k">print</span> <span class="s">&#39;Document id: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">idx</span>
-<span class="k">print</span> <span class="s">&#39;Predicted class =&#39;</span><span class="p">,</span> <span class="n">class_names</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])]</span>
+<span class="k">print</span> <span class="s">&#39;Predicted class =&#39;</span><span class="p">,</span> <span class="n">class_names</span><span class="p">[</span><span class="n">nb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">])]</span>
 <span class="k">print</span> <span class="s">&#39;True class: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">class_names</span><span class="p">[</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span>
 </pre></div>
 
@@ -1966,7 +2015,7 @@ True class: atheism
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[9]:
+In&nbsp;[11]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
@@ -1989,20 +2038,20 @@ In&nbsp;[9]:
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
 Explanation for class atheism
-(u&apos;Caused&apos;, 0.20688565329534225)
-(u&apos;Rice&apos;, 0.12430852709608445)
-(u&apos;Genocide&apos;, 0.11209860041027211)
-(u&apos;Theism&apos;, 0.084238970070628305)
-(u&apos;certainty&apos;, -0.072108818891288368)
-(u&apos;owlnet&apos;, -0.070196583661691847)
+(u&apos;Caused&apos;, 0.25316324530036355)
+(u&apos;Rice&apos;, 0.14441304704168584)
+(u&apos;Genocide&apos;, 0.13194439234591207)
+(u&apos;certainty&apos;, -0.09441557842380538)
+(u&apos;scri&apos;, -0.088868818220209422)
+(u&apos;owlnet&apos;, -0.083874839043445865)
 
 Explanation for class mideast
-(u&apos;fsu&apos;, -0.049289477213965448)
-(u&apos;Theism&apos;, -0.046275280611760929)
-(u&apos;Luther&apos;, -0.042803107288253352)
-(u&apos;jews&apos;, 0.033772109441550874)
-(u&apos;Caused&apos;, -0.028819504039017282)
-(u&apos;Rice&apos;, -0.025296595544457286)
+(u&apos;fsu&apos;, -0.058959711231871735)
+(u&apos;Theism&apos;, -0.053598702756944637)
+(u&apos;Luther&apos;, -0.046887061930957853)
+(u&apos;Caused&apos;, -0.040608987070776779)
+(u&apos;jews&apos;, 0.038339284635738137)
+(u&apos;PBS&apos;, 0.027732937292067814)
 
 </pre>
 </div>
@@ -2024,11 +2073,11 @@ Explanation for class mideast
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[10]:
+In&nbsp;[12]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">top_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class="highlight"><pre><span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">top_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">exp</span><span class="o">.</span><span class="n">available_labels</span><span class="p">()</span>
 </pre></div>
 
@@ -2065,11 +2114,11 @@ In&nbsp;[10]:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[11]:
+In&nbsp;[13]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">()</span>
+<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -14288,12 +14337,16 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   var bar = svg.append("g");
   var this_object = this;
   for (i = 0; i < data.length; i++) {
+    var color = this.colors(names[i]);
+    if (names[i] == 'Other' && this.names.length > 20) {
+        color = '#5F9EA0';
+    }
     rect = bar.append("rect");
     rect.attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", color);
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -14358,7 +14411,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
-  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -14386,7 +14438,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
-      if (this.names.length >= 20 && score < 0) {
+      if (this.names.length > 20 && score < 0) {
         color = '#5F9EA0';
       }
     }
@@ -14435,22 +14487,25 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartI8LEBS4OXVFPNYE" style="float:left"></div>
+        <div id="mychartK204UDZ3N21CFKM" style="float:left"></div>
         
         <script>
         var exp = new Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
-            var svg = d3.select('#mychartI8LEBS4OXVFPNYE').append('svg');
-            exp.PredictProba(svg, [0.49811471263131912, 9.363281694339742e-07, 8.6901113042353637e-07, 7.2265715280970937e-07, 6.2748036570523778e-07, 2.0713072372914984e-07, 3.4836239203524311e-07, 4.8686435948504336e-06, 7.0810729704593475e-07, 1.859917866117224e-06, 8.896453158029781e-07, 7.1889219957600022e-06, 3.6039263704708958e-06, 3.4962127771157365e-05, 6.6650252205131293e-06, 0.43049588846735704, 0.0014634308093956249, 0.023014073851631959, 0.00037634164032341547, 0.046471095314609114]);
+            var svg = d3.select('#mychartK204UDZ3N21CFKM').append('svg');
+            exp.PredictProba(svg, [0.49811471263134743, 9.3632816943392105e-07, 8.690111304235117e-07, 7.2265715280974018e-07, 6.2748036570522e-07, 2.071307237291469e-07, 3.4836239203524808e-07, 4.868643594850365e-06, 7.0810729704592469e-07, 1.8599178661171976e-06, 8.896453158029781e-07, 7.1889219957599005e-06, 3.6039263704707933e-06, 3.4962127771157365e-05, 6.665025220512561e-06, 0.43049588846732034, 0.0014634308093955833, 0.023014073851631303, 0.00037634164032342079, 0.046471095314609114]);
             
-                var svg0 = d3.select('#mychartI8LEBS4OXVFPNYE').append('svg');
-                exp.ExplainFeatures(svg0, 0, [["Caused", 0.20586806463682714], ["Rice", 0.12351371805811526], ["Genocide", 0.11383139495601534], ["Theism", 0.081283828048024753], ["scri", -0.073017588051902893], ["owlnet", -0.064750279647995096]], 'Local explanation', true);
+                var svg0 = d3.select('#mychartK204UDZ3N21CFKM').append('svg');
+                exp.ExplainFeatures(svg0, 0, [["Caused", 0.23735872632370891], ["Rice", 0.12948114823160781], ["scri", -0.10866539311031465], ["Genocide", 0.10655241315638807], ["owlnet", -0.10380418742790884], ["Theism", 0.078233789597215164]], 'Local explanation', true);
             
-                var svg1 = d3.select('#mychartI8LEBS4OXVFPNYE').append('svg');
-                exp.ExplainFeatures(svg1, 15, [["Caused", -0.13150180403163594], ["scri", 0.083229582373290312], ["fsu", 0.081540017504370718], ["Luther", 0.077990878654433923], ["Luthers", 0.073960707192492439], ["Genocide", -0.065451590591263487]], 'Local explanation', true);
+                var svg1 = d3.select('#mychartK204UDZ3N21CFKM').append('svg');
+                exp.ExplainFeatures(svg1, 15, [["Caused", -0.19026506034240856], ["scri", 0.098292134345160515], ["Luther", 0.085522900331661669], ["Genocide", -0.085107904044848109], ["owlnet", 0.083876460361359845], ["fsu", 0.08249531285083625]], 'Local explanation', true);
             
-                var svg2 = d3.select('#mychartI8LEBS4OXVFPNYE').append('svg');
-                exp.ExplainFeatures(svg2, 19, [["Theism", -0.047289481187961939], ["Rice", -0.044382585954439682], ["Genocide", -0.043948761166795559], ["jews", -0.037181472900986917], ["dirac", 0.029959324198438862], ["mailer", 0.029390937445823342]], 'Local explanation', true);
+                var svg2 = d3.select('#mychartK204UDZ3N21CFKM').append('svg');
+                exp.ExplainFeatures(svg2, 19, [["Theism", -0.055924451547426958], ["Genocide", -0.052206046253961948], ["Rice", -0.046893897275897725], ["jews", -0.042171981841281084], ["dirac", 0.037503965087547601], ["fsu", 0.037246262367823045]], 'Local explanation', true);
+            
+            var text_div = d3.select('#mytextK204UDZ3N21CFKM');
+            exp.UpdateColors(text_div, 0);
             </script></body></html>
 </div>
 
@@ -14465,14 +14520,14 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We notice that the classifier is using reasonable words (such as &#39;Theism&#39;, &#39;jews&#39;, etc), as well as unreasonable ones (&#39;Rice&#39;, &#39;owlnet&#39;). Let&#39;s zoom in and just look at the explanations for class &#39;Atheism&#39;.</p>
+<p>We notice that the classifier is using reasonable words (such as &#39;Genocide&#39;, &#39;Theism&#39;, &#39;jews&#39;, etc), as well as unreasonable ones (&#39;Rice&#39;, &#39;owlnet&#39;). Let&#39;s zoom in and just look at the explanations for class &#39;Atheism&#39;.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[12]:
+In&nbsp;[14]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
@@ -26695,12 +26750,16 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   var bar = svg.append("g");
   var this_object = this;
   for (i = 0; i < data.length; i++) {
+    var color = this.colors(names[i]);
+    if (names[i] == 'Other' && this.names.length > 20) {
+        color = '#5F9EA0';
+    }
     rect = bar.append("rect");
     rect.attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", color);
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -26765,7 +26824,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
-  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -26793,7 +26851,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
-      if (this.names.length >= 20 && score < 0) {
+      if (this.names.length > 20 && score < 0) {
         color = '#5F9EA0';
       }
     }
@@ -26842,18 +26900,18 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartL8NSZHUKIILVE8A" style="float:left"></div>
-        <div id="mytextL8NSZHUKIILVE8A"><h3>Text with highlighted words</h3>From: conor@<span class="neg">owlnet</span>.rice.edu (Conor Frederick Prischmann)<br />Subject: Re: <span class="pos">Genocide</span> is <span class="pos">Caused</span> by <span class="pos">Theism</span> : Evidence?<br />Organization: <span class="pos">Rice</span> University<br />Lines: 23<br /><br />In article &lt;C60A0s.DvI@mailer.cc.fsu.edu&gt; dekorte@dirac.<span class="neg">scri</span>.fsu.edu (Stephen L. DeKorte) writes:<br />&gt;<br />&gt;I saw a 3 hour show on PBS the other day about the history of the<br />&gt;Jews. Appearently, the Cursades(a religious war agianst the muslilams<br />&gt;in 'the holy land') sparked the widespread persecution of muslilams <br />&gt;and jews in europe. Among the supporters of the persiecution, were none <br />&gt;other than Martin Luther, and the Vatican.<br />&gt;<br />&gt;Later, Hitler would use Luthers writings to justify his own treatment<br />&gt;of the jews.<br />&gt;&gt; <span class="pos">Genocide</span> is <span class="pos">Caused</span> by <span class="pos">Theism</span> : Evidence?<br /><br />Heck, I remember reading a quote of Luther as something like: "Jews should<br />be shot like deer."  And of course much Catholic doctrine for centuries was <br />extremely anti-Semitic.<br /><br /><br /><br />-- <br />"Are you so sure that your truth and your justice are worth more than the<br />truths and justices of other centuries?" - Simone de Beauvoir<br />"Where is there a certainty that rises above all doubt and withstands all<br />critique?" - Karl Jaspers          <span class="pos">Rice</span> University, Will <span class="pos">Rice</span> College '96<br /></div>
+        <div id="mychartCAILF1HSVSZ9E60" style="float:left"></div>
+        <div id="mytextCAILF1HSVSZ9E60"><h3>Text with highlighted words</h3>From: conor@<span class="neg">owlnet</span>.rice.edu (Conor Frederick Prischmann)<br />Subject: Re: <span class="pos">Genocide</span> is <span class="pos">Caused</span> by <span class="pos">Theism</span> : Evidence?<br />Organization: <span class="pos">Rice</span> University<br />Lines: 23<br /><br />In article |C60A0s.DvI@mailer.cc.fsu.edu| dekorte@dirac.<span class="neg">scri</span>.fsu.edu (Stephen L. DeKorte) writes:<br />|<br />|I saw a 3 hour show on PBS the other day about the history of the<br />|Jews. Appearently, the Cursades(a religious war agianst the muslilams<br />|in 'the holy land') sparked the widespread persecution of muslilams <br />|and jews in europe. Among the supporters of the persiecution, were none <br />|other than Martin Luther, and the Vatican.<br />|<br />|Later, Hitler would use Luthers writings to justify his own treatment<br />|of the jews.<br />|| <span class="pos">Genocide</span> is <span class="pos">Caused</span> by <span class="pos">Theism</span> : Evidence?<br /><br />Heck, I remember reading a quote of Luther as something like: "Jews should<br />be shot like deer."  And of course much Catholic doctrine for centuries was <br />extremely anti-Semitic.<br /><br /><br /><br />-- <br />"Are you so sure that your truth and your justice are worth more than the<br />truths and justices of other centuries?" - Simone de Beauvoir<br />"Where is there a certainty that rises above all doubt and withstands all<br />critique?" - Karl Jaspers          <span class="pos">Rice</span> University, Will <span class="pos">Rice</span> College '96<br /></div>
         <script>
         var exp = new Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
-            var svg = d3.select('#mychartL8NSZHUKIILVE8A').append('svg');
-            exp.PredictProba(svg, [0.49811471263131912, 9.363281694339742e-07, 8.6901113042353637e-07, 7.2265715280970937e-07, 6.2748036570523778e-07, 2.0713072372914984e-07, 3.4836239203524311e-07, 4.8686435948504336e-06, 7.0810729704593475e-07, 1.859917866117224e-06, 8.896453158029781e-07, 7.1889219957600022e-06, 3.6039263704708958e-06, 3.4962127771157365e-05, 6.6650252205131293e-06, 0.43049588846735704, 0.0014634308093956249, 0.023014073851631959, 0.00037634164032341547, 0.046471095314609114]);
+            var svg = d3.select('#mychartCAILF1HSVSZ9E60').append('svg');
+            exp.PredictProba(svg, [0.49811471263134743, 9.3632816943392105e-07, 8.690111304235117e-07, 7.2265715280974018e-07, 6.2748036570522e-07, 2.071307237291469e-07, 3.4836239203524808e-07, 4.868643594850365e-06, 7.0810729704592469e-07, 1.8599178661171976e-06, 8.896453158029781e-07, 7.1889219957599005e-06, 3.6039263704707933e-06, 3.4962127771157365e-05, 6.665025220512561e-06, 0.43049588846732034, 0.0014634308093955833, 0.023014073851631303, 0.00037634164032342079, 0.046471095314609114]);
             
-                var svg0 = d3.select('#mychartL8NSZHUKIILVE8A').append('svg');
-                exp.ExplainFeatures(svg0, 0, [["Caused", 0.20586806463682714], ["Rice", 0.12351371805811526], ["Genocide", 0.11383139495601534], ["Theism", 0.081283828048024753], ["scri", -0.073017588051902893], ["owlnet", -0.064750279647995096]], 'Local explanation', true);
+                var svg0 = d3.select('#mychartCAILF1HSVSZ9E60').append('svg');
+                exp.ExplainFeatures(svg0, 0, [["Caused", 0.23735872632370891], ["Rice", 0.12948114823160781], ["scri", -0.10866539311031465], ["Genocide", 0.10655241315638807], ["owlnet", -0.10380418742790884], ["Theism", 0.078233789597215164]], 'Local explanation', true);
             
-            var text_div = d3.select('#mytextL8NSZHUKIILVE8A');
+            var text_div = d3.select('#mytextCAILF1HSVSZ9E60');
             exp.UpdateColors(text_div, 0);
             </script></body></html>
 </div>
@@ -26895,7 +26953,7 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[13]:
+In&nbsp;[15]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
@@ -26903,9 +26961,10 @@ In&nbsp;[13]:
 <span class="n">newsgroups_test</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">remove</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="s">&#39;footers&#39;</span><span class="p">,</span> <span class="s">&#39;quotes&#39;</span><span class="p">))</span>
 <span class="n">train_vectors</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">newsgroups_train</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 <span class="n">test_vectors</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=.</span><span class="mo">01</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
-<span class="n">explainer</span> <span class="o">=</span> <span class="n">lime_text</span><span class="o">.</span><span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">=</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
+<span class="n">nb</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=.</span><span class="mo">01</span><span class="p">)</span>
+<span class="n">nb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ScikitClassifier</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span> <span class="n">vectorizer</span><span class="p">)</span>
+<span class="n">explainer</span> <span class="o">=</span> <span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -26916,11 +26975,11 @@ In&nbsp;[13]:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[14]:
+In&nbsp;[16]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">test_vectors</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">top_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class="highlight"><pre><span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">top_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">exp</span><span class="o">.</span><span class="n">available_labels</span><span class="p">()</span>
 </pre></div>
 
@@ -26957,11 +27016,11 @@ In&nbsp;[14]:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[15]:
+In&nbsp;[17]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">()</span>
+<div class="highlight"><pre><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -39180,12 +39239,16 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   var bar = svg.append("g");
   var this_object = this;
   for (i = 0; i < data.length; i++) {
+    var color = this.colors(names[i]);
+    if (names[i] == 'Other' && this.names.length > 20) {
+        color = '#5F9EA0';
+    }
     rect = bar.append("rect");
     rect.attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", color);
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -39250,7 +39313,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
-  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -39278,7 +39340,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
-      if (this.names.length >= 20 && score < 0) {
+      if (this.names.length > 20 && score < 0) {
         color = '#5F9EA0';
       }
     }
@@ -39327,22 +39389,25 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartS3VHNN9MIHJQRNU" style="float:left"></div>
+        <div id="mychartOG5HUNDTPLW06WV" style="float:left"></div>
         
         <script>
         var exp = new Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
-            var svg = d3.select('#mychartS3VHNN9MIHJQRNU').append('svg');
-            exp.PredictProba(svg, [0.095768515466740825, 0.00027793915283513013, 0.00013469248920821566, 0.00025850626625969635, 0.00019131801264876444, 6.6446706374340931e-05, 1.6468835775999463e-05, 0.00047214097745229349, 0.00051142043542465353, 0.0041740624208769124, 0.00034235790199415813, 0.00049893523234880723, 0.00065841719065517308, 0.0014572425156715301, 0.00093257998609422971, 0.4044688658679339, 0.055880008830031379, 0.3752778888441195, 0.011104486711747888, 0.047507706155805407]);
+            var svg = d3.select('#mychartOG5HUNDTPLW06WV').append('svg');
+            exp.PredictProba(svg, [0.095768515466740825, 0.00027793915283512812, 0.00013469248920821661, 0.00025850626625969819, 0.00019131801264876718, 6.6446706374341405e-05, 1.6468835775999463e-05, 0.00047214097745229685, 0.00051142043542465722, 0.0041740624208768829, 0.00034235790199415331, 0.00049893523234880019, 0.00065841719065517774, 0.0014572425156715611, 0.00093257998609422971, 0.4044688658679339, 0.055880008830030983, 0.3752778888441195, 0.011104486711747808, 0.047507706155805747]);
             
-                var svg0 = d3.select('#mychartS3VHNN9MIHJQRNU').append('svg');
-                exp.ExplainFeatures(svg0, 15, [["Luther", 0.18815105427435422], ["Catholic", 0.1603616633366664], ["deer", -0.15869293364320569], ["Heck", -0.14056818659507794], ["doctrine", 0.13477812825996785], ["Semitic", 0.057071789683894994]], 'Local explanation', true);
+                var svg0 = d3.select('#mychartOG5HUNDTPLW06WV').append('svg');
+                exp.ExplainFeatures(svg0, 15, [["Luther", 0.23426563001239015], ["deer", -0.21934898892182161], ["Heck", -0.19209363337589677], ["Catholic", 0.18516002015049191], ["doctrine", 0.16098239777285042], ["anti", -0.074369169641542027]], 'Local explanation', true);
             
-                var svg1 = d3.select('#mychartS3VHNN9MIHJQRNU').append('svg');
-                exp.ExplainFeatures(svg1, 17, [["deer", 0.15348678014878012], ["Luther", -0.14569389018571066], ["Semitic", 0.12550434759560769], ["Heck", 0.090568809538723108], ["Jews", 0.087664822587556868], ["shot", 0.057597965255974014]], 'Local explanation', true);
+                var svg1 = d3.select('#mychartOG5HUNDTPLW06WV').append('svg');
+                exp.ExplainFeatures(svg1, 17, [["Luther", -0.2070229290484861], ["deer", 0.18794151954756347], ["Semitic", 0.14849210570845867], ["Heck", 0.11000822269523655], ["Jews", 0.10338295394687469], ["Catholic", -0.094512680519559758]], 'Local explanation', true);
             
-                var svg2 = d3.select('#mychartS3VHNN9MIHJQRNU').append('svg');
-                exp.ExplainFeatures(svg2, 0, [["Semitic", -0.052973308770113171], ["Heck", 0.052663579001755258], ["shot", -0.047199928475725086], ["Catholic", 0.028042206540909245], ["deer", 0.01953016820721689], ["Luther", -0.018054494584382158]], 'Local explanation', true);
+                var svg2 = d3.select('#mychartOG5HUNDTPLW06WV').append('svg');
+                exp.ExplainFeatures(svg2, 0, [["Semitic", -0.070006184493612372], ["Heck", 0.067888281952042426], ["shot", -0.057556600997892629], ["Catholic", 0.029896673846212404], ["Luther", -0.022594578741931298], ["deer", 0.021927852349656489]], 'Local explanation', true);
+            
+            var text_div = d3.select('#mytextOG5HUNDTPLW06WV');
+            exp.UpdateColors(text_div, 15);
             </script></body></html>
 </div>
 
@@ -39364,7 +39429,7 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">
-In&nbsp;[16]:
+In&nbsp;[18]:
 </div>
 <div class="inner_cell">
     <div class="input_area">
@@ -51587,12 +51652,16 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   var bar = svg.append("g");
   var this_object = this;
   for (i = 0; i < data.length; i++) {
+    var color = this.colors(names[i]);
+    if (names[i] == 'Other' && this.names.length > 20) {
+        color = '#5F9EA0';
+    }
     rect = bar.append("rect");
     rect.attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors(names[i]));
+        .style("fill", color);
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -51657,7 +51726,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
-  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -51685,7 +51753,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
-      if (this.names.length >= 20 && score < 0) {
+      if (this.names.length > 20 && score < 0) {
         color = '#5F9EA0';
       }
     }
@@ -51734,18 +51802,18 @@ Explanation.prototype.UpdateColors = function(div, class_id) {
         </head>
         <body>
         
-        <div id="mychartMAOV89Q46R8T2FJ" style="float:left"></div>
-        <div id="mytextMAOV89Q46R8T2FJ"><h3>Text with highlighted words</h3><br /><span class="neg">Heck</span>, I remember reading a quote of <span class="pos">Luther</span> as something like: "Jews should<br />be shot like <span class="neg">deer</span>."  And of course much <span class="pos">Catholic</span> <span class="pos">doctrine</span> for centuries was <br />extremely anti-<span class="pos">Semitic</span>.<br /><br /><br /></div>
+        <div id="mychart7BKY8A0NPFF7NM5" style="float:left"></div>
+        <div id="mytext7BKY8A0NPFF7NM5"><h3>Text with highlighted words</h3><br /><span class="neg">Heck</span>, I remember reading a quote of <span class="pos">Luther</span> as something like: "Jews should<br />be shot like <span class="neg">deer</span>."  And of course much <span class="pos">Catholic</span> <span class="pos">doctrine</span> for centuries was <br />extremely <span class="neg">anti</span>-Semitic.<br /><br /><br /></div>
         <script>
         var exp = new Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
-            var svg = d3.select('#mychartMAOV89Q46R8T2FJ').append('svg');
-            exp.PredictProba(svg, [0.095768515466740825, 0.00027793915283513013, 0.00013469248920821566, 0.00025850626625969635, 0.00019131801264876444, 6.6446706374340931e-05, 1.6468835775999463e-05, 0.00047214097745229349, 0.00051142043542465353, 0.0041740624208769124, 0.00034235790199415813, 0.00049893523234880723, 0.00065841719065517308, 0.0014572425156715301, 0.00093257998609422971, 0.4044688658679339, 0.055880008830031379, 0.3752778888441195, 0.011104486711747888, 0.047507706155805407]);
+            var svg = d3.select('#mychart7BKY8A0NPFF7NM5').append('svg');
+            exp.PredictProba(svg, [0.095768515466740825, 0.00027793915283512812, 0.00013469248920821661, 0.00025850626625969819, 0.00019131801264876718, 6.6446706374341405e-05, 1.6468835775999463e-05, 0.00047214097745229685, 0.00051142043542465722, 0.0041740624208768829, 0.00034235790199415331, 0.00049893523234880019, 0.00065841719065517774, 0.0014572425156715611, 0.00093257998609422971, 0.4044688658679339, 0.055880008830030983, 0.3752778888441195, 0.011104486711747808, 0.047507706155805747]);
             
-                var svg0 = d3.select('#mychartMAOV89Q46R8T2FJ').append('svg');
-                exp.ExplainFeatures(svg0, 15, [["Luther", 0.18815105427435422], ["Catholic", 0.1603616633366664], ["deer", -0.15869293364320569], ["Heck", -0.14056818659507794], ["doctrine", 0.13477812825996785], ["Semitic", 0.057071789683894994]], 'Local explanation', true);
+                var svg0 = d3.select('#mychart7BKY8A0NPFF7NM5').append('svg');
+                exp.ExplainFeatures(svg0, 15, [["Luther", 0.23426563001239015], ["deer", -0.21934898892182161], ["Heck", -0.19209363337589677], ["Catholic", 0.18516002015049191], ["doctrine", 0.16098239777285042], ["anti", -0.074369169641542027]], 'Local explanation', true);
             
-            var text_div = d3.select('#mytextMAOV89Q46R8T2FJ');
+            var text_div = d3.select('#mytext7BKY8A0NPFF7NM5');
             exp.UpdateColors(text_div, 15);
             </script></body></html>
 </div>
