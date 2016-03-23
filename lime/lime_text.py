@@ -35,20 +35,21 @@ class ScikitClassifier(object):
 
 class IndexedString(object):
     """String with various indexes."""
-    def __init__(self, raw_string, bow=True):
+    def __init__(self, raw_string, split_expression=r'\W+', bow=True):
         """Initializer.
 
         Args:
             raw_string: string with raw text in it
+            split_expression: string will be split by this.
             bow: if True, a word is the same everywhere in the text - i.e. we
                  will index multiple ocurrences of the same word. If False,
                  order matters, so that the same word will have different ids
                  according to position.
         """
         self.raw = raw_string
-        self.as_list = re.split(r'(\W+)', self.raw)
+        self.as_list = re.split(r'(%s)' % split_expression, self.raw)
         self.as_np = np.array(self.as_list)
-        non_word = re.compile(r'\W+').match
+        non_word = re.compile(r'(%s)' % split_expression).match
         self.string_start = np.hstack(([0], np.cumsum([len(x) for x in self.as_np[:-1]])))
         vocab = {}
         self.inverse_vocab = []
@@ -117,6 +118,7 @@ class LimeTextExplainer(object):
                  verbose=False,
                  class_names=None,
                  feature_selection='auto',
+                 split_expression=r'\W+',
                  bow='bow'):
         """Init function.
 
@@ -130,6 +132,7 @@ class LimeTextExplainer(object):
                 'forward_selection', 'lasso_path', 'none' or 'auto'.
                 See function 'explain_instance_with_data' in lime_base.py for
                 details on what each of the options does.
+            split_expression: strings will be split by this.
             bow: if True (bag of words), will perturb input data by removing all
                 ocurrences of individual words.  Explanations will be in terms of
                 these words. Otherwise, will explain in terms of word-positions,
@@ -145,6 +148,7 @@ class LimeTextExplainer(object):
         self.vocabulary = None
         self.feature_selection = feature_selection
         self.bow = bow
+        self.split_expression = split_expression
     def explain_instance(self,
                          text_instance,
                          classifier_fn,
@@ -175,7 +179,8 @@ class LimeTextExplainer(object):
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
-        indexed_string = IndexedString(text_instance, bow=self.bow)
+        indexed_string = IndexedString(text_instance, bow=self.bow,
+                                       split_expression=self.split_expression)
         data, yss, distances = self.__data_labels_distances(
             indexed_string, classifier_fn, num_samples)
         if not self.class_names:
