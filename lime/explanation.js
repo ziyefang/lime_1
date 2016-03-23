@@ -31,12 +31,16 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   var bar = svg.append("g");
   var this_object = this;
   for (i = 0; i < data.length; i++) {
+    var color = this.colors(names[i]);
+    if (names[i] == 'Other' && this.names.length > 20) {
+        color = '#5F9EA0';
+    }
     rect = bar.append("rect");
     rect.attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
         .attr("width", this.x_scale(data[i]))
-        .style("fill", this.colors_i(i));
+        .style("fill", color);
     bar.append("rect").attr("x", this.bar_x)
         .attr("y", this.BarY(i))
         .attr("height", this.bar_height)
@@ -101,7 +105,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
           .domain([0,1])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
-  console.log(width);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
@@ -129,7 +132,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
     }
     else {
       color = score > 0 ? this.colors_i(class_id) : this.colors('Other');
-      if (this.names.length >= 20 && score < 0) {
+      if (this.names.length > 20 && score < 0) {
         color = '#5F9EA0';
       }
     }
