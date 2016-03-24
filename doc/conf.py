@@ -24,6 +24,7 @@ libpath = os.path.join(curr_path, '../')
 sys.path.insert(0, libpath)
 sys.path.insert(0, curr_path)
 
+import lime
 
 # -- General configuration ------------------------------------------------
 
