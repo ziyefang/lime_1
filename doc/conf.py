@@ -24,6 +24,11 @@ libpath = os.path.join(curr_path, '../')
 sys.path.insert(0, libpath)
 sys.path.insert(0, curr_path)
 
+import mock
+MOCK_MODULES = ['numpy', 'scipy', 'scipy.sparse', 'sklearn', 'matplotlib']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+
 import lime
 import lime.lime_text
 import lime.explanation
