@@ -20,7 +20,7 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 curr_path = os.path.dirname(os.path.abspath(os.path.expanduser(__file__)))
-libpath = os.path.join(curr_path, '../lime/')
+libpath = os.path.join(curr_path, '../')
 sys.path.insert(0, libpath)
 sys.path.insert(0, curr_path)
 
