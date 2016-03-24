@@ -25,6 +25,9 @@ sys.path.insert(0, libpath)
 sys.path.insert(0, curr_path)
 
 import lime
+import lime.lime_text
+import lime.explanation
+import lime.lime_base
 
 # -- General configuration ------------------------------------------------
 
