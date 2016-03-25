@@ -97,6 +97,16 @@ class Explanation(object):
         from IPython.core.display import display, HTML
         display(HTML(self.as_html(labels, predict_proba, text)))
 
+    def save_to_file(self, file_path, labels=None, predict_proba=True, text=True):
+        """Saves html explanation to file. See as_html for paramaters.
+
+        Params:
+            file_path: file to save explanations to
+        """
+        file_ = open(file_path, 'w')
+        file_.write(self.as_html(labels, predict_proba, text))
+        file_.close()
+
 
     def as_html(self, labels=None, predict_proba=True, text=True):
         """Returns the explanation as an html page.
