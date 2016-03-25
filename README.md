@@ -1,5 +1,5 @@
-# understanding-ml
-This project is about understanding what machine learning classifiers (or models) are doing.
+# lime
+This project is about explaining what machine learning classifiers (or models) are doing.
 At the moment, we support explaining individual predictions for text classifiers, with a packages caled lime (short for local interpretable model-agnostic explanations).
 Lime is based on the work presented in [this paper](http://arxiv.org/abs/1602.04938). Our plan is to add more packages that help users understand and interact meaningfully with machine learning.
 
@@ -14,17 +14,17 @@ Or clone the repository and run:
 
 ## Tutorials and API
 For example usage, take a look at the following two tutorials (generated from ipython notebooks):
-- [Basic usage, two class. We explain random forest classifiers.](http://marcotcr.github.io/understanding-ml/tutorials/Lime%20-%20basic%20usage%2C%20two%20class%20case.html)
-- [Multiclass case](http://marcotcr.github.io/understanding-ml/tutorials/Lime%20-%20multiclass.html)
+- [Basic usage, two class. We explain random forest classifiers.](http://marcotcr.github.io/lime/tutorials/Lime%20-%20basic%20usage%2C%20two%20class%20case.html)
+- [Multiclass case](http://marcotcr.github.io/lime/tutorials/Lime%20-%20multiclass.html)
 
-The api reference is available [here](http://understanding-machine-learning.readthedocs.org/en/latest/index.html).
+The api reference is available [here](http://lime-ml.readthedocs.org/en/latest/).
 ## Screenshots 
 Below are some screenshots of lime explanations. These are generated in html, and can be easily produced and embedded in ipython notebooks. We also support visualizations using matplotlib, although they don't look as nice as these ones.
 #### Two class case
 Negative (blue) words indicate atheism, while positive (orange) words indicate christian. The way to interpret the weights by applying them to the prediction probabilities. For example, if we remove the words Host and NNTP from the document, we expect the classifier to predict atheism with probability 0.57 - 0.14 - 0.12 = 0.31. 
-<img src="https://raw.githubusercontent.com/marcotcr/understanding-ml/master/doc/images/twoclass.png" />
+<img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/twoclass.png" />
 #### Multiclass case
-<img src="https://raw.githubusercontent.com/marcotcr/understanding-ml/master/doc/images/multiclass.png" />
+<img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/multiclass.png" />
 
 ## What are explanations?
 
@@ -36,4 +36,4 @@ The bright red cross is the instance being explained (let's call it X).
 We sample instances around X, and weight them according to their proximity to X.
 We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necesseraly globaly. For more information, [read our paper](http://arxiv.org/abs/1602.04938).
 
-<img src="https://raw.githubusercontent.com/marcotcr/understanding-ml/master/doc/images/lime.png" width=300px />
+<img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/lime.png" width=300px />

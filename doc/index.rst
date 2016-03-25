@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Understanding machine learning
+Local Interpretable Model-Agnostic Explanations (lime)
 ================================
 In this page, you can find the Python API reference for the lime package (local interpretable model-agnostic explanations).
 For tutorials and more information, visit `the github page <https://github.com/marcotcr/understanding-ml>`_.
