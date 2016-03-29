@@ -119,7 +119,7 @@ class LimeTextExplainer(object):
                  class_names=None,
                  feature_selection='auto',
                  split_expression=r'\W+',
-                 bow='bow'):
+                 bow=True):
         """Init function.
 
         Args:
