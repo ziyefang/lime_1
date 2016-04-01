@@ -71,10 +71,8 @@ class LimeBase(object):
                                      reverse=True)
             return np.array([x[0] for x in feature_weights[:num_features]])
         elif method == 'lasso_path':
-            weighted_data = data * weights[:, np.newaxis]
-            mean = np.mean(labels)
-            shifted_labels = labels - mean
-            weighted_labels = shifted_labels * weights
+            weighted_data = (data - np.average(data, axis=0, weights=weights)) * np.sqrt(weights[:, np.newaxis])
+            weighted_labels = (labels - np.average(labels, weights=weights)) * np.sqrt(weights)
             used_features = range(weighted_data.shape[1])
             nonzero = range(weighted_data.shape[1])
             _, coefs = self.generate_lars_path(weighted_data,
