@@ -33,7 +33,7 @@ While the model may be very complex globally, it is easier to approximate it aro
 While treating the model as a black box, we perturb the instance we want to explain and learn a sparse linear model around it, as an explanation.
 The figure below illustrates the intuition for this procedure. The model's decision function is represented by the blue/pink background, and is clearly nonlinear.
 The bright red cross is the instance being explained (let's call it X).
-We sample instances around X, and weight them according to their proximity to X.
-We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necesseraly globaly. For more information, [read our paper](http://arxiv.org/abs/1602.04938).
+We sample instances around X, and weight them according to their proximity to X (weight here is indicated by size).
+We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necessarily globaly. For more information, [read our paper](http://arxiv.org/abs/1602.04938).
 
 <img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/lime.png" width=300px />
