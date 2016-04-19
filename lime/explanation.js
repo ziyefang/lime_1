@@ -191,14 +191,17 @@ Explanation.prototype.ShowTable = function(div, data, class_id) {
   }
   var table = div.append('table');
   table.style('border-collapse', 'collapse')
-       .style('color', 'white');
+       .style('color', 'white')
+       .style('border-style', 'hidden');
   var thead = table.append('tr');
   thead.append('td').text('Feature');
   thead.append('td').text('Value');
   thead.append('td').text('Unit (std)');
-  thead.style('color', 'black');
+  thead.style('color', 'black')
+       .style('font-size', '20px');
   _.forEach(data, function(d) {
     var tr = table.append('tr');
+    tr.style('border-style', 'hidden');
     tr.append('td').text(d[0]);
     tr.append('td').text(d[1]);
     tr.append('td').text(d[2]);
@@ -213,5 +216,5 @@ Explanation.prototype.ShowTable = function(div, data, class_id) {
     }
   });
 
-  table.selectAll('td').style('padding', '8px');
+  table.selectAll('td').style('padding', '8px').style('border-style', 'hidden');
 }

@@ -2,10 +2,8 @@
 Functions for explaining classifiers that use tabular data (matrices).
 """
 #TODO
-#from . import lime_base
-#from . import explanation
-from lime import lime_base
-from lime import explanation
+from . import lime_base
+from . import explanation
 import numpy as np
 import scipy as sp
 import sklearn
@@ -13,14 +11,60 @@ import sklearn.preprocessing
 import collections
 import re
 import itertools
+import json
+import copy
+
+class TableDomainMapper(explanation.DomainMapper):
+    def __init__(self, feature_names, feature_values, feature_stds):
+        """Initializer.
+
+        Args:
+            indexed_string: lime_text.IndexedString, original string
+        """
+        self.feature_names = feature_names
+        self.feature_values = feature_values
+        self.feature_stds = feature_stds
+    def map_exp_ids(self, exp):
+        """Maps ids to words or word-position strings.
+
+        Args:
+            positions: if True, also return word positions
+
+        Returns: 
+        TODO TODO
+            list of tuples (word, weight), or (word_positions, weight) if
+            examples: ('bad', 1) or ('bad_3-6-12', 1)
+        """
+        return [(self.feature_names[x[0]], x[1]) for x in exp]
+    def visualize_instance_html(self, exp, label, random_id, show_all=True):
+        weights = [0] * len(self.feature_names)
+        # TODO TODO 
+        for i, value in exp:
+            weights[i] = value
+        out_list = zip(self.feature_names, self.feature_values,
+                self.feature_stds, weights)
+        if not show_all:
+            out_list = [x for x in out_list if x[3] != 0]
+        out = '<div id="mytable%s"><h3>Example row:</h3></div>' % random_id
+        out += '''<script>
+        var tab = d3.select('#mytable%s');
+        exp.ShowTable(tab, %s, %d);
+        </script>
+        ''' % (random_id, json.dumps(out_list), label)
+        return out
+
 
 class LimeTabularExplainer(object):
     """TODO"""
     def __init__(self, training_data, feature_types=None,
-            feature_names=None, kernel_width=3,
+            feature_names=None, categorical_names=None, kernel_width=3,
             verbose=False, class_names=None, feature_selection='auto'):
+        # categorical_names[id] = ['name1', 'name2', ...]
         
-        self.feature_types = feature_types;
+        self.categorical_names = categorical_names
+        if self.categorical_names is None:
+            self.categorical_names = {}
+        self.feature_types = feature_types
         if self.feature_types is None:
             self.feature_types = {}
         if 'categorical' not in self.feature_types:
@@ -29,6 +73,7 @@ class LimeTabularExplainer(object):
             self.feature_types['countable'] = []
 
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
+        self.feature_selection = feature_selection
         self.base = lime_base.LimeBase(kernel, verbose)
         self.scaler = None
         self.feature_names = feature_names
@@ -37,7 +82,7 @@ class LimeTabularExplainer(object):
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
-        for feature in feature_types['categorical']:
+        for feature in self.feature_types['categorical']:
             feature_count = collections.defaultdict(lambda: 0.0)
             for value in training_data[:, feature]:
                 feature_count[value] += 1
@@ -55,6 +100,29 @@ class LimeTabularExplainer(object):
         yss = classifier_fn(inverse)
         if not self.class_names:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
+        feature_names = copy.deepcopy(self.feature_names)
+        if feature_names is None:
+            feature_names = map(str, range(data_row.shape[0]))
+        for i in self.feature_types['categorical']:
+            name = int(data_row[i])
+            if i in self.categorical_names:
+                name = self.categorical_names[i][name]
+            feature_names[i] = '%s=%s' % (feature_names[i], name)
+        round_stuff = lambda x: ['%.2f' % a for a in x]
+        domain_mapper = TableDomainMapper(feature_names, round_stuff(data_row), round_stuff(self.scaler.scale_))
+        ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
+                                          class_names=self.class_names)
+        ret_exp.predict_proba = yss[0]
+        #map_exp = lambda exp: [(indexed_string.word(x[0]), x[1]) for x in exp]
+        if top_labels:
+            labels = np.argsort(yss[0])[-top_labels:]
+            ret_exp.top_labels = list(labels)
+            ret_exp.top_labels.reverse()
+        for label in labels:
+            ret_exp.local_exp[label] = self.base.explain_instance_with_data(
+                data, yss, distances, label, num_features,
+                feature_selection=self.feature_selection)
+        return ret_exp
 
     def data_inverse(self,
                        data_row,
