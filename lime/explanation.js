@@ -99,12 +99,17 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var bar_height = 17;
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
+  var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
+  console.log(max_length);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
           .domain([0,1])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
+  // Each letter is approximately 7 pixels wide, so this should make sure
+  // feature names aren't cut
+  width = Math.max(width, 7 * max_length * 2);
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
