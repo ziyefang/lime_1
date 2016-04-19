@@ -1,6 +1,7 @@
 """
 Functions for explaining text classifiers.
 """
+from __future__ import unicode_literals
 from . import lime_base
 from . import explanation
 import numpy as np

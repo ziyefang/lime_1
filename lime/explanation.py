@@ -1,6 +1,8 @@
 """
 Explanation class, with visualization functions.
 """
+from __future__ import unicode_literals
+from io import open
 import os
 import os.path
 import json
@@ -32,8 +34,8 @@ class Explanation(object):
     def available_labels(self):
         """Returns the list of labels for which we have any explanations."""
         if self.top_labels:
-            return self.top_labels
-        return self.local_exp.keys()
+            return list(self.top_labels)
+        return list(self.local_exp.keys())
     def as_list(self, label=1, positions=False):
         """Returns the explanation as a list.
 
@@ -136,7 +138,7 @@ class Explanation(object):
         # these HTML pages are embedded into an ipython notebook (which would
         # cause interference if they all had the same name)
         random_id = id_generator()
-        out = '''<html><head><script>%s </script>
+        out = u'''<html><head><script>%s </script>
         <script>%s </script>
         <script>%s </script>
         </head>
@@ -147,7 +149,7 @@ class Explanation(object):
         ''' % (random_id)
 
         if text:
-            text = self.indexed_string.raw_string().encode('ascii', 'xmlcharrefreplace')
+            text = self.indexed_string.raw_string().encode('ascii', 'xmlcharrefreplace').decode()
             # removing < > and & to display in html
             text = re.sub(r'[<>&]', '|', text)
             exp = self.as_list(labels[0], positions=True)
@@ -194,4 +196,3 @@ class Explanation(object):
 
         out += '</script></body></html>'
         return out
-
