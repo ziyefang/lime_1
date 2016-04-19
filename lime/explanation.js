@@ -182,3 +182,14 @@ Explanation.prototype.UpdateTextColors = function(div, class_id) {
   div.selectAll('.pos').style('background-color', pos_color);
   div.selectAll('.neg').style('background-color', neg_color);
 }
+
+Explanation.prototype.ShowTable = function(div, data) {
+  var table = div.append('table');
+  table.style('border-collapse', 'collapse');
+  var thead = table.append('tr');
+  thead.append('td').text('Feature');
+  thead.append('td').text('Value');
+  thead.append('td').text('Unit of Choice (std)');
+  table.selectAll('td').style('padding', '8px');
+  table.selectAll('tr').style('padding', function(i) {return i % 2 == 0 ? 'white' : 'grey'});
+}
