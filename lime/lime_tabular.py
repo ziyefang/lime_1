@@ -44,7 +44,7 @@ class TableDomainMapper(explanation.DomainMapper):
         out_list = zip(self.feature_names, self.feature_values,
                 self.feature_stds, weights)
         if not show_all:
-            out_list = [x for x in out_list if x[3] != 0]
+            out_list = [out_list[x[0]] for x in exp]
         out = '<div id="mytable%s"><h3>Example row:</h3></div>' % random_id
         out += '''<script>
         var tab = d3.select('#mytable%s');
