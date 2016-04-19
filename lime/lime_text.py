@@ -9,6 +9,67 @@ import sklearn
 import re
 import itertools
 
+class TextDomainMapper(explanation.DomainMapper):
+    def __init__(self, indexed_string):
+        """Initializer.
+
+        Args:
+            indexed_string: lime_text.IndexedString, original string
+        """
+        self.indexed_string = indexed_string
+    def map_exp_ids(self, exp, positions=False):
+        """Maps ids to words or word-position strings.
+
+        Args:
+            positions: if True, also return word positions
+
+        Returns:
+            list of tuples (word, weight), or (word_positions, weight) if
+            examples: ('bad', 1) or ('bad_3-6-12', 1)
+        """
+        if positions:
+            exp = [('%s_%s' % (self.indexed_string.word(x[0]),
+                    '-'.join(map(str,self.indexed_string.string_position(x[0])))),
+                    x[1]) for x in exp]
+        else:
+            exp = [(self.indexed_string.word(x[0]), x[1]) for x in exp]
+        return exp
+    def visualize_instance_html(self, exp, label, random_id, text=True):
+        if not text:
+            return ''
+        text = self.indexed_string.raw_string().encode('ascii', 'xmlcharrefreplace')
+        text = re.sub(r'[<>&]', '|', text)
+        exp = [(self.indexed_string.word(x[0]),
+                    self.indexed_string.string_position(x[0]),
+                    x[1]) for x in exp]
+        all_ocurrences = list(itertools.chain.from_iterable(
+            [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
+        sorted_ocurrences = sorted(all_ocurrences, key=lambda x: x[1])
+        add_after = '</span>'
+        added = 0
+        for word, position, val in sorted_ocurrences:
+            class_ = 'pos' if val > 0 else 'neg'
+            add_before = '<span class="%s">' % class_
+            idx0 = position + added
+            idx1 = idx0 + len(word)
+            text = '%s%s%s%s%s' % (text[:idx0],
+                                   add_before,
+                                   text[idx0:idx1],
+                                   add_after,
+                                   text[idx1:])
+            added += len(add_before) + len(add_after)
+        text = re.sub('\n', '<br />', text)
+        out = ('<div id="mytext%s"><h3>Text with highlighted words</h3>'
+                    '%s</div>' % (random_id, text))
+        out += '''
+        <script>
+        var text_div = d3.select('#mytext%s');
+        exp.UpdateColors(text_div, %d);
+        </script>
+        ''' % (random_id, label)
+        return out
+
+
 class ScikitClassifier(object):
     """ Takes a classifier and vectorizer, implements predict_proba on raw text.
     """
@@ -181,11 +242,12 @@ class LimeTextExplainer(object):
         """
         indexed_string = IndexedString(text_instance, bow=self.bow,
                                        split_expression=self.split_expression)
+        domain_mapper = TextDomainMapper(indexed_string)
         data, yss, distances = self.__data_labels_distances(
             indexed_string, classifier_fn, num_samples)
         if not self.class_names:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
-        ret_exp = explanation.Explanation(indexed_string=indexed_string,
+        ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
                                           class_names=self.class_names)
         ret_exp.predict_proba = yss[0]
         #map_exp = lambda exp: [(indexed_string.word(x[0]), x[1]) for x in exp]

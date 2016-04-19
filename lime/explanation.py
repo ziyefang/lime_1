@@ -15,46 +15,84 @@ def id_generator(size=15):
     chars = list(string.ascii_uppercase + string.digits)
     return ''.join(np.random.choice(chars, size, replace=True))
 
+class DomainMapper(object):
+    """Class for mapping features to the specific domain.
+    
+    The idea is that there would be a subclass for each domain (text, tables,
+    images, etc), so that we can have a general Explanation class, and separate
+    out the specifics of visualizing features in here.
+    """
+    def __init__(self):
+        pass
+    def map_exp_ids(self, exp, **kwargs):
+        """Maps the feature ids to concrete names.
+
+        Default behaviour is the identity function. Subclasses can implement
+        this as they see fit.
+
+        Args:
+            exp: list of tuples [(id, weight), (id,weight)]
+            kwargs: optional keyword arguments
+
+        Returns:
+            exp: list of tuples [(name, weight), (name, weight)...]
+        """
+        return exp
+    def visualize_instance_html(self, exp, label, random_id, **kwargs):
+        """Produces html for visualizing the instance.
+        
+        Default behaviour does nothing. Subclasses can implement this as they see
+        fit.
+
+        Args:
+             exp: list of tuples [(id, weight), (id,weight)]
+             label: label id (integer)
+             random_id: random_id being used, appended to div ids and etc in html
+             kwargs: optional keyword arguments
+
+        Returns:
+             html code for visualizing the instance
+        """
+        return ''
+       
+        
+
 class Explanation(object):
     """Object returned by explainers."""
-    def __init__(self, indexed_string, class_names=None):
+    def __init__(self, domain_mapper, class_names=None):
         """Initializer.
 
         Args:
+            domain_mapper: must inherit from DomainMapper class
             indexed_string: lime_text.IndexedString, original string
             class_names: list of class names
         """
-        self.indexed_string = indexed_string
+        self.domain_mapper = domain_mapper
         self.class_names = class_names
         self.local_exp = {}
         self.top_labels = None
         self.predict_proba = None
+
     def available_labels(self):
         """Returns the list of labels for which we have any explanations."""
         if self.top_labels:
             return self.top_labels
         return self.local_exp.keys()
-    def as_list(self, label=1, positions=False):
+
+    def as_list(self, label=1, **kwargs):
         """Returns the explanation as a list.
 
         Args:
             label: desired label. If you ask for a label for which an
                 explanation wasn't computed, will throw an exception.
-            positions: if True, also return word positions
+            kwargs: keyword arguments, passed to domain_mapper
 
         Returns:
-            list of tuples (word, weight), or (word, positions, weight) if
-            positions=True. Word is a string, positions is a numpy array and
-            weight is a float.
+            list of tuples (representation, weight), where representation is
+            given by domain_mapper. Weight is a float.
         """
-        exp = self.local_exp[label]
-        if positions:
-            exp = [(self.indexed_string.word(x[0]),
-                    self.indexed_string.string_position(x[0]),
-                    x[1]) for x in exp]
-        else:
-            exp = [(self.indexed_string.word(x[0]), x[1]) for x in exp]
-        return exp
+        return self.domain_mapper.map_exp_ids(self.local_exp[label], **kwargs)
+
     def as_map(self):
         """Returns the map of explanations.
 
@@ -63,19 +101,20 @@ class Explanation(object):
         """
         return self.local_exp
 
-    def as_pyplot_figure(self, label=1):
+    def as_pyplot_figure(self, label=1, **kwargs):
         """Returns the explanation as a pyplot figure.
 
         Will throw an error if you don't have matplotlib installed
         Args:
             label: desired label. If you ask for a label for which an
                    explanation wasn't computed, will throw an exception.
+            kwargs: keyword arguments, passed to domain_mapper
 
         Returns:
             pyplot figure (barchart).
         """
         import matplotlib.pyplot as plt
-        exp = self.as_list(label)
+        exp = self.as_list(label, **kwargs)
         fig = plt.figure()
         vals = [x[1] for x in exp]
         names = [x[0] for x in exp]
@@ -89,26 +128,26 @@ class Explanation(object):
         return fig
 
 
-    def show_in_notebook(self, labels=None, predict_proba=True, text=True):
+    def show_in_notebook(self, labels=None, predict_proba=True, **kwargs):
         """Shows html explanation in ipython notebook.
 
            See as_html for parameters.
            This will throw an error if you don't have IPython installed"""
         from IPython.core.display import display, HTML
-        display(HTML(self.as_html(labels, predict_proba, text)))
+        display(HTML(self.as_html(labels, predict_proba, **kwargs)))
 
-    def save_to_file(self, file_path, labels=None, predict_proba=True, text=True):
+    def save_to_file(self, file_path, labels=None, predict_proba=True, **kwargs):
         """Saves html explanation to file. See as_html for paramaters.
 
         Params:
             file_path: file to save explanations to
         """
         file_ = open(file_path, 'w')
-        file_.write(self.as_html(labels, predict_proba, text))
+        file_.write(self.as_html(labels, predict_proba, **kwargs))
         file_.close()
 
 
-    def as_html(self, labels=None, predict_proba=True, text=True):
+    def as_html(self, labels=None, predict_proba=True, **kwargs):
         """Returns the explanation as an html page.
 
         Args:
@@ -118,10 +157,7 @@ class Explanation(object):
                 available labels.
             predict_proba: if true, add  barchart with prediction probabilities
                 for the top classes.
-            text: If True, include the text in the HTML page, with words in the
-                explanation highlighted with the appropriate color. If more than
-                one label is present, highlights the words according to the
-                explanation of labels[0].
+            kwargs: keyword arguments, passed to domain_mapper
 
         Returns:
             code for an html page, including javascript includes.
@@ -146,30 +182,6 @@ class Explanation(object):
         <div id="mychart%s" style="float:left"></div>
         ''' % (random_id)
 
-        if text:
-            text = self.indexed_string.raw_string().encode('ascii', 'xmlcharrefreplace')
-            # removing < > and & to display in html
-            text = re.sub(r'[<>&]', '|', text)
-            exp = self.as_list(labels[0], positions=True)
-            all_ocurrences = list(itertools.chain.from_iterable(
-                [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
-            sorted_ocurrences = sorted(all_ocurrences, key=lambda x: x[1])
-            add_after = '</span>'
-            added = 0
-            for word, position, val in sorted_ocurrences:
-                class_ = 'pos' if val > 0 else 'neg'
-                add_before = '<span class="%s">' % class_
-                idx0 = position + added
-                idx1 = idx0 + len(word)
-                text = '%s%s%s%s%s' % (text[:idx0],
-                                       add_before,
-                                       text[idx0:idx1],
-                                       add_after,
-                                       text[idx1:])
-                added += len(add_before) + len(add_after)
-            text = re.sub('\n', '<br />', text)
-            out += ('<div id="mytext%s"><h3>Text with highlighted words</h3>'
-                    '%s</div>' % (random_id, text))
         out += '''
         <script>
         var exp = new Explanation(%s);
@@ -186,12 +198,9 @@ class Explanation(object):
                 var svg%d = d3.select('#mychart%s').append('svg');
                 exp.ExplainFeatures(svg%d, %d, %s, 'Local explanation', true);
             ''' % (i, random_id, i, label, exp)
-        if text is not None:
-            out += '''
-            var text_div = d3.select('#mytext%s');
-            exp.UpdateColors(text_div, %d);
-            ''' % (random_id, labels[0])
-
-        out += '</script></body></html>'
+        out += '</script>'
+        out += self.domain_mapper.visualize_instance_html(
+            self.local_exp[labels[0]], labels[0], random_id, **kwargs)
+        out += '</body></html>'
         return out
 
