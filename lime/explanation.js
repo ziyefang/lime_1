@@ -170,7 +170,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   
 }
 
-Explanation.prototype.UpdateColors = function(div, class_id) {
+Explanation.prototype.UpdateTextColors = function(div, class_id) {
   div.style('width', '550px')
      .style('float', 'left');
   var pos_color = this.colors_i(class_id);

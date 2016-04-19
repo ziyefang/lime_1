@@ -64,7 +64,7 @@ class TextDomainMapper(explanation.DomainMapper):
         out += '''
         <script>
         var text_div = d3.select('#mytext%s');
-        exp.UpdateColors(text_div, %d);
+        exp.UpdateTextColors(text_div, %d);
         </script>
         ''' % (random_id, label)
         return out
