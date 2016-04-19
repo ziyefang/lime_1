@@ -183,13 +183,35 @@ Explanation.prototype.UpdateTextColors = function(div, class_id) {
   div.selectAll('.neg').style('background-color', neg_color);
 }
 
-Explanation.prototype.ShowTable = function(div, data) {
+Explanation.prototype.ShowTable = function(div, data, class_id) {
+  var pos_color = this.colors_i(class_id);
+  var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
+  if (this.names.length >= 20) {
+    neg_color = '#5F9EA0';
+  }
   var table = div.append('table');
-  table.style('border-collapse', 'collapse');
+  table.style('border-collapse', 'collapse')
+       .style('color', 'white');
   var thead = table.append('tr');
   thead.append('td').text('Feature');
   thead.append('td').text('Value');
-  thead.append('td').text('Unit of Choice (std)');
+  thead.append('td').text('Unit (std)');
+  thead.style('color', 'black');
+  _.forEach(data, function(d) {
+    var tr = table.append('tr');
+    tr.append('td').text(d[0]);
+    tr.append('td').text(d[1]);
+    tr.append('td').text(d[2]);
+    if (d[3] > 0) {
+      tr.style('background-color', pos_color);
+    }
+    else if (d[3] < 0) {
+      tr.style('background-color', neg_color);
+    }
+    else {
+      tr.style('color', 'black');
+    }
+  });
+
   table.selectAll('td').style('padding', '8px');
-  table.selectAll('tr').style('padding', function(i) {return i % 2 == 0 ? 'white' : 'grey'});
 }
