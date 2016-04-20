@@ -77,7 +77,7 @@ class LimeTabularExplainer(object):
         self.base = lime_base.LimeBase(kernel, verbose)
         self.scaler = None
         self.feature_names = feature_names
-        self.class_names = class_names
+        self.class_names = list(class_names)
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
@@ -98,7 +98,7 @@ class LimeTabularExplainer(object):
         scaled_data = (data - self.scaler.mean_) / self.scaler.scale_
         distances = np.sqrt(np.sum((scaled_data - scaled_data[0]) ** 2, axis=1)) 
         yss = classifier_fn(inverse)
-        if not self.class_names:
+        if self.class_names is None:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
@@ -124,8 +124,10 @@ class LimeTabularExplainer(object):
             ret_exp.top_labels.reverse()
         for label in labels:
             ret_exp.local_exp[label] = self.base.explain_instance_with_data(
-                data, yss, distances, label, num_features,
+                scaled_data, yss, distances, label, num_features,
                 feature_selection=self.feature_selection)
+            print [scaled_data[0,i[0]] for i in ret_exp.local_exp[label]]
+            #print ret_exp.local_exp[label]
         return ret_exp
 
     def data_inverse(self,

@@ -66,7 +66,8 @@ class LimeBase(object):
         elif method == 'highest_weights':
             clf = linear_model.Ridge(alpha=0, fit_intercept=True)
             clf.fit(data, labels, sample_weight=weights)
-            feature_weights = sorted(zip(range(data.shape[0]), clf.coef_),
+            feature_weights = sorted(zip(range(data.shape[0]), clf.coef_ *
+                    data[0]),
                                      key=lambda x: np.abs(x[1]),
                                      reverse=True)
             return np.array([x[0] for x in feature_weights[:num_features]])
@@ -113,7 +114,8 @@ class LimeBase(object):
                 'forward_selection': iteratively add features to the model. This
                                      is costly when num_features is high
                 'highest_weights': selects the features that have the highest
-                                   absolute weights when learning with all the
+                                   product of absolute weight * original data
+                                   point when learning with all the
                                    features
                 'lasso_path': chooses features based on the lasso regularization
                               path
