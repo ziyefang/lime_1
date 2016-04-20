@@ -103,13 +103,17 @@ class LimeTabularExplainer(object):
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
             feature_names = map(str, range(data_row.shape[0]))
+        round_stuff = lambda x: ['%.2f' % a for a in x]
+        values = round_stuff(data_row)
+        stds = round_stuff(self.scaler.scale_)
         for i in self.feature_types['categorical']:
             name = int(data_row[i])
             if i in self.categorical_names:
                 name = self.categorical_names[i][name]
             feature_names[i] = '%s=%s' % (feature_names[i], name)
-        round_stuff = lambda x: ['%.2f' % a for a in x]
-        domain_mapper = TableDomainMapper(feature_names, round_stuff(data_row), round_stuff(self.scaler.scale_))
+            values[i] = 'True'
+            stds[i] = 'N/A'
+        domain_mapper = TableDomainMapper(feature_names, values, stds)
         ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
                                           class_names=self.class_names)
         ret_exp.predict_proba = yss[0]
