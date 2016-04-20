@@ -15,7 +15,7 @@ import json
 import copy
 
 class TableDomainMapper(explanation.DomainMapper):
-    def __init__(self, feature_names, feature_values, feature_stds):
+    def __init__(self, feature_names, feature_values, scaled_row, categorical_features):
         """Initializer.
 
         Args:
@@ -23,7 +23,9 @@ class TableDomainMapper(explanation.DomainMapper):
         """
         self.feature_names = feature_names
         self.feature_values = feature_values
-        self.feature_stds = feature_stds
+        self.scaled_row = scaled_row
+        self.all_categorical = len(categorical_features) == len(scaled_row)
+        self.categorical_features = categorical_features
     def map_exp_ids(self, exp):
         """Maps ids to words or word-position strings.
 
@@ -36,21 +38,43 @@ class TableDomainMapper(explanation.DomainMapper):
             examples: ('bad', 1) or ('bad_3-6-12', 1)
         """
         return [(self.feature_names[x[0]], x[1]) for x in exp]
-    def visualize_instance_html(self, exp, label, random_id, show_all=True):
+    def visualize_instance_html(self, exp, label, random_id,
+            show_contributions=None, show_scaled=None, show_all=False):
+        if show_contributions is None:
+            show_contributions = not self.all_categorical
+        if show_scaled is None:
+            show_scaled = not self.all_categorical
+        show_scaled = json.dumps(show_scaled)
         weights = [0] * len(self.feature_names)
         # TODO TODO 
+        scaled_exp = []
         for i, value in exp:
-            weights[i] = value
+            weights[i] = value * self.scaled_row[i]
+            scaled_exp.append((i, value * self.scaled_row[i]))
+        scaled_exp = json.dumps(self.map_exp_ids(scaled_exp))
+        row = ['%.2f' % a if i not in self.categorical_features else 'N/A' for i, a in enumerate(self.scaled_row)]
         out_list = zip(self.feature_names, self.feature_values,
-                self.feature_stds, weights)
+                row, weights)
         if not show_all:
             out_list = [out_list[x[0]] for x in exp]
-        out = '<div id="mytable%s"><h3>Example row:</h3></div>' % random_id
+        out = ''
+        if show_contributions:
+            out += '''<script>
+                    var cur_width = parseInt(d3.select('#model%s').select('svg').style('width'));
+                    console.log(cur_width);
+                    var svg_contrib = d3.select('#model%s').append('svg');
+                    exp.ExplainFeatures(svg_contrib, %d, %s, '%s', true);
+                    cur_width = Math.max(cur_width, parseInt(svg_contrib.style('width'))) + 'px';
+                    d3.select('#model%s').style('width', cur_width);
+                    </script>
+                    ''' % (random_id, random_id, label, scaled_exp, 'Feature contributions', random_id)
+
+        out += '<div id="mytable%s"></div>' % random_id
         out += '''<script>
         var tab = d3.select('#mytable%s');
-        exp.ShowTable(tab, %s, %d);
+        exp.ShowTable(tab, %s, %d, %s);
         </script>
-        ''' % (random_id, json.dumps(out_list), label)
+        ''' % (random_id, json.dumps(out_list), label, show_scaled)
         return out
 
 
@@ -76,8 +100,8 @@ class LimeTabularExplainer(object):
         self.feature_selection = feature_selection
         self.base = lime_base.LimeBase(kernel, verbose)
         self.scaler = None
+        self.class_names = class_names
         self.feature_names = feature_names
-        self.class_names = list(class_names)
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
@@ -100,20 +124,21 @@ class LimeTabularExplainer(object):
         yss = classifier_fn(inverse)
         if self.class_names is None:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
+        else:
+            self.class_names = list(self.class_names)
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
             feature_names = map(str, range(data_row.shape[0]))
         round_stuff = lambda x: ['%.2f' % a for a in x]
         values = round_stuff(data_row)
-        stds = round_stuff(self.scaler.scale_)
         for i in self.feature_types['categorical']:
             name = int(data_row[i])
             if i in self.categorical_names:
                 name = self.categorical_names[i][name]
             feature_names[i] = '%s=%s' % (feature_names[i], name)
             values[i] = 'True'
-            stds[i] = 'N/A'
-        domain_mapper = TableDomainMapper(feature_names, values, stds)
+        domain_mapper = TableDomainMapper(feature_names, values,
+                scaled_data[0], categorical_features=self.feature_types['categorical'])
         ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
                                           class_names=self.class_names)
         ret_exp.predict_proba = yss[0]

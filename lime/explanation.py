@@ -147,7 +147,7 @@ class Explanation(object):
         file_.close()
 
 
-    def as_html(self, labels=None, predict_proba=True, **kwargs):
+    def as_html(self, labels=None, predict_proba=True, title='Local model approximation', **kwargs):
         """Returns the explanation as an html page.
 
         Args:
@@ -179,8 +179,9 @@ class Explanation(object):
         <body>
         ''' % (dthree, lodash, exp_js)
         out += '''
-        <div id="mychart%s" style="float:left"></div>
-        ''' % (random_id)
+        <div id="mychart%s" style="float:left"><div id="probas%s"
+        style="float:left"></div><div id="model%s" style="float:left"></div></div>
+        ''' % (random_id, random_id, random_id)
 
         out += '''
         <script>
@@ -189,14 +190,14 @@ class Explanation(object):
 
         if predict_proba:
             out += '''
-            var svg = d3.select('#mychart%s').append('svg');
+            var svg = d3.select('#probas%s').append('svg');
             exp.PredictProba(svg, %s);
             ''' % (random_id, json.dumps(list(self.predict_proba)))
         for i, label in enumerate(labels):
             exp = json.dumps(self.as_list(label))
             out += '''
-                var svg%d = d3.select('#mychart%s').append('svg');
-                exp.ExplainFeatures(svg%d, %d, %s, 'Local explanation', true);
+                var svg%d = d3.select('#model%s').append('svg');
+                exp.ExplainFeatures(svg%d, %d, %s, 'Local model approximation', true);
             ''' % (i, random_id, i, label, exp)
         out += '</script>'
         out += self.domain_mapper.visualize_instance_html(

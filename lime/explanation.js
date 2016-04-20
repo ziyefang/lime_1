@@ -11,22 +11,25 @@ var Explanation = function(class_names) {
   }
 }
 Explanation.prototype.PredictProba = function(svg, predict_proba) {
-  svg.style('float', 'left')
-     .style('width', 225);
+  var mapped = this.MapClasses(this.names, predict_proba);
+  var names = mapped[0];
+  var data = mapped[1];
+  var max_length = _.max(_.map(names, function(d) {return d.length;}));
   this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
   this.width = 225;
-  this.bar_width = this.width - this.bar_x - 31;
+  this.width = 125 + 10 + max_length * 7;
+  svg.style('float', 'left')
+     .style('width', this.width);
+  this.bar_x = this.width - 125;
+  this.bar_width = this.width - this.bar_x - 32;
   this.x_scale = d3.scale.linear().range([0, this.bar_width]);
   svg.append('text')
      .text('Prediction probabilities')
      .attr('x', 40)
      .attr('y', 20);
   this.bar_yshift=35;
-  var mapped = this.MapClasses(this.names, predict_proba);
-  var names = mapped[0];
-  var data = mapped[1];
   var n_bars = Math.min(5, names.length);
   var bar = svg.append("g");
   var this_object = this;
@@ -100,7 +103,6 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
-  console.log(max_length);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
@@ -113,7 +115,9 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var x_offset = width / 2;
   var total_height = (bar_height + 10) * exp_array.length;
   svg.style('width', width)
-     .style('height', yshift + total_height + 10);
+     .style('height', yshift + total_height + 10)
+     .style('display', 'block')
+     .style('margin', '0 auto');
   svg.append('text')
      .text(title)
      .attr('y', 20)
@@ -183,7 +187,7 @@ Explanation.prototype.UpdateTextColors = function(div, class_id) {
   div.selectAll('.neg').style('background-color', neg_color);
 }
 
-Explanation.prototype.ShowTable = function(div, data, class_id) {
+Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
   var pos_color = this.colors_i(class_id);
   var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
   if (this.names.length >= 20) {
@@ -192,11 +196,14 @@ Explanation.prototype.ShowTable = function(div, data, class_id) {
   var table = div.append('table');
   table.style('border-collapse', 'collapse')
        .style('color', 'white')
-       .style('border-style', 'hidden');
+       .style('border-style', 'hidden')
+       .style('margin', '0 auto');
   var thead = table.append('tr');
   thead.append('td').text('Feature');
   thead.append('td').text('Value');
-  thead.append('td').text('Unit (std)');
+  if (std_column) {
+    thead.append('td').text('Scaled');
+  }
   thead.style('color', 'black')
        .style('font-size', '20px');
   _.forEach(data, function(d) {
@@ -204,7 +211,9 @@ Explanation.prototype.ShowTable = function(div, data, class_id) {
     tr.style('border-style', 'hidden');
     tr.append('td').text(d[0]);
     tr.append('td').text(d[1]);
-    tr.append('td').text(d[2]);
+    if (std_column) {
+      tr.append('td').text(d[2]);
+    }
     if (d[3] > 0) {
       tr.style('background-color', pos_color);
     }
@@ -216,5 +225,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id) {
     }
   });
 
-  table.selectAll('td').style('padding', '8px').style('border-style', 'hidden');
+  table.selectAll('td').style('padding', '8px')
+                       .style('border-style', 'hidden')
+                       .style('max-width', '150px');
 }
