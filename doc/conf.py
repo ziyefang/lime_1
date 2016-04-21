@@ -31,6 +31,7 @@ for mod_name in MOCK_MODULES:
 
 import lime
 import lime.lime_text
+import lime.lime_tabular
 import lime.explanation
 import lime.lime_base
 
