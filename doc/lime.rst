@@ -12,6 +12,14 @@ lime.lime_text module
     :undoc-members:
     :show-inheritance:
 
+lime.lime_tabular module
+---------------------
+
+.. automodule:: lime.lime_tabular
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lime.explanation module
 -----------------------
 
