@@ -173,7 +173,7 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
 }
 
 Explanation.prototype.UpdateTextColors = function(div, class_id) {
-  div.style('width', '550px')
+  div.style('width', '450px')
      .style('float', 'left');
   var pos_color = this.colors_i(class_id);
   var neg_color = this.names.length == 3 ? this.colors_i(1 - class_id) : this.colors('Other');
