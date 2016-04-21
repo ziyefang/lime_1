@@ -71,13 +71,13 @@ class TableDomainMapper(explanation.DomainMapper):
         scaled_exp = json.dumps(self.map_exp_ids(scaled_exp))
         row = ['%.2f' % a if i not in self.categorical_features else 'N/A'
                for i, a in enumerate(self.scaled_row)]
-        out_list = zip(self.feature_names, self.feature_values,
-                       row, weights)
+        out_list = list(zip(self.feature_names, self.feature_values,
+                       row, weights))
         if not show_all:
             out_list = [out_list[x[0]] for x in exp]
-        out = ''
+        out = u''
         if show_contributions:
-            out += '''<script>
+            out += u'''<script>
                     var cur_width = parseInt(d3.select('#model%s').select('svg').style('width'));
                     console.log(cur_width);
                     var svg_contrib = d3.select('#model%s').append('svg');
@@ -89,8 +89,8 @@ class TableDomainMapper(explanation.DomainMapper):
                            'Feature contributions', random_id)
 
         if show_table:
-            out += '<div id="mytable%s"></div>' % random_id
-            out += '''<script>
+            out += u'<div id="mytable%s"></div>' % random_id
+            out += u'''<script>
             var tab = d3.select('#mytable%s');
             exp.ShowTable(tab, %s, %d, %s);
             </script>
@@ -194,7 +194,7 @@ class LimeTabularExplainer(object):
             self.class_names = list(self.class_names)
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
-            feature_names = map(str, range(data_row.shape[0]))
+            feature_names = [str(x) for x in range(data_row.shape[0])]
         round_stuff = lambda x: ['%.2f' % a for a in x]
         values = round_stuff(data_row)
         for i in self.categorical_features:

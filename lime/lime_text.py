@@ -1,6 +1,7 @@
 """
 Functions for explaining text classifiers.
 """
+from __future__ import unicode_literals
 import re
 import itertools
 import sklearn
@@ -48,8 +49,9 @@ class TextDomainMapper(explanation.DomainMapper):
              text: if False, return empty
         """
         if not text:
-            return ''
-        text = self.indexed_string.raw_string().encode('ascii', 'xmlcharrefreplace')
+            return u''
+        text = (self.indexed_string.raw_string()
+            .encode('ascii', 'xmlcharrefreplace').decode())
         text = re.sub(r'[<>&]', '|', text)
         exp = [(self.indexed_string.word(x[0]),
                 self.indexed_string.string_position(x[0]),
@@ -71,9 +73,9 @@ class TextDomainMapper(explanation.DomainMapper):
                                    text[idx1:])
             added += len(add_before) + len(add_after)
         text = re.sub('\n', '<br />', text)
-        out = ('<div id="mytext%s"><h3>Text with highlighted words</h3>'
+        out = (u'<div id="mytext%s"><h3>Text with highlighted words</h3>'
                '%s</div>' % (random_id, text))
-        out += '''
+        out += u'''
         <script>
         var text_div = d3.select('#mytext%s');
         exp.UpdateTextColors(text_div, %d);

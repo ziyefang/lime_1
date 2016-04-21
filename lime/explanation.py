@@ -1,6 +1,8 @@
 """
 Explanation class, with visualization functions.
 """
+from __future__ import unicode_literals
+from io import open
 import os
 import os.path
 import json
@@ -74,8 +76,8 @@ class Explanation(object):
     def available_labels(self):
         """Returns the list of labels for which we have any explanations."""
         if self.top_labels:
-            return self.top_labels
-        return self.local_exp.keys()
+            return list(self.top_labels)
+        return list(self.local_exp.keys())
 
     def as_list(self, label=1, **kwargs):
         """Returns the explanation as a list.
@@ -170,36 +172,34 @@ class Explanation(object):
         # these HTML pages are embedded into an ipython notebook (which would
         # cause interference if they all had the same name)
         random_id = id_generator()
-        out = '''<html><head><script>%s </script>
+        out = u'''<html><head><script>%s </script>
         <script>%s </script>
         <script>%s </script>
         </head>
         <body>
         ''' % (dthree, lodash, exp_js)
-        out += '''
+        out += u'''
         <div id="mychart%s" style="float:left"><div id="probas%s"
         style="float:left"></div><div id="model%s" style="float:left"></div></div>
         ''' % (random_id, random_id, random_id)
-
         out += '''
         <script>
         var exp = new Explanation(%s);
         ''' % (json.dumps(self.class_names))
 
         if predict_proba:
-            out += '''
+            out += u'''
             var svg = d3.select('#probas%s').append('svg');
             exp.PredictProba(svg, %s);
             ''' % (random_id, json.dumps(list(self.predict_proba)))
         for i, label in enumerate(labels):
             exp = json.dumps(self.as_list(label))
-            out += '''
+            out += u'''
                 var svg%d = d3.select('#model%s').append('svg');
                 exp.ExplainFeatures(svg%d, %d, %s, 'Local model approximation', true);
             ''' % (i, random_id, i, label, exp)
-        out += '</script>'
+        out += u'</script>'
         out += self.domain_mapper.visualize_instance_html(
             self.local_exp[labels[0]], labels[0], random_id, **kwargs)
-        out += '</body></html>'
+        out += u'</body></html>'
         return out
-

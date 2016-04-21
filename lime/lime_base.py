@@ -1,6 +1,7 @@
 """
 Contains abstract functionality for learning locally linear sparse model.
 """
+from __future__ import print_function
 import numpy as np
 from sklearn import linear_model
 
@@ -143,8 +144,8 @@ class LimeBase(object):
         if self.verbose:
             local_pred = easy_model.predict(
                 neighborhood_data[0, used_features].reshape(1, -1))
-            print 'Intercept', easy_model.intercept_
-            print 'Prediction_local', local_pred,
-            print 'Right:', neighborhood_labels[0, label]
+            print('Intercept', easy_model.intercept_)
+            print('Prediction_local', local_pred,)
+            print('Right:', neighborhood_labels[0, label])
         return sorted(zip(used_features, easy_model.coef_),
                       key=lambda x: np.abs(x[1]), reverse=True)
