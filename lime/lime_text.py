@@ -1,15 +1,16 @@
 """
 Functions for explaining text classifiers.
 """
-from . import lime_base
-from . import explanation
-import numpy as np
-import scipy as sp
-import sklearn
 import re
 import itertools
+import sklearn
+import numpy as np
+import scipy as sp
+from . import lime_base
+from . import explanation
 
 class TextDomainMapper(explanation.DomainMapper):
+    """Maps feature ids to words or word-positions"""
     def __init__(self, indexed_string):
         """Initializer.
 
@@ -28,20 +29,30 @@ class TextDomainMapper(explanation.DomainMapper):
             examples: ('bad', 1) or ('bad_3-6-12', 1)
         """
         if positions:
-            exp = [('%s_%s' % (self.indexed_string.word(x[0]),
-                    '-'.join(map(str,self.indexed_string.string_position(x[0])))),
-                    x[1]) for x in exp]
+            exp = [('%s_%s' % (
+                self.indexed_string.word(x[0]),
+                '-'.join(
+                    map(str, self.indexed_string.string_position(x[0])))), x[1])
+                   for x in exp]
         else:
             exp = [(self.indexed_string.word(x[0]), x[1]) for x in exp]
         return exp
     def visualize_instance_html(self, exp, label, random_id, text=True):
+        """Adds text with highlighted words to visualization.
+
+        Args:
+             exp: list of tuples [(id, weight), (id,weight)]
+             label: label id (integer)
+             random_id: random_id being used, appended to div ids and etc in html
+             text: if False, return empty
+        """
         if not text:
             return ''
         text = self.indexed_string.raw_string().encode('ascii', 'xmlcharrefreplace')
         text = re.sub(r'[<>&]', '|', text)
         exp = [(self.indexed_string.word(x[0]),
-                    self.indexed_string.string_position(x[0]),
-                    x[1]) for x in exp]
+                self.indexed_string.string_position(x[0]),
+                x[1]) for x in exp]
         all_ocurrences = list(itertools.chain.from_iterable(
             [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
         sorted_ocurrences = sorted(all_ocurrences, key=lambda x: x[1])
@@ -60,7 +71,7 @@ class TextDomainMapper(explanation.DomainMapper):
             added += len(add_before) + len(add_after)
         text = re.sub('\n', '<br />', text)
         out = ('<div id="mytext%s"><h3>Text with highlighted words</h3>'
-                    '%s</div>' % (random_id, text))
+               '%s</div>' % (random_id, text))
         out += '''
         <script>
         var text_div = d3.select('#mytext%s');

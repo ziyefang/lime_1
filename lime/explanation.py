@@ -4,10 +4,8 @@ Explanation class, with visualization functions.
 import os
 import os.path
 import json
-import numpy as np
-import re
 import string
-import itertools
+import numpy as np
 
 def id_generator(size=15):
     """Helper function to generate random div ids. This is useful for embedding
@@ -17,7 +15,7 @@ def id_generator(size=15):
 
 class DomainMapper(object):
     """Class for mapping features to the specific domain.
-    
+
     The idea is that there would be a subclass for each domain (text, tables,
     images, etc), so that we can have a general Explanation class, and separate
     out the specifics of visualizing features in here.
@@ -40,7 +38,7 @@ class DomainMapper(object):
         return exp
     def visualize_instance_html(self, exp, label, random_id, **kwargs):
         """Produces html for visualizing the instance.
-        
+
         Default behaviour does nothing. Subclasses can implement this as they see
         fit.
 
@@ -54,8 +52,8 @@ class DomainMapper(object):
              html code for visualizing the instance
         """
         return ''
-       
-        
+
+
 
 class Explanation(object):
     """Object returned by explainers."""
@@ -147,7 +145,7 @@ class Explanation(object):
         file_.close()
 
 
-    def as_html(self, labels=None, predict_proba=True, title='Local model approximation', **kwargs):
+    def as_html(self, labels=None, predict_proba=True, **kwargs):
         """Returns the explanation as an html page.
 
         Args:
