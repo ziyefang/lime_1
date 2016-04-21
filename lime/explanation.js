@@ -15,10 +15,8 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   var names = mapped[0];
   var data = mapped[1];
   var max_length = _.max(_.map(names, function(d) {return d.length;}));
-  this.bar_x = 100;
   this.bar_height = 17;
   this.space_between_bars = 5;
-  this.width = 225;
   this.width = 125 + 10 + max_length * 7;
   svg.style('float', 'left')
      .style('width', this.width);
@@ -27,7 +25,7 @@ Explanation.prototype.PredictProba = function(svg, predict_proba) {
   this.x_scale = d3.scale.linear().range([0, this.bar_width]);
   svg.append('text')
      .text('Prediction probabilities')
-     .attr('x', 40)
+     .attr('x', 20)
      .attr('y', 20);
   this.bar_yshift=35;
   var n_bars = Math.min(5, names.length);

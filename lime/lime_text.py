@@ -22,6 +22,7 @@ class TextDomainMapper(explanation.DomainMapper):
         """Maps ids to words or word-position strings.
 
         Args:
+            exp: list of tuples [(id, weight), (id,weight)]
             positions: if True, also return word positions
 
         Returns:
