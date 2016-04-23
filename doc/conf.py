@@ -25,7 +25,7 @@ sys.path.insert(0, libpath)
 sys.path.insert(0, curr_path)
 
 import mock
-MOCK_MODULES = ['numpy', 'scipy', 'scipy.sparse', 'sklearn', 'matplotlib']
+MOCK_MODULES = ['numpy', 'scipy', 'scipy.sparse', 'sklearn', 'sklearn.preprocessing', 'matplotlib']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
