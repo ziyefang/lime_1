@@ -182,7 +182,7 @@ class Explanation(object):
         <div id="mychart%s" style="float:left"><div id="probas%s"
         style="float:left"></div><div id="model%s" style="float:left"></div></div>
         ''' % (random_id, random_id, random_id)
-        out += '''
+        out += u'''
         <script>
         var exp = new Explanation(%s);
         ''' % (json.dumps(self.class_names))
