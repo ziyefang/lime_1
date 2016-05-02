@@ -3,7 +3,7 @@ This project is about explaining what machine learning classifiers (or models) a
 At the moment, we support explaining individual predictions for text classifiers or classifiers that act on tables (numpy arrays of numerical or categorical data), with a package caled lime (short for local interpretable model-agnostic explanations).
 Lime is based on the work presented in [this paper](http://arxiv.org/abs/1602.04938). Our plan is to add more packages that help users understand and interact meaningfully with machine learning.
 
-Lime is able to explain any black box text classifier, with two or more classes. All we require is that the classifier implements a function that takes in raw text and outputs a probability for each class. Support for scikit-learn classifiers is built-in.
+Lime is able to explain any black box text classifier, with two or more classes. All we require is that the classifier implements a function that takes in raw text or a numpy array and outputs a probability for each class. Support for scikit-learn classifiers is built-in.
 ## Installation
 The lime package is on pypy. Simply run:
 
