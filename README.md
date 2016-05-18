@@ -3,7 +3,7 @@ This project is about explaining what machine learning classifiers (or models) a
 At the moment, we support explaining individual predictions for text classifiers or classifiers that act on tables (numpy arrays of numerical or categorical data), with a package caled lime (short for local interpretable model-agnostic explanations).
 Lime is based on the work presented in [this paper](http://arxiv.org/abs/1602.04938). Our plan is to add more packages that help users understand and interact meaningfully with machine learning.
 
-Lime is able to explain any black box text classifier, with two or more classes. All we require is that the classifier implements a function that takes in raw text and outputs a probability for each class. Support for scikit-learn classifiers is built-in.
+Lime is able to explain any black box text classifier, with two or more classes. All we require is that the classifier implements a function that takes in raw text or a numpy array and outputs a probability for each class. Support for scikit-learn classifiers is built-in.
 ## Installation
 The lime package is on pypy. Simply run:
 
@@ -20,7 +20,7 @@ For example usage for text classifiers, take a look at the following two tutoria
 For classifiers that use numerical or categorical data, take a look at the following tutorial (this is newer, so please let me know if you find something wrong):
 - [Tabular data](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
 
-The api reference is available [here](http://lime-ml.readthedocs.org/en/latest/).
+The api reference is available [here](http://lime-ml.readthedocs.io/en/latest/).
 ## Screenshots 
 Below are some screenshots of lime explanations. These are generated in html, and can be easily produced and embedded in ipython notebooks. We also support visualizations using matplotlib, although they don't look as nice as these ones.
 #### Two class case, text
