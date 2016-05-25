@@ -70,6 +70,7 @@ class Explanation(object):
         self.domain_mapper = domain_mapper
         self.class_names = class_names
         self.local_exp = {}
+        self.intercept = {}
         self.top_labels = None
         self.predict_proba = None
 

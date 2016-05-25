@@ -126,9 +126,11 @@ class LimeBase(object):
                         'highest_weights' otherwise.
 
         Returns:
-            A sorted list of tuples, where each tuple (x,y) corresponds to the
-            feature id (x) and the local weight (y). The list is sorted by
-            decreasing absolute value of y.
+            (intercept, exp):
+            intercept is a float.
+            exp is a sorted list of tuples, where each tuple (x,y) corresponds
+            to the feature id (x) and the local weight (y). The list is sorted
+            by decreasing absolute value of y.
         """
         weights = self.kernel_fn(distances)
         labels_column = neighborhood_labels[:, label]
@@ -147,5 +149,5 @@ class LimeBase(object):
             print('Intercept', easy_model.intercept_)
             print('Prediction_local', local_pred,)
             print('Right:', neighborhood_labels[0, label])
-        return sorted(zip(used_features, easy_model.coef_),
+        return easy_model.intercept_, sorted(zip(used_features, easy_model.coef_),
                       key=lambda x: np.abs(x[1]), reverse=True)

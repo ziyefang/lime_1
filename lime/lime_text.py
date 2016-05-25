@@ -270,7 +270,7 @@ class LimeTextExplainer(object):
             ret_exp.top_labels = list(labels)
             ret_exp.top_labels.reverse()
         for label in labels:
-            ret_exp.local_exp[label] = self.base.explain_instance_with_data(
+            ret_exp.intercept[label], ret_exp.local_exp[label] = self.base.explain_instance_with_data(
                 data, yss, distances, label, num_features,
                 feature_selection=self.feature_selection)
         return ret_exp
