@@ -41,7 +41,7 @@ class LimeBase(object):
         """Iteratively adds features to the model"""
         clf = linear_model.Ridge(alpha=0, fit_intercept=True)
         used_features = []
-        for _ in range(num_features):
+        for _ in range(min(num_features, data.shape[1])):
             max_ = -100000000
             best = 0
             for feature in range(data.shape[1]):
