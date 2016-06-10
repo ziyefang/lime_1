@@ -167,6 +167,9 @@ class IndexedString(object):
     def inverse_removing(self, words_to_remove):
         """Returns a string after removing the appropriate words.
 
+        If self.bow is false, replaces word with UNKWORDZ instead of removing
+        it.
+
         Args:
             words_to_remove: list of ids (ints) to remove
 
@@ -175,6 +178,8 @@ class IndexedString(object):
         """
         mask = np.ones(self.as_np.shape[0], dtype='bool')
         mask[self.__get_idxs(words_to_remove)] = False
+        if not self.bow:
+           return ''.join([self.as_list[i] if mask[i] else 'UNKWORDZ' for i in range(mask.shape[0])])
         return ''.join([self.as_list[v] for v in mask.nonzero()[0]])
     def __get_idxs(self, words):
         """Returns indexes to appropriate words."""
@@ -305,7 +310,7 @@ class LimeTextExplainer(object):
         """
         distance_fn = lambda x: sklearn.metrics.pairwise.cosine_distances(x[0], x)[0] * 100
         doc_size = indexed_string.num_words()
-        sample = np.random.randint(1, doc_size, num_samples - 1)
+        sample = np.random.randint(1, doc_size + 1, num_samples - 1)
         data = np.ones((num_samples, doc_size))
         data[0] = np.ones(doc_size)
         features_range = range(doc_size)
