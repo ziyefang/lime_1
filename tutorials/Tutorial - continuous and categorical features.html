@@ -11898,7 +11898,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>As opposed to lime_text.TextExplainer, tabular explainers need a training set. The reason for this is because we compute statistics on each feature (column). If the feature is numerical, we compute the mean and std. If the feature is categorical, we compute the frequency of each value. For this tutorial, we'll only look at numerical features.</p>
+<p>As opposed to lime_text.TextExplainer, tabular explainers need a training set. The reason for this is because we compute statistics on each feature (column). If the feature is numerical, we compute the mean and std, and discretize it into quartiles. If the feature is categorical, we compute the frequency of each value. For this tutorial, we'll only look at numerical features.</p>
 
 </div>
 </div>
@@ -11922,7 +11922,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">explainer</span> <span class="o">=</span> <span class="n">lime</span><span class="o">.</span><span class="n">lime_tabular</span><span class="o">.</span><span class="n">LimeTabularExplainer</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">target_names</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">explainer</span> <span class="o">=</span> <span class="n">lime</span><span class="o">.</span><span class="n">lime_tabular</span><span class="o">.</span><span class="n">LimeTabularExplainer</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">target_names</span><span class="p">,</span> <span class="n">discretize_continuous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11978,7 +11978,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">show_table</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_contributions</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_all</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">show_table</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_all</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -22126,7 +22126,7 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
      * @returns {string} Returns the deburred string.
      * @example
      *
-     * _.deburr('déjà vu');
+     * _.deburr('deja vu');
      * // => 'deja vu'
      */
     function deburr(string) {
@@ -24267,10 +24267,11 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
+  var max_domain = Math.max(1, max_weight);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
-          .domain([0,1])
+          .domain([0, max_domain])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
   // Each letter is approximately 7 pixels wide, so this should make sure
@@ -24397,28 +24398,20 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
         </head>
         <body>
         
-        <div id="mychart07D9OZ0I0ZDA14Z" style="float:left"><div id="probas07D9OZ0I0ZDA14Z"
-        style="float:left"></div><div id="model07D9OZ0I0ZDA14Z" style="float:left"></div></div>
+        <div id="mychartKTEIKLMIPBX6X6I" style="float:left"><div id="probasKTEIKLMIPBX6X6I"
+        style="float:left"></div><div id="modelKTEIKLMIPBX6X6I" style="float:left"></div></div>
         
         <script>
         var exp = new Explanation(["setosa", "versicolor", "virginica"]);
         
-            var svg = d3.select('#probas07D9OZ0I0ZDA14Z').append('svg');
+            var svg = d3.select('#probasKTEIKLMIPBX6X6I').append('svg');
             exp.PredictProba(svg, [1.0, 0.0, 0.0]);
             
-                var svg0 = d3.select('#model07D9OZ0I0ZDA14Z').append('svg');
-                exp.ExplainFeatures(svg0, 0, [["petal width (cm)", -0.18740828128574216], ["petal length (cm)", -0.15968636691291471]], 'Local model approximation', true);
-            </script><script>
-                    var cur_width = parseInt(d3.select('#model07D9OZ0I0ZDA14Z').select('svg').style('width'));
-                    console.log(cur_width);
-                    var svg_contrib = d3.select('#model07D9OZ0I0ZDA14Z').append('svg');
-                    exp.ExplainFeatures(svg_contrib, 0, [["petal width (cm)", 0.22218488262352554], ["petal length (cm)", 0.2092411066389902]], 'Feature contributions', true);
-                    cur_width = Math.max(cur_width, parseInt(svg_contrib.style('width'))) + 'px';
-                    d3.select('#model07D9OZ0I0ZDA14Z').style('width', cur_width);
-                    </script>
-                    <div id="mytable07D9OZ0I0ZDA14Z"></div><script>
-            var tab = d3.select('#mytable07D9OZ0I0ZDA14Z');
-            exp.ShowTable(tab, [["petal width (cm)", "0.30", "-1.19", 0.22218488262352554], ["petal length (cm)", "1.50", "-1.31", 0.2092411066389902]], 0, true);
+                var svg0 = d3.select('#modelKTEIKLMIPBX6X6I').append('svg');
+                exp.ExplainFeatures(svg0, 0, [["petal width (cm) <= 0.30", 0.45886898145236615], ["petal length (cm) <= 1.60", 0.41962406725383339]], 'Local model approximation', true);
+            </script><div id="mytableKTEIKLMIPBX6X6I"></div><script>
+            var tab = d3.select('#mytableKTEIKLMIPBX6X6I');
+            exp.ShowTable(tab, [["petal width (cm) <= 0.30", "True", "N/A", 0.45886898145236615], ["petal length (cm) <= 1.60", "True", "N/A", 0.41962406725383339]], 0, false);
             </script>
             </body></html>
 </div>
@@ -24435,10 +24428,8 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Now, there is a lot going on here. First, note that the row we are explained is displayed on the right side, in table format. Since we had the show_all parameter set to false, only the features used in the explanation are displayed.</p>
-<p>The <em>value</em> column displays the original value for each feature, while the <em>Scaled</em> column displays the scaled value. In this example, both features used have a value below the mean, which is why they have negative scaled values.</p>
-<p>Note that there are two barcharts in the middle. The Local model approximation displays a linear model that approximates the random forest in the neighborhood of the example being explained. From it, we gather that both petal width and length are negatively correlated with the class setosa (0). We check this below.</p>
-<p>However, note that both features have a negative (scaled) value in the example being explained, so that these features actually contribute to the setosa prediction. The Feature contributions bar plot indicates this.</p>
-<p>In sum, we look to  'Local model approximation' to understand how perturbing features would impact the prediction, and to 'feature contributions' to understand how these features acted on this particular prediction (i.e. multiply the linear approximation weights by the values).</p>
+<p>The <em>value</em> column displays the original value for each feature.</p>
+<p>Note that LIME has discretized the features in the explanation. This is because we let discretize_continuous=True in the constructor (this is the default). Discretized features make for more intuitive explanations.</p>
 
 </div>
 </div>
@@ -24544,7 +24535,7 @@ P(setosa) after: 0.03
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">show_table</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_contributions</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_all</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">(</span><span class="n">show_table</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">show_all</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -34692,7 +34683,7 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
      * @returns {string} Returns the deburred string.
      * @example
      *
-     * _.deburr('déjà vu');
+     * _.deburr('deja vu');
      * // => 'deja vu'
      */
     function deburr(string) {
@@ -36833,10 +36824,11 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
+  var max_domain = Math.max(1, max_weight);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
-          .domain([0,1])
+          .domain([0, max_domain])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
   // Each letter is approximately 7 pixels wide, so this should make sure
@@ -36963,28 +36955,20 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
         </head>
         <body>
         
-        <div id="mychartN7TQ47JJ3HUN6D8" style="float:left"><div id="probasN7TQ47JJ3HUN6D8"
-        style="float:left"></div><div id="modelN7TQ47JJ3HUN6D8" style="float:left"></div></div>
+        <div id="mychartNZQX8H825147MYZ" style="float:left"><div id="probasNZQX8H825147MYZ"
+        style="float:left"></div><div id="modelNZQX8H825147MYZ" style="float:left"></div></div>
         
         <script>
         var exp = new Explanation(["setosa", "versicolor", "virginica"]);
         
-            var svg = d3.select('#probasN7TQ47JJ3HUN6D8').append('svg');
+            var svg = d3.select('#probasNZQX8H825147MYZ').append('svg');
             exp.PredictProba(svg, [1.0, 0.0, 0.0]);
             
-                var svg0 = d3.select('#modelN7TQ47JJ3HUN6D8').append('svg');
-                exp.ExplainFeatures(svg0, 0, [["petal width (cm)", -0.18740828128574216], ["petal length (cm)", -0.15968636691291471]], 'Local model approximation', true);
-            </script><script>
-                    var cur_width = parseInt(d3.select('#modelN7TQ47JJ3HUN6D8').select('svg').style('width'));
-                    console.log(cur_width);
-                    var svg_contrib = d3.select('#modelN7TQ47JJ3HUN6D8').append('svg');
-                    exp.ExplainFeatures(svg_contrib, 0, [["petal width (cm)", 0.22218488262352554], ["petal length (cm)", 0.2092411066389902]], 'Feature contributions', true);
-                    cur_width = Math.max(cur_width, parseInt(svg_contrib.style('width'))) + 'px';
-                    d3.select('#modelN7TQ47JJ3HUN6D8').style('width', cur_width);
-                    </script>
-                    <div id="mytableN7TQ47JJ3HUN6D8"></div><script>
-            var tab = d3.select('#mytableN7TQ47JJ3HUN6D8');
-            exp.ShowTable(tab, [["sepal length (cm)", "5.10", "-0.89", 0], ["sepal width (cm)", "3.80", "1.89", 0], ["petal length (cm)", "1.50", "-1.31", 0.2092411066389902], ["petal width (cm)", "0.30", "-1.19", 0.22218488262352554]], 0, true);
+                var svg0 = d3.select('#modelNZQX8H825147MYZ').append('svg');
+                exp.ExplainFeatures(svg0, 0, [["petal width (cm) <= 0.30", 0.45886898145236615], ["petal length (cm) <= 1.60", 0.41962406725383339]], 'Local model approximation', true);
+            </script><div id="mytableNZQX8H825147MYZ"></div><script>
+            var tab = d3.select('#mytableNZQX8H825147MYZ');
+            exp.ShowTable(tab, [["sepal length (cm) <= 5.10", "True", "N/A", 0], ["sepal width (cm) > 3.30", "True", "N/A", 0], ["petal length (cm) <= 1.60", "True", "N/A", 0.41962406725383339], ["petal width (cm) <= 0.30", "True", "N/A", 0.45886898145236615]], 0, false);
             </script>
             </body></html>
 </div>
@@ -37268,7 +37252,8 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 <div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">encoded_train</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">encoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">encoded_train</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -37425,21 +37410,9 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 <div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="mi">130</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="mi">137</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">predict_fn</span><span class="p">,</span> <span class="n">num_features</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">()</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">show_in_notebook</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -47587,7 +47560,7 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
      * @returns {string} Returns the deburred string.
      * @example
      *
-     * _.deburr('déjà vu');
+     * _.deburr('deja vu');
      * // => 'deja vu'
      */
     function deburr(string) {
@@ -49728,10 +49701,11 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
+  var max_domain = Math.max(1, max_weight);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
-          .domain([0,1])
+          .domain([0, max_domain])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
   // Each letter is approximately 7 pixels wide, so this should make sure
@@ -49858,20 +49832,20 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
         </head>
         <body>
         
-        <div id="mychartNMB2TGFTDSWFRR5" style="float:left"><div id="probasNMB2TGFTDSWFRR5"
-        style="float:left"></div><div id="modelNMB2TGFTDSWFRR5" style="float:left"></div></div>
+        <div id="mychartKYFBGS9S4J4U970" style="float:left"><div id="probasKYFBGS9S4J4U970"
+        style="float:left"></div><div id="modelKYFBGS9S4J4U970" style="float:left"></div></div>
         
         <script>
         var exp = new Explanation(["edible", "poisonous"]);
         
-            var svg = d3.select('#probasNMB2TGFTDSWFRR5').append('svg');
+            var svg = d3.select('#probasKYFBGS9S4J4U970').append('svg');
             exp.PredictProba(svg, [0.0, 1.0]);
             
-                var svg0 = d3.select('#modelNMB2TGFTDSWFRR5').append('svg');
-                exp.ExplainFeatures(svg0, 1, [["odor=foul", 0.24029112423631022], ["gill-size=broad", -0.13392312978577808], ["stalk-surface-above-ring=silky", 0.10429481883487962], ["spore-print-color=chocolate", 0.082092259612684612], [" stalk-surface-below-ring=silky", 0.056278028270441344]], 'Local model approximation', true);
-            </script><div id="mytableNMB2TGFTDSWFRR5"></div><script>
-            var tab = d3.select('#mytableNMB2TGFTDSWFRR5');
-            exp.ShowTable(tab, [["odor=foul", "True", "N/A", 0.24029112423631022], ["gill-size=broad", "True", "N/A", -0.13392312978577808], ["stalk-surface-above-ring=silky", "True", "N/A", 0.10429481883487962], ["spore-print-color=chocolate", "True", "N/A", 0.082092259612684612], [" stalk-surface-below-ring=silky", "True", "N/A", 0.056278028270441344]], 1, false);
+                var svg0 = d3.select('#modelKYFBGS9S4J4U970').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["odor=foul", 0.25886278647499616], ["gill-size=broad", -0.12517046996059208], ["stalk-surface-above-ring=silky", 0.10916324190654673], ["spore-print-color=chocolate", 0.079077755674544628], [" stalk-surface-below-ring=silky", 0.058388270377250855]], 'Local model approximation', true);
+            </script><div id="mytableKYFBGS9S4J4U970"></div><script>
+            var tab = d3.select('#mytableKYFBGS9S4J4U970');
+            exp.ShowTable(tab, [["odor=foul", "True", "N/A", 0.25886278647499616], ["gill-size=broad", "True", "N/A", -0.12517046996059208], ["stalk-surface-above-ring=silky", "True", "N/A", 0.10916324190654673], ["spore-print-color=chocolate", "True", "N/A", 0.079077755674544628], [" stalk-surface-below-ring=silky", "True", "N/A", 0.058388270377250855]], 1, false);
             </script>
             </body></html>
 </div>
@@ -49894,7 +49868,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">odor_idx</span> <span class="o">=</span> <span class="n">feature_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;odor&#39;</span><span class="p">)</span>
@@ -49909,7 +49883,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[30]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[29]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -49926,7 +49900,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">explainer</span><span class="o">.</span><span class="n">feature_frequencies</span><span class="p">[</span><span class="n">odor_idx</span><span class="p">]</span>
@@ -49940,12 +49914,12 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[31]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[30]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>array([ 0.04800739,  0.05031543,  0.02323434,  0.07062625,  0.26665641,
-        0.00400062,  0.43252808,  0.03323588,  0.0713956 ])</pre>
+<pre>array([ 0.05062317,  0.04908447,  0.02308047,  0.07078012,  0.26342514,
+        0.00338514,  0.43514387,  0.03200492,  0.07247269])</pre>
 </div>
 
 </div>
@@ -49956,7 +49930,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">foul_idx</span> <span class="o">=</span> <span class="mi">4</span>
@@ -49973,7 +49947,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;Making odor not equal foul&#39;</span><span class="p">)</span>
@@ -50004,16 +49978,16 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Making odor not equal foul
 P(poisonous) before: 1.0
-P(poisonous | odor=almond): 0.87
+P(poisonous | odor=almond): 0.86
 P(poisonous | odor=anise): 0.87
-P(poisonous | odor=creosote): 0.91
-P(poisonous | odor=fishy): 0.91
-P(poisonous | odor=musty): 0.91
+P(poisonous | odor=creosote): 0.89
+P(poisonous | odor=fishy): 0.89
+P(poisonous | odor=musty): 0.88
 P(poisonous | odor=none): 0.70
-P(poisonous | odor=pungent): 0.91
-P(poisonous | odor=spicy): 0.91
+P(poisonous | odor=pungent): 0.89
+P(poisonous | odor=spicy): 0.88
 
-P(poisonous | odor != foul) = 0.78
+P(poisonous | odor != foul) = 0.77
 </pre>
 </div>
 </div>
@@ -50027,7 +50001,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We see that in this particular case, the linear model is pretty close: it predicted that on average odor increases the probability of poisonous by 0.24, when in fact it is by 0.22. Notice though that we only changed one feature (odor), when the linear model takes into account perturbations of all the features at once.</p>
+<p>We see that in this particular case, the linear model is pretty close: it predicted that on average odor increases the probability of poisonous by 0.26, when in fact it is by 0.23. Notice though that we only changed one feature (odor), when the linear model takes into account perturbations of all the features at once.</p>
 
 </div>
 </div>
@@ -50053,7 +50027,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="s2">&quot;Workclass&quot;</span><span class="p">,</span> <span class="s2">&quot;fnlwgt&quot;</span><span class="p">,</span> <span class="s2">&quot;Education&quot;</span><span class="p">,</span> <span class="s2">&quot;Education-Num&quot;</span><span class="p">,</span> <span class="s2">&quot;Marital Status&quot;</span><span class="p">,</span><span class="s2">&quot;Occupation&quot;</span><span class="p">,</span> <span class="s2">&quot;Relationship&quot;</span><span class="p">,</span> <span class="s2">&quot;Race&quot;</span><span class="p">,</span> <span class="s2">&quot;Sex&quot;</span><span class="p">,</span> <span class="s2">&quot;Capital Gain&quot;</span><span class="p">,</span> <span class="s2">&quot;Capital Loss&quot;</span><span class="p">,</span><span class="s2">&quot;Hours per week&quot;</span><span class="p">,</span> <span class="s2">&quot;Country&quot;</span><span class="p">]</span>
@@ -50066,7 +50040,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s1">&#39;/Users/marcotcr/datasets/adult/adult.data&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
@@ -50079,7 +50053,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">labels</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">14</span><span class="p">]</span>
@@ -50097,7 +50071,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">categorical_features</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">13</span><span class="p">]</span>
@@ -50110,7 +50084,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">categorical_names</span> <span class="o">=</span> <span class="p">{}</span>
@@ -50128,7 +50102,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
@@ -50141,7 +50115,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">encoder</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">categorical_features</span><span class="o">=</span><span class="n">categorical_features</span><span class="p">)</span>
@@ -50154,7 +50128,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -50168,10 +50142,11 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">encoded_train</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">encoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">encoded_train</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -50191,7 +50166,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">xgboost</span>
@@ -50207,7 +50182,7 @@ P(poisonous | odor != foul) = 0.78
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[43]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[42]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -50226,7 +50201,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">sklearn</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">labels_test</span><span class="p">,</span> <span class="n">gbtree</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="p">)))</span>
@@ -50240,7 +50215,7 @@ P(poisonous | odor != foul) = 0.78
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[44]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[43]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -50255,7 +50230,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">predict_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">gbtree</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
@@ -50277,7 +50252,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">explainer</span> <span class="o">=</span> <span class="n">lime</span><span class="o">.</span><span class="n">lime_tabular</span><span class="o">.</span><span class="n">LimeTabularExplainer</span><span class="p">(</span><span class="n">train</span> <span class="p">,</span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">feature_names</span><span class="p">,</span><span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">,</span>
@@ -50286,6 +50261,23 @@ P(poisonous | odor != foul) = 0.78
 </pre></div>
 
 </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python2.7/site-packages/numpy/core/_methods.py:59: RuntimeWarning: Mean of empty slice.
+  warnings.warn(&#34;Mean of empty slice.&#34;, RuntimeWarning)
+/usr/local/lib/python2.7/site-packages/numpy/core/_methods.py:82: RuntimeWarning: Degrees of freedom &lt;= 0 for slice
+  warnings.warn(&#34;Degrees of freedom &lt;= 0 for slice&#34;, RuntimeWarning)
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -50302,7 +50294,7 @@ P(poisonous | odor != foul) = 0.78
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -60456,7 +60448,7 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
      * @returns {string} Returns the deburred string.
      * @example
      *
-     * _.deburr('déjà vu');
+     * _.deburr('deja vu');
      * // => 'deja vu'
      */
     function deburr(string) {
@@ -62597,10 +62589,11 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
+  var max_domain = Math.max(1, max_weight);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
-          .domain([0,1])
+          .domain([0, max_domain])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
   // Each letter is approximately 7 pixels wide, so this should make sure
@@ -62727,28 +62720,20 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
         </head>
         <body>
         
-        <div id="mychartIV5BBKYGXRFT5CO" style="float:left"><div id="probasIV5BBKYGXRFT5CO"
-        style="float:left"></div><div id="modelIV5BBKYGXRFT5CO" style="float:left"></div></div>
+        <div id="mychartIKNV2E6BWCQX14A" style="float:left"><div id="probasIKNV2E6BWCQX14A"
+        style="float:left"></div><div id="modelIKNV2E6BWCQX14A" style="float:left"></div></div>
         
         <script>
         var exp = new Explanation(["<=50K", ">50K"]);
         
-            var svg = d3.select('#probasIV5BBKYGXRFT5CO').append('svg');
+            var svg = d3.select('#probasIKNV2E6BWCQX14A').append('svg');
             exp.PredictProba(svg, [0.00016963481903076172, 0.99983036518096924]);
             
-                var svg0 = d3.select('#modelIV5BBKYGXRFT5CO').append('svg');
-                exp.ExplainFeatures(svg0, 1, [["Capital Gain", 0.33851897656692376], ["Marital Status=Married-civ-spouse", 0.095904632791887948], ["Age", 0.018784652591176766], ["Hours per week", 0.018300431360473973], ["fnlwgt", 0.015021249273626752]], 'Local model approximation', true);
-            </script><script>
-                    var cur_width = parseInt(d3.select('#modelIV5BBKYGXRFT5CO').select('svg').style('width'));
-                    console.log(cur_width);
-                    var svg_contrib = d3.select('#modelIV5BBKYGXRFT5CO').append('svg');
-                    exp.ExplainFeatures(svg_contrib, 1, [["Capital Gain", 0.64328908794731421], ["Marital Status=Married-civ-spouse", 0.095904632791887948], ["Age", 0.017112850165837645], ["Hours per week", 0.029036970821297393], ["fnlwgt", 0.021020184691936897]], 'Feature contributions', true);
-                    cur_width = Math.max(cur_width, parseInt(svg_contrib.style('width'))) + 'px';
-                    d3.select('#modelIV5BBKYGXRFT5CO').style('width', cur_width);
-                    </script>
-                    <div id="mytableIV5BBKYGXRFT5CO"></div><script>
-            var tab = d3.select('#mytableIV5BBKYGXRFT5CO');
-            exp.ShowTable(tab, [["Capital Gain", "15024.00", "1.90", 0.64328908794731421], ["Marital Status=Married-civ-spouse", "True", "N/A", 0.095904632791887948], ["Age", "51.00", "0.91", 0.017112850165837645], ["Hours per week", "60.00", "1.59", 0.029036970821297393], ["fnlwgt", "338260.00", "1.40", 0.021020184691936897]], 1, true);
+                var svg0 = d3.select('#modelIKNV2E6BWCQX14A').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["Capital Gain > 0.00", 0.46404941069349392], ["Marital Status=Married-civ-spouse", 0.17558310122587917], ["Education-Num > 12.00", 0.12218184045117367], ["Hours per week > 45.00", 0.092186255762898087], ["Age > 48.00", 0.070414587150259486]], 'Local model approximation', true);
+            </script><div id="mytableIKNV2E6BWCQX14A"></div><script>
+            var tab = d3.select('#mytableIKNV2E6BWCQX14A');
+            exp.ShowTable(tab, [["Capital Gain > 0.00", "True", "N/A", 0.46404941069349392], ["Marital Status=Married-civ-spouse", "True", "N/A", 0.17558310122587917], ["Education-Num > 12.00", "True", "N/A", 0.12218184045117367], ["Hours per week > 45.00", "True", "N/A", 0.092186255762898087], ["Age > 48.00", "True", "N/A", 0.070414587150259486]], 1, false);
             </script>
             </body></html>
 </div>
@@ -62771,7 +62756,7 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="mi">10</span>
@@ -72924,7 +72909,7 @@ return i.size=function(n){return arguments.length?(l=n,i):l},i.padding=function(
      * @returns {string} Returns the deburred string.
      * @example
      *
-     * _.deburr('déjà vu');
+     * _.deburr('deja vu');
      * // => 'deja vu'
      */
     function deburr(string) {
@@ -75065,10 +75050,11 @@ Explanation.prototype.ExplainFeatures = function(svg, class_id, exp_array, title
   var yshift = 35;
   var max_weight = _.max(_.map(exp_array, function(d) {return Math.abs(d[1]);}));
   var max_length = _.max(_.map(exp_array, function(d) {return d[0].length;}));
+  var max_domain = Math.max(1, max_weight);
   //var bar_width = max_weight > .2 ? 110 : 500;
   var bar_width = 300;
   var xscale = d3.scale.linear()
-          .domain([0,1])
+          .domain([0, max_domain])
           .range([0, bar_width]);
   var width = Math.max(240, (xscale(max_weight) + 32) * 2); //270;
   // Each letter is approximately 7 pixels wide, so this should make sure
@@ -75195,28 +75181,20 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
         </head>
         <body>
         
-        <div id="mychart1HQG9KZCTW0PDFA" style="float:left"><div id="probas1HQG9KZCTW0PDFA"
-        style="float:left"></div><div id="model1HQG9KZCTW0PDFA" style="float:left"></div></div>
+        <div id="mychartJY6DK6LGGX4VHJQ" style="float:left"><div id="probasJY6DK6LGGX4VHJQ"
+        style="float:left"></div><div id="modelJY6DK6LGGX4VHJQ" style="float:left"></div></div>
         
         <script>
         var exp = new Explanation(["<=50K", ">50K"]);
         
-            var svg = d3.select('#probas1HQG9KZCTW0PDFA').append('svg');
+            var svg = d3.select('#probasJY6DK6LGGX4VHJQ').append('svg');
             exp.PredictProba(svg, [0.99953067302703857, 0.0004693194932769984]);
             
-                var svg0 = d3.select('#model1HQG9KZCTW0PDFA').append('svg');
-                exp.ExplainFeatures(svg0, 1, [["Capital Gain", 0.27248286859986104], ["Marital Status=Never-married", -0.062997404584073963], ["Relationship=Own-child", 0.0267376717089007], ["Sex=Female", -0.020159391113411355], ["Age", 0.015583761001996026]], 'Local model approximation', true);
-            </script><script>
-                    var cur_width = parseInt(d3.select('#model1HQG9KZCTW0PDFA').select('svg').style('width'));
-                    console.log(cur_width);
-                    var svg_contrib = d3.select('#model1HQG9KZCTW0PDFA').append('svg');
-                    exp.ExplainFeatures(svg_contrib, 1, [["Capital Gain", -0.040124176040661479], ["Marital Status=Never-married", -0.062997404584073963], ["Relationship=Own-child", 0.0267376717089007], ["Sex=Female", -0.020159391113411355], ["Age", -0.022357786702475103]], 'Feature contributions', true);
-                    cur_width = Math.max(cur_width, parseInt(svg_contrib.style('width'))) + 'px';
-                    d3.select('#model1HQG9KZCTW0PDFA').style('width', cur_width);
-                    </script>
-                    <div id="mytable1HQG9KZCTW0PDFA"></div><script>
-            var tab = d3.select('#mytable1HQG9KZCTW0PDFA');
-            exp.ShowTable(tab, [["Capital Gain", "0.00", "-0.15", -0.040124176040661479], ["Marital Status=Never-married", "True", "N/A", -0.062997404584073963], ["Relationship=Own-child", "True", "N/A", 0.0267376717089007], ["Sex=Female", "True", "N/A", -0.020159391113411355], ["Age", "19.00", "-1.43", -0.022357786702475103]], 1, true);
+                var svg0 = d3.select('#modelJY6DK6LGGX4VHJQ').append('svg');
+                exp.ExplainFeatures(svg0, 1, [["Capital Gain <= 0.00", -0.48790108800162124], ["Age <= 28.00", -0.12466514809208949], ["Marital Status=Never-married", -0.11000707902501765], ["Hours per week <= 40.00", -0.088864151709434139], ["Education-Num <= 9.00", -0.087489008329599716]], 'Local model approximation', true);
+            </script><div id="mytableJY6DK6LGGX4VHJQ"></div><script>
+            var tab = d3.select('#mytableJY6DK6LGGX4VHJQ');
+            exp.ShowTable(tab, [["Capital Gain <= 0.00", "True", "N/A", -0.48790108800162124], ["Age <= 28.00", "True", "N/A", -0.12466514809208949], ["Marital Status=Never-married", "True", "N/A", -0.11000707902501765], ["Hours per week <= 40.00", "True", "N/A", -0.088864151709434139], ["Education-Num <= 9.00", "True", "N/A", -0.087489008329599716]], 1, false);
             </script>
             </body></html>
 </div>
@@ -75226,55 +75204,6 @@ Explanation.prototype.ShowTable = function(div, data, class_id, std_column) {
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that this dataset is heavily imbalanced towards the =50K class:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">labels_train</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt output_prompt">Out[49]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.24393427518427518</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>This explains why the gbtree needs a lot of evidence to predict an instance as &gt;50K, and not so much to predict an instance as =50K.</p>
-
-</div>
-</div>
 </div>
     </div>
   </div>
