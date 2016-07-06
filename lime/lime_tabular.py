@@ -74,7 +74,7 @@ class TableDomainMapper(explanation.DomainMapper):
         scaled_exp = json.dumps(self.map_exp_ids(scaled_exp))
         row = ['%.2f' % a if i not in self.categorical_features else 'N/A'
                for i, a in enumerate(self.scaled_row)]
-        out_list = list(zip(self.feature_names, self.feature_values,
+        out_list = list(zip(self.exp_feature_names, self.feature_values,
                        row, weights))
         if not show_all:
             out_list = [out_list[x[0]] for x in exp]
@@ -144,8 +144,8 @@ class LimeTabularExplainer(object):
             self.categorical_features = []
         self.discretizer = None
         if discretize_continuous:
-            self.discretizer = QuartileDiscretizer(training_data, categorical_features, feature_names)
-            categorical_features = range(training_data.shape[1])
+            self.discretizer = QuartileDiscretizer(training_data, self.categorical_features, feature_names)
+            self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(training_data)
 
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
@@ -158,7 +158,7 @@ class LimeTabularExplainer(object):
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
-        for feature in categorical_features:
+        for feature in self.categorical_features:
             feature_count = collections.defaultdict(lambda: 0.0)
             column = training_data[:, feature]
             if self.discretizer is not None:
@@ -299,6 +299,7 @@ class LimeTabularExplainer(object):
             #     print inverse[1:, column]
         if self.discretizer is not None:
             inverse[1:] = self.discretizer.undiscretize(inverse[1:])
+        inverse[0] = data_row
         #print zip(inverse[:,10], data[:,10])
         return data, inverse
 
