@@ -22,8 +22,7 @@ class TableDomainMapper(explanation.DomainMapper):
             categorical_features: list of categorical features ids (ints)
         """
         self.exp_feature_names = feature_names
-        if discretized_feature_names is not None:
-            self.exp_feature_names = discretized_feature_names
+        self.discretized_feature_names = discretized_feature_names
         self.feature_names = feature_names
         self.feature_values = feature_values
         self.scaled_row = scaled_row
@@ -38,68 +37,40 @@ class TableDomainMapper(explanation.DomainMapper):
         Returns:
             list of tuples (feature_name, weight)
         """
-        return [(self.exp_feature_names[x[0]], x[1]) for x in exp]
+        names = self.exp_feature_names
+        if self.discretized_feature_names is not None:
+            names = self.discretized_feature_names
+        return [(names[x[0]], x[1]) for x in exp]
     def visualize_instance_html(self,
                                 exp,
                                 label,
-                                random_id,
+                                div_name,
+                                exp_object_name,
                                 show_table=True,
-                                show_contributions=None,
-                                show_scaled=None,
                                 show_all=False):
         """Shows the current example in a table format.
 
         Args:
              exp: list of tuples [(id, weight), (id,weight)]
              label: label id (integer)
-             random_id: random_id being used, appended to div ids and etc in
-                html.
+             div_name: name of div object to be used for rendering(in js)
+             exp_object_name: name of js explanation object
              show_table: if False, don't show table visualization.
-             show_contributions: if True, add an aditional bar plot with weights
-                multiplied by example. By default, this is true if there are any
-                continuous features.
-             show_scaled: if True, display scaled values in table.
              show_all: if True, show zero-weighted features in the table.
         """
-        if show_contributions is None:
-            show_contributions = not self.all_categorical
-        if show_scaled is None:
-            show_scaled = not self.all_categorical
-        show_scaled = json.dumps(show_scaled)
+        if not show_table:
+            return ''
         weights = [0] * len(self.feature_names)
-        scaled_exp = []
-        for i, value in exp:
-            weights[i] = value * self.scaled_row[i]
-            scaled_exp.append((i, value * self.scaled_row[i]))
-        scaled_exp = json.dumps(self.map_exp_ids(scaled_exp))
-        row = ['%.2f' % a if i not in self.categorical_features else 'N/A'
-               for i, a in enumerate(self.scaled_row)]
+        for x in exp:
+            weights[x[0]] = x[1]
         out_list = list(zip(self.exp_feature_names, self.feature_values,
-                       row, weights))
+                        weights))
         if not show_all:
             out_list = [out_list[x[0]] for x in exp]
-        out = u''
-        if show_contributions:
-            out += u'''<script>
-                    var cur_width = parseInt(d3.select('#model%s').select('svg').style('width'));
-                    console.log(cur_width);
-                    var svg_contrib = d3.select('#model%s').append('svg');
-                    exp.ExplainFeatures(svg_contrib, %d, %s, '%s', true);
-                    cur_width = Math.max(cur_width, parseInt(svg_contrib.style('width'))) + 'px';
-                    d3.select('#model%s').style('width', cur_width);
-                    </script>
-                    ''' % (random_id, random_id, label, scaled_exp,
-                           'Feature contributions', random_id)
-
-        if show_table:
-            out += u'<div id="mytable%s"></div>' % random_id
-            out += u'''<script>
-            var tab = d3.select('#mytable%s');
-            exp.ShowTable(tab, %s, %d, %s);
-            </script>
-            ''' % (random_id, json.dumps(out_list), label, show_scaled)
-        return out
-
+        ret = u'''
+            %s.show_raw_tabular(%s, %d, %s);
+        ''' % (exp_object_name, json.dumps(out_list), label, div_name)
+        return ret
 
 class LimeTabularExplainer(object):
     """Explains predictions on tabular (i.e. matrix) data.
@@ -216,6 +187,8 @@ class LimeTabularExplainer(object):
         round_stuff = lambda x: ['%.2f' % a for a in x]
         values = round_stuff(data_row)
         for i in self.categorical_features:
+            if self.discretizer is not None and i in self.discretizer.lambdas:
+                continue
             name = int(data_row[i])
             if i in self.categorical_names:
                 name = self.categorical_names[i][name]
@@ -365,7 +338,7 @@ class QuartileDiscretizer:
             get_inverse = lambda q: max(mins[q], min(np.random.normal(means[q], stds[q]), maxs[q]))
             if len(data.shape) == 1:
                 q = int(ret[feature])
-                ret[feature] = get_inverse(q) 
+                ret[feature] = get_inverse(q)
             else:
                 ret[:,feature] = [get_inverse(int(x)) for x in ret[:, feature]]
         return ret
