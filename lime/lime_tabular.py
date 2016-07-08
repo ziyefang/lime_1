@@ -19,7 +19,7 @@ class TableDomainMapper(explanation.DomainMapper):
             feature_names: list of feature names, in order
             feature_values: list of strings with the values of the original row
             scaled_row: scaled row
-            categorical_featuers: list of categorical features ids (ints)
+            categorical_features: list of categorical features ids (ints)
         """
         self.exp_feature_names = feature_names
         if discretized_feature_names is not None:

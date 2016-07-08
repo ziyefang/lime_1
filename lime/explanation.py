@@ -64,7 +64,6 @@ class Explanation(object):
 
         Args:
             domain_mapper: must inherit from DomainMapper class
-            indexed_string: lime_text.IndexedString, original string
             class_names: list of class names
         """
         self.domain_mapper = domain_mapper
@@ -163,9 +162,31 @@ class Explanation(object):
         Returns:
             code for an html page, including javascript includes.
         """
+        print 'bla'
         if labels is None:
             labels = self.available_labels()
         this_dir, _ = os.path.split(__file__)
+        bundle = open(os.path.join(this_dir, 'bundle.js')).read()
+
+        out = u'''<html><head><script>%s </script></head><body>''' % bundle
+        random_id = id_generator()
+        out += u'''
+        <div id="mychart" style="float:left"><div id="probas%s"
+        style="float:left"></div><div id="model%s" style="float:left"></div></div>
+        '''
+        out += u'''
+        <script>
+        var svg = d3.select('#mychart').append('svg').style('width', '200px');
+        console.log(svg)
+        var b = new lime.PredictProba(svg, ['areallyreallyreallylongdidafjdsfa', 'b'], [0.1, 0.4]);
+        </script>
+        '''
+        out += u'</body></html>'
+        return out
+
+
+
+
         dthree = open(os.path.join(this_dir, 'd3.min.js')).read()
         lodash = open(os.path.join(this_dir, 'lodash.js')).read()
         exp_js = open(os.path.join(this_dir, 'explanation.js')).read()
