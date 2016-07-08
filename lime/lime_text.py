@@ -7,6 +7,7 @@ import itertools
 import sklearn
 import numpy as np
 import scipy as sp
+import json
 from . import lime_base
 from . import explanation
 
@@ -39,49 +40,30 @@ class TextDomainMapper(explanation.DomainMapper):
         else:
             exp = [(self.indexed_string.word(x[0]), x[1]) for x in exp]
         return exp
-    def visualize_instance_html(self, exp, label, random_id, text=True):
+    def visualize_instance_html(self, exp, label, div_name, exp_object_name, text=True):
         """Adds text with highlighted words to visualization.
 
         Args:
              exp: list of tuples [(id, weight), (id,weight)]
              label: label id (integer)
-             random_id: random_id being used, appended to div ids and etc in html
+             div_name: name of div object to be used for rendering(in js)
+             exp_object_name: name of js explanation object
              text: if False, return empty
         """
         if not text:
             return u''
         text = (self.indexed_string.raw_string()
-            .encode('ascii', 'xmlcharrefreplace').decode())
+                .encode('ascii', 'xmlcharrefreplace').decode())
         text = re.sub(r'[<>&]', '|', text)
         exp = [(self.indexed_string.word(x[0]),
                 self.indexed_string.string_position(x[0]),
                 x[1]) for x in exp]
         all_ocurrences = list(itertools.chain.from_iterable(
             [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
-        sorted_ocurrences = sorted(all_ocurrences, key=lambda x: x[1])
-        add_after = '</span>'
-        added = 0
-        for word, position, val in sorted_ocurrences:
-            class_ = 'pos' if val > 0 else 'neg'
-            add_before = '<span class="%s">' % class_
-            idx0 = position + added
-            idx1 = idx0 + len(word)
-            text = '%s%s%s%s%s' % (text[:idx0],
-                                   add_before,
-                                   text[idx0:idx1],
-                                   add_after,
-                                   text[idx1:])
-            added += len(add_before) + len(add_after)
-        text = re.sub('\n', '<br />', text)
-        out = (u'<div id="mytext%s"><h3>Text with highlighted words</h3>'
-               '%s</div>' % (random_id, text))
-        out += u'''
-        <script>
-        var text_div = d3.select('#mytext%s');
-        exp.UpdateTextColors(text_div, %d);
-        </script>
-        ''' % (random_id, label)
-        return out
+        ret = '''
+            %s.show_raw_text(%s, %d, %s, %s);
+            ''' % (exp_object_name, json.dumps(all_ocurrences), label, json.dumps(text), div_name)
+        return ret
 
 
 class ScikitClassifier(object):

@@ -38,7 +38,7 @@ class DomainMapper(object):
             exp: list of tuples [(name, weight), (name, weight)...]
         """
         return exp
-    def visualize_instance_html(self, exp, label, random_id, **kwargs):
+    def visualize_instance_html(self, exp, label, div_name, exp_object_name, **kwargs):
         """Produces html for visualizing the instance.
 
         Default behaviour does nothing. Subclasses can implement this as they see
@@ -47,11 +47,12 @@ class DomainMapper(object):
         Args:
              exp: list of tuples [(id, weight), (id,weight)]
              label: label id (integer)
-             random_id: random_id being used, appended to div ids and etc in html
+             div_name: name of div object to be used for rendering(in js)
+             exp_object_name: name of js explanation object
              kwargs: optional keyword arguments
 
         Returns:
-             html code for visualizing the instance
+             js code for visualizing the instance
         """
         return ''
 
@@ -64,7 +65,6 @@ class Explanation(object):
 
         Args:
             domain_mapper: must inherit from DomainMapper class
-            indexed_string: lime_text.IndexedString, original string
             class_names: list of class names
         """
         self.domain_mapper = domain_mapper
@@ -163,9 +163,51 @@ class Explanation(object):
         Returns:
             code for an html page, including javascript includes.
         """
+        jsonize = lambda x: json.dumps(x)
         if labels is None:
             labels = self.available_labels()
         this_dir, _ = os.path.split(__file__)
+        bundle = open(os.path.join(this_dir, 'bundle.js')).read()
+
+        out = u'''<html><head><script>%s </script></head><body>''' % bundle
+        random_id = id_generator()
+        out += u'''
+        <div class="lime top_div" id="top_div%s"></div>
+        ''' % random_id
+        predict_proba_js = ''
+        if predict_proba:
+            predict_proba_js = u'''
+            var pp_div = top_div.append('div').classed('lime predict_proba', true);
+            var pp_svg = pp_div.append('svg').style('width', '100%%');
+            var pp = new lime.PredictProba(pp_svg, %s, %s);
+            ''' % (jsonize(self.class_names), jsonize(list(self.predict_proba)))
+
+        exp_js = '''var exp_div;
+            var exp = new lime.Explanation(%s);
+        ''' % (jsonize(self.class_names))
+        for label in labels:
+            exp = jsonize(self.as_list(label))
+            exp_js += u'''
+                exp_div = top_div.append('div').classed('lime explanation', true);
+                exp.show(%s, %d, exp_div);
+                ''' % (exp, label)
+        raw_js = '''var raw_div = top_div.append('div');'''
+        raw_js += self.domain_mapper.visualize_instance_html(
+            self.local_exp[labels[0]], labels[0], 'raw_div', 'exp', **kwargs)
+        out += u'''
+        <script>
+        var top_div = d3.select('#top_div%s').classed('lime top_div', true);
+        %s
+        %s
+        %s
+        </script>
+        ''' % (random_id, predict_proba_js, exp_js, raw_js)
+        out += u'</body></html>'
+        return out
+
+
+
+
         dthree = open(os.path.join(this_dir, 'd3.min.js')).read()
         lodash = open(os.path.join(this_dir, 'lodash.js')).read()
         exp_js = open(os.path.join(this_dir, 'explanation.js')).read()
