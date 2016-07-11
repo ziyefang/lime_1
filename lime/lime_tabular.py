@@ -308,8 +308,15 @@ class QuartileDiscretizer:
             self.names[feature] = ['%s <= %.2f' % (name, qts[0]), '%.2f < %s <= %.2f' % (qts[0], name, qts[1]), '%.2f < %s <= %.2f' % (qts[1], name, qts[2]), '%s > %.2f' % (name, qts[2])]
             self.lambdas[feature] = lambda x, qts=qts: np.searchsorted(qts, x)
             discretized = self.lambdas[feature](data[:, feature])
-            self.means[feature] = [np.mean(data[discretized == x, feature]) for x in range(4)]
-            self.stds[feature] = [np.std(data[discretized == x, feature]) + 0.000000000001 for x in range(4)]
+            self.means[feature] = []
+            self.stds[feature] = []
+            for x in range(4):
+                selection = data[discretized == x, feature]
+                mean = 0 if len(selection) == 0 else np.mean(selection)
+                self.means[feature].append(mean)
+                std = 0 if len(selection) == 0 else np.std(selection)
+                std += 0.00000000001
+                self.stds[feature].append(std)
             self.mins[feature] = [boundaries[0], qts[0], qts[1], qts[2]]
             self.maxs[feature] = [qts[0], qts[1],qts[2], boundaries[1]]
     def discretize(self, data):
