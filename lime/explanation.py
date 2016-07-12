@@ -180,7 +180,7 @@ class Explanation(object):
             var pp_div = top_div.append('div').classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%%');
             var pp = new lime.PredictProba(pp_svg, %s, %s);
-            ''' % (jsonize(self.class_names), jsonize(list(self.predict_proba)))
+            ''' % (jsonize(self.class_names), jsonize(list(self.predict_proba.astype(float))))
 
         exp_js = '''var exp_div;
             var exp = new lime.Explanation(%s);
