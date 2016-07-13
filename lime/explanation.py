@@ -73,6 +73,7 @@ class Explanation(object):
         self.intercept = {}
         self.top_labels = None
         self.predict_proba = None
+        self.score = None
 
     def available_labels(self):
         """Returns the list of labels for which we have any explanations."""

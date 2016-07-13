@@ -143,6 +143,8 @@ class LimeBase(object):
         easy_model = linear_model.Ridge(alpha=1, fit_intercept=True)
         easy_model.fit(neighborhood_data[:, used_features],
                        labels_column, sample_weight=weights)
+        prediction_score = easy_model.score(neighborhood_data[:, used_features],
+                       labels_column, sample_weight=weights)
         if self.verbose:
             local_pred = easy_model.predict(
                 neighborhood_data[0, used_features].reshape(1, -1))
@@ -150,4 +152,4 @@ class LimeBase(object):
             print('Prediction_local', local_pred,)
             print('Right:', neighborhood_labels[0, label])
         return easy_model.intercept_, sorted(zip(used_features, easy_model.coef_),
-                      key=lambda x: np.abs(x[1]), reverse=True)
+                      key=lambda x: np.abs(x[1]), reverse=True), prediction_score
