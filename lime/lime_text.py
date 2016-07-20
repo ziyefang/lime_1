@@ -65,31 +65,6 @@ class TextDomainMapper(explanation.DomainMapper):
             ''' % (exp_object_name, json.dumps(all_ocurrences), label, json.dumps(text), div_name)
         return ret
 
-
-class ScikitClassifier(object):
-    """ Takes a classifier and vectorizer, implements predict_proba on raw text.
-    """
-    def __init__(self, classifier, vectorizer):
-        """Initializer.
-
-        Args:
-            classifier: trained sklearn classifier, must implement predict_proba
-            vectorizer: Count or Tfidf vectorizers, in sklearn.feature_extraction.text
-        """
-        self.classifier = classifier
-        self.vectorizer = vectorizer
-    def predict_proba(self, string_list):
-        """Transforms and predicts on an input string
-
-        Args:
-            string_list: list of raw text strings.
-
-        Returns:
-            same as classifier.predict_proba
-        """
-        return self.classifier.predict_proba(
-            self.vectorizer.transform(string_list))
-
 class IndexedString(object):
     """String with various indexes."""
     def __init__(self, raw_string, split_expression=r'\W+', bow=True):
