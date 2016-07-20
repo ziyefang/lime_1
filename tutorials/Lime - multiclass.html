@@ -11951,8 +11951,8 @@ div#notebook {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">lime</span> <span class="kn">import</span> <span class="n">lime_text</span>
-<span class="kn">from</span> <span class="nn">lime.lime_text</span> <span class="kn">import</span> <span class="n">ScikitClassifier</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">ScikitClassifier</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span> <span class="n">vectorizer</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">nb</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12080,20 +12080,20 @@ True class: atheism
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Explanation for class atheism
-(u&#39;Caused&#39;, 0.23559879682750828)
-(u&#39;Genocide&#39;, 0.12087519456722)
-(u&#39;Rice&#39;, 0.11609653527410703)
-(u&#39;certainty&#39;, -0.1050810818279142)
-(u&#39;scri&#39;, -0.1031758501276554)
-(u&#39;Theism&#39;, 0.078568413616722732)
+(u&#39;Caused&#39;, 0.26601045845449439)
+(u&#39;Rice&#39;, 0.13658462676578711)
+(u&#39;Genocide&#39;, 0.13519771973974065)
+(u&#39;owlnet&#39;, -0.092585962025604027)
+(u&#39;certainty&#39;, -0.088001257903975866)
+(u&#39;Semitic&#39;, -0.085734572813977061)
 
 Explanation for class mideast
-(u&#39;fsu&#39;, -0.059159618550528995)
-(u&#39;Theism&#39;, -0.057136144833930855)
-(u&#39;Luther&#39;, -0.045817494628565179)
-(u&#39;jews&#39;, 0.033515691211208343)
-(u&#39;Rice&#39;, -0.032335456764046235)
-(u&#39;PBS&#39;, 0.028976132724673229)
+(u&#39;fsu&#39;, -0.056622666266163954)
+(u&#39;Luther&#39;, -0.051897643027619206)
+(u&#39;Theism&#39;, -0.049640283384298073)
+(u&#39;jews&#39;, 0.037819200983811155)
+(u&#39;Caused&#39;, -0.037513316854574666)
+(u&#39;Genocide&#39;, 0.027357407069969929)
 </pre>
 </div>
 </div>
@@ -12403,57 +12403,6 @@ To see which labels have explanations, use the available_labels function.</p>
 	        }
 	      }
 	    }
-	    // data is an array of Objects, each containing 'name', 'value'.
-	    // color : object that maps from id to color
-	    // (optional)
-	
-	  }, {
-	    key: 'display_raw_tabular',
-	    value: function display_raw_tabular(div, data) {
-	      var colors = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-	
-	      div.append('h3').text('Data row:');
-	      var table = div.append('table');
-	      table.style('border-collapse', 'collapse').style('color', 'white').style('width', '100% !important').style('table-layout', 'fixed').style('overflow', 'scroll').style('border-style', 'hidden');
-	      var thead = table.append('tr').style('background-color', 'gray');
-	      var tbody = table.append('tr').attr('id', 'raw_tabular_body');
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
-	
-	      try {
-	        for (var _iterator3 = (0, _lodash.range)(data.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	          var i = _step3.value;
-	
-	          var feature = data[i];
-	          if ((0, _lodash.isUndefined)(this.exp['show_only_colored']) || !(0, _lodash.isUndefined)(colors[i])) {
-	            thead.append('td').text(feature['name']);
-	            var element = tbody.append('td').text(feature['value']);
-	            if (!(0, _lodash.isUndefined)(colors[i])) {
-	              element.style('background-color', colors[i]);
-	            } else {
-	              element.style('color', 'black');
-	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	            _iterator3.return();
-	          }
-	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
-	          }
-	        }
-	      }
-	
-	      table.selectAll('td').style('padding', '8px').style('border-style', 'hidden').style('max-width', '150px');
-	      //.style('word-break', 'break-all');
-	    }
 	    // sord_lists is an array of arrays, of length (colors). if with_positions is true,
 	    // word_lists is an array of [start,end] positions instead
 	
@@ -12473,21 +12422,61 @@ To see which labels have explanations, use the available_labels function.</p>
 	        position_lists = this.wordlists_to_positions(word_lists, raw_text);
 	      }
 	      var objects = [];
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
 	
 	      try {
 	        var _loop = function _loop() {
-	          var i = _step4.value;
+	          var i = _step3.value;
 	
 	          position_lists[i].map(function (x) {
 	            return objects.push({ 'label': i, 'start': x[0], 'end': x[1] });
 	          });
 	        };
 	
-	        for (var _iterator4 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	        for (var _iterator3 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          _loop();
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      objects = (0, _lodash.sortBy)(objects, function (x) {
+	        return x['start'];
+	      });
+	      var node = text_span.node().childNodes[0];
+	      var subtract = 0;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = objects[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var obj = _step4.value;
+	
+	          var word = raw_text.slice(obj.start, obj.end);
+	          var start = obj.start - subtract;
+	          var end = obj.end - subtract;
+	          var match = document.createElement(highlight_tag);
+	          match.appendChild(document.createTextNode(word));
+	          match.style.backgroundColor = colors[obj.label];
+	          var after = node.splitText(start);
+	          after.nodeValue = after.nodeValue.substring(word.length);
+	          node.parentNode.insertBefore(match, after);
+	          subtract += end;
+	          node = after;
 	        }
 	      } catch (err) {
 	        _didIteratorError4 = true;
@@ -12503,58 +12492,18 @@ To see which labels have explanations, use the available_labels function.</p>
 	          }
 	        }
 	      }
-	
-	      objects = (0, _lodash.sortBy)(objects, function (x) {
-	        return x['start'];
-	      });
-	      var node = text_span.node().childNodes[0];
-	      var subtract = 0;
-	      var _iteratorNormalCompletion5 = true;
-	      var _didIteratorError5 = false;
-	      var _iteratorError5 = undefined;
-	
-	      try {
-	        for (var _iterator5 = objects[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var obj = _step5.value;
-	
-	          var word = raw_text.slice(obj.start, obj.end);
-	          var start = obj.start - subtract;
-	          var end = obj.end - subtract;
-	          var match = document.createElement(highlight_tag);
-	          match.appendChild(document.createTextNode(word));
-	          match.style.backgroundColor = colors[obj.label];
-	          var after = node.splitText(start);
-	          after.nodeValue = after.nodeValue.substring(word.length);
-	          node.parentNode.insertBefore(match, after);
-	          subtract += end;
-	          node = after;
-	        }
-	      } catch (err) {
-	        _didIteratorError5 = true;
-	        _iteratorError5 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	            _iterator5.return();
-	          }
-	        } finally {
-	          if (_didIteratorError5) {
-	            throw _iteratorError5;
-	          }
-	        }
-	      }
 	    }
 	  }, {
 	    key: 'wordlists_to_positions',
 	    value: function wordlists_to_positions(word_lists, raw_text) {
 	      var ret = [];
-	      var _iteratorNormalCompletion6 = true;
-	      var _didIteratorError6 = false;
-	      var _iteratorError6 = undefined;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator6 = word_lists[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var words = _step6.value;
+	        for (var _iterator5 = word_lists[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var words = _step5.value;
 	
 	          if (words.length === 0) {
 	            ret.push([]);
@@ -12569,16 +12518,16 @@ To see which labels have explanations, use the available_labels function.</p>
 	          ret.push(list);
 	        }
 	      } catch (err) {
-	        _didIteratorError6 = true;
-	        _iteratorError6 = err;
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
-	            _iterator6.return();
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
 	          }
 	        } finally {
-	          if (_didIteratorError6) {
-	            throw _iteratorError6;
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
 	          }
 	        }
 	      }
@@ -39203,10 +39152,10 @@ To see which labels have explanations, use the available_labels function.</p>
 /***/ }
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divKR179HCURJLPLSI"></div>
+        <div class="lime top_div" id="top_divLW92QT5NXRUZ44K"></div>
         
         <script>
-        var top_div = d3.select('#top_divKR179HCURJLPLSI').classed('lime top_div', true);
+        var top_div = d3.select('#top_divLW92QT5NXRUZ44K').classed('lime top_div', true);
         
             var pp_div = top_div.append('div').classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
@@ -39216,10 +39165,10 @@ To see which labels have explanations, use the available_labels function.</p>
             var exp = new lime.Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["Caused", 0.25775734276629708], ["Rice", 0.14566250256630331], ["Genocide", 0.12969266919705288], ["certainty", -0.091246014079279444], ["scri", -0.089519198302040193], ["owlnet", -0.082264611892584827]], 0, exp_div);
+                exp.show([["Caused", 0.2565120103608054], ["Rice", 0.14303044768838427], ["Genocide", 0.13215450843322279], ["owlnet", -0.092465556519732164], ["scri", -0.086131976554764345], ["Semitic", -0.080609393155178274]], 0, exp_div);
                 
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["Caused", -0.18111402883218758], ["fsu", 0.091995022278989272], ["Genocide", -0.091129777581280574], ["scri", 0.088811256411732764], ["Semitic", 0.084129896974850793], ["Luthers", 0.082509881842261823]], 15, exp_div);
+                exp.show([["Caused", -0.18484203936990232], ["Genocide", -0.093759921711107308], ["scri", 0.089473278414884436], ["owlnet", 0.087236463471675643], ["Luther", 0.084854118482163662], ["fsu", 0.083747301067892091]], 15, exp_div);
                 
         var raw_div = top_div.append('div');
         </script>
@@ -39494,57 +39443,6 @@ To see which labels have explanations, use the available_labels function.</p>
 	        }
 	      }
 	    }
-	    // data is an array of Objects, each containing 'name', 'value'.
-	    // color : object that maps from id to color
-	    // (optional)
-	
-	  }, {
-	    key: 'display_raw_tabular',
-	    value: function display_raw_tabular(div, data) {
-	      var colors = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-	
-	      div.append('h3').text('Data row:');
-	      var table = div.append('table');
-	      table.style('border-collapse', 'collapse').style('color', 'white').style('width', '100% !important').style('table-layout', 'fixed').style('overflow', 'scroll').style('border-style', 'hidden');
-	      var thead = table.append('tr').style('background-color', 'gray');
-	      var tbody = table.append('tr').attr('id', 'raw_tabular_body');
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
-	
-	      try {
-	        for (var _iterator3 = (0, _lodash.range)(data.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	          var i = _step3.value;
-	
-	          var feature = data[i];
-	          if ((0, _lodash.isUndefined)(this.exp['show_only_colored']) || !(0, _lodash.isUndefined)(colors[i])) {
-	            thead.append('td').text(feature['name']);
-	            var element = tbody.append('td').text(feature['value']);
-	            if (!(0, _lodash.isUndefined)(colors[i])) {
-	              element.style('background-color', colors[i]);
-	            } else {
-	              element.style('color', 'black');
-	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	            _iterator3.return();
-	          }
-	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
-	          }
-	        }
-	      }
-	
-	      table.selectAll('td').style('padding', '8px').style('border-style', 'hidden').style('max-width', '150px');
-	      //.style('word-break', 'break-all');
-	    }
 	    // sord_lists is an array of arrays, of length (colors). if with_positions is true,
 	    // word_lists is an array of [start,end] positions instead
 	
@@ -39564,21 +39462,61 @@ To see which labels have explanations, use the available_labels function.</p>
 	        position_lists = this.wordlists_to_positions(word_lists, raw_text);
 	      }
 	      var objects = [];
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
 	
 	      try {
 	        var _loop = function _loop() {
-	          var i = _step4.value;
+	          var i = _step3.value;
 	
 	          position_lists[i].map(function (x) {
 	            return objects.push({ 'label': i, 'start': x[0], 'end': x[1] });
 	          });
 	        };
 	
-	        for (var _iterator4 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	        for (var _iterator3 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          _loop();
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      objects = (0, _lodash.sortBy)(objects, function (x) {
+	        return x['start'];
+	      });
+	      var node = text_span.node().childNodes[0];
+	      var subtract = 0;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = objects[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var obj = _step4.value;
+	
+	          var word = raw_text.slice(obj.start, obj.end);
+	          var start = obj.start - subtract;
+	          var end = obj.end - subtract;
+	          var match = document.createElement(highlight_tag);
+	          match.appendChild(document.createTextNode(word));
+	          match.style.backgroundColor = colors[obj.label];
+	          var after = node.splitText(start);
+	          after.nodeValue = after.nodeValue.substring(word.length);
+	          node.parentNode.insertBefore(match, after);
+	          subtract += end;
+	          node = after;
 	        }
 	      } catch (err) {
 	        _didIteratorError4 = true;
@@ -39594,58 +39532,18 @@ To see which labels have explanations, use the available_labels function.</p>
 	          }
 	        }
 	      }
-	
-	      objects = (0, _lodash.sortBy)(objects, function (x) {
-	        return x['start'];
-	      });
-	      var node = text_span.node().childNodes[0];
-	      var subtract = 0;
-	      var _iteratorNormalCompletion5 = true;
-	      var _didIteratorError5 = false;
-	      var _iteratorError5 = undefined;
-	
-	      try {
-	        for (var _iterator5 = objects[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var obj = _step5.value;
-	
-	          var word = raw_text.slice(obj.start, obj.end);
-	          var start = obj.start - subtract;
-	          var end = obj.end - subtract;
-	          var match = document.createElement(highlight_tag);
-	          match.appendChild(document.createTextNode(word));
-	          match.style.backgroundColor = colors[obj.label];
-	          var after = node.splitText(start);
-	          after.nodeValue = after.nodeValue.substring(word.length);
-	          node.parentNode.insertBefore(match, after);
-	          subtract += end;
-	          node = after;
-	        }
-	      } catch (err) {
-	        _didIteratorError5 = true;
-	        _iteratorError5 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	            _iterator5.return();
-	          }
-	        } finally {
-	          if (_didIteratorError5) {
-	            throw _iteratorError5;
-	          }
-	        }
-	      }
 	    }
 	  }, {
 	    key: 'wordlists_to_positions',
 	    value: function wordlists_to_positions(word_lists, raw_text) {
 	      var ret = [];
-	      var _iteratorNormalCompletion6 = true;
-	      var _didIteratorError6 = false;
-	      var _iteratorError6 = undefined;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator6 = word_lists[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var words = _step6.value;
+	        for (var _iterator5 = word_lists[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var words = _step5.value;
 	
 	          if (words.length === 0) {
 	            ret.push([]);
@@ -39660,16 +39558,16 @@ To see which labels have explanations, use the available_labels function.</p>
 	          ret.push(list);
 	        }
 	      } catch (err) {
-	        _didIteratorError6 = true;
-	        _iteratorError6 = err;
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
-	            _iterator6.return();
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
 	          }
 	        } finally {
-	          if (_didIteratorError6) {
-	            throw _iteratorError6;
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
 	          }
 	        }
 	      }
@@ -66294,10 +66192,10 @@ To see which labels have explanations, use the available_labels function.</p>
 /***/ }
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_div1ZW22E4C8G1OSV0"></div>
+        <div class="lime top_div" id="top_divLPU9540VQJWG4J0"></div>
         
         <script>
-        var top_div = d3.select('#top_div1ZW22E4C8G1OSV0').classed('lime top_div', true);
+        var top_div = d3.select('#top_divLPU9540VQJWG4J0').classed('lime top_div', true);
         
             var pp_div = top_div.append('div').classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
@@ -66307,10 +66205,10 @@ To see which labels have explanations, use the available_labels function.</p>
             var exp = new lime.Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["Caused", 0.25775734276629708], ["Rice", 0.14566250256630331], ["Genocide", 0.12969266919705288], ["certainty", -0.091246014079279444], ["scri", -0.089519198302040193], ["owlnet", -0.082264611892584827]], 0, exp_div);
+                exp.show([["Caused", 0.2565120103608054], ["Rice", 0.14303044768838427], ["Genocide", 0.13215450843322279], ["owlnet", -0.092465556519732164], ["scri", -0.086131976554764345], ["Semitic", -0.080609393155178274]], 0, exp_div);
                 
         var raw_div = top_div.append('div');
-            exp.show_raw_text([["Caused", 82, 0.25775734276629708], ["Caused", 680, 0.25775734276629708], ["Rice", 125, 0.14566250256630331], ["Rice", 1138, 0.14566250256630331], ["Rice", 1160, 0.14566250256630331], ["Genocide", 70, 0.12969266919705288], ["Genocide", 668, 0.12969266919705288], ["certainty", 1047, -0.091246014079279444], ["scri", 208, -0.089519198302040193], ["owlnet", 12, -0.082264611892584827]], 0, "From: conor@owlnet.rice.edu (Conor Frederick Prischmann)\nSubject: Re: Genocide is Caused by Theism : Evidence?\nOrganization: Rice University\nLines: 23\n\nIn article |C60A0s.DvI@mailer.cc.fsu.edu| dekorte@dirac.scri.fsu.edu (Stephen L. DeKorte) writes:\n|\n|I saw a 3 hour show on PBS the other day about the history of the\n|Jews. Appearently, the Cursades(a religious war agianst the muslilams\n|in 'the holy land') sparked the widespread persecution of muslilams \n|and jews in europe. Among the supporters of the persiecution, were none \n|other than Martin Luther, and the Vatican.\n|\n|Later, Hitler would use Luthers writings to justify his own treatment\n|of the jews.\n|| Genocide is Caused by Theism : Evidence?\n\nHeck, I remember reading a quote of Luther as something like: \"Jews should\nbe shot like deer.\"  And of course much Catholic doctrine for centuries was \nextremely anti-Semitic.\n\n\n\n-- \n\"Are you so sure that your truth and your justice are worth more than the\ntruths and justices of other centuries?\" - Simone de Beauvoir\n\"Where is there a certainty that rises above all doubt and withstands all\ncritique?\" - Karl Jaspers          Rice University, Will Rice College '96\n", raw_div);
+            exp.show_raw_text([["Caused", 82, 0.2565120103608054], ["Caused", 680, 0.2565120103608054], ["Rice", 125, 0.14303044768838427], ["Rice", 1138, 0.14303044768838427], ["Rice", 1160, 0.14303044768838427], ["Genocide", 70, 0.13215450843322279], ["Genocide", 668, 0.13215450843322279], ["owlnet", 12, -0.092465556519732164], ["scri", 208, -0.086131976554764345], ["Semitic", 877, -0.080609393155178274]], 0, "From: conor@owlnet.rice.edu (Conor Frederick Prischmann)\nSubject: Re: Genocide is Caused by Theism : Evidence?\nOrganization: Rice University\nLines: 23\n\nIn article |C60A0s.DvI@mailer.cc.fsu.edu| dekorte@dirac.scri.fsu.edu (Stephen L. DeKorte) writes:\n|\n|I saw a 3 hour show on PBS the other day about the history of the\n|Jews. Appearently, the Cursades(a religious war agianst the muslilams\n|in 'the holy land') sparked the widespread persecution of muslilams \n|and jews in europe. Among the supporters of the persiecution, were none \n|other than Martin Luther, and the Vatican.\n|\n|Later, Hitler would use Luthers writings to justify his own treatment\n|of the jews.\n|| Genocide is Caused by Theism : Evidence?\n\nHeck, I remember reading a quote of Luther as something like: \"Jews should\nbe shot like deer.\"  And of course much Catholic doctrine for centuries was \nextremely anti-Semitic.\n\n\n\n-- \n\"Are you so sure that your truth and your justice are worth more than the\ntruths and justices of other centuries?\" - Simone de Beauvoir\n\"Where is there a certainty that rises above all doubt and withstands all\ncritique?\" - Karl Jaspers          Rice University, Will Rice College '96\n", raw_div);
             
         </script>
         </body></html>
@@ -66362,7 +66260,7 @@ To see which labels have explanations, use the available_labels function.</p>
 <span class="n">test_vectors</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">newsgroups_test</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 <span class="n">nb</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=.</span><span class="mo">01</span><span class="p">)</span>
 <span class="n">nb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_vectors</span><span class="p">,</span> <span class="n">newsgroups_train</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">ScikitClassifier</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span> <span class="n">vectorizer</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">nb</span><span class="p">)</span>
 <span class="n">explainer</span> <span class="o">=</span> <span class="n">LimeTextExplainer</span><span class="p">(</span><span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">)</span>
 </pre></div>
 
@@ -66661,57 +66559,6 @@ To see which labels have explanations, use the available_labels function.</p>
 	        }
 	      }
 	    }
-	    // data is an array of Objects, each containing 'name', 'value'.
-	    // color : object that maps from id to color
-	    // (optional)
-	
-	  }, {
-	    key: 'display_raw_tabular',
-	    value: function display_raw_tabular(div, data) {
-	      var colors = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-	
-	      div.append('h3').text('Data row:');
-	      var table = div.append('table');
-	      table.style('border-collapse', 'collapse').style('color', 'white').style('width', '100% !important').style('table-layout', 'fixed').style('overflow', 'scroll').style('border-style', 'hidden');
-	      var thead = table.append('tr').style('background-color', 'gray');
-	      var tbody = table.append('tr').attr('id', 'raw_tabular_body');
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
-	
-	      try {
-	        for (var _iterator3 = (0, _lodash.range)(data.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	          var i = _step3.value;
-	
-	          var feature = data[i];
-	          if ((0, _lodash.isUndefined)(this.exp['show_only_colored']) || !(0, _lodash.isUndefined)(colors[i])) {
-	            thead.append('td').text(feature['name']);
-	            var element = tbody.append('td').text(feature['value']);
-	            if (!(0, _lodash.isUndefined)(colors[i])) {
-	              element.style('background-color', colors[i]);
-	            } else {
-	              element.style('color', 'black');
-	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	            _iterator3.return();
-	          }
-	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
-	          }
-	        }
-	      }
-	
-	      table.selectAll('td').style('padding', '8px').style('border-style', 'hidden').style('max-width', '150px');
-	      //.style('word-break', 'break-all');
-	    }
 	    // sord_lists is an array of arrays, of length (colors). if with_positions is true,
 	    // word_lists is an array of [start,end] positions instead
 	
@@ -66731,21 +66578,61 @@ To see which labels have explanations, use the available_labels function.</p>
 	        position_lists = this.wordlists_to_positions(word_lists, raw_text);
 	      }
 	      var objects = [];
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
 	
 	      try {
 	        var _loop = function _loop() {
-	          var i = _step4.value;
+	          var i = _step3.value;
 	
 	          position_lists[i].map(function (x) {
 	            return objects.push({ 'label': i, 'start': x[0], 'end': x[1] });
 	          });
 	        };
 	
-	        for (var _iterator4 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	        for (var _iterator3 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          _loop();
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      objects = (0, _lodash.sortBy)(objects, function (x) {
+	        return x['start'];
+	      });
+	      var node = text_span.node().childNodes[0];
+	      var subtract = 0;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = objects[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var obj = _step4.value;
+	
+	          var word = raw_text.slice(obj.start, obj.end);
+	          var start = obj.start - subtract;
+	          var end = obj.end - subtract;
+	          var match = document.createElement(highlight_tag);
+	          match.appendChild(document.createTextNode(word));
+	          match.style.backgroundColor = colors[obj.label];
+	          var after = node.splitText(start);
+	          after.nodeValue = after.nodeValue.substring(word.length);
+	          node.parentNode.insertBefore(match, after);
+	          subtract += end;
+	          node = after;
 	        }
 	      } catch (err) {
 	        _didIteratorError4 = true;
@@ -66761,58 +66648,18 @@ To see which labels have explanations, use the available_labels function.</p>
 	          }
 	        }
 	      }
-	
-	      objects = (0, _lodash.sortBy)(objects, function (x) {
-	        return x['start'];
-	      });
-	      var node = text_span.node().childNodes[0];
-	      var subtract = 0;
-	      var _iteratorNormalCompletion5 = true;
-	      var _didIteratorError5 = false;
-	      var _iteratorError5 = undefined;
-	
-	      try {
-	        for (var _iterator5 = objects[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var obj = _step5.value;
-	
-	          var word = raw_text.slice(obj.start, obj.end);
-	          var start = obj.start - subtract;
-	          var end = obj.end - subtract;
-	          var match = document.createElement(highlight_tag);
-	          match.appendChild(document.createTextNode(word));
-	          match.style.backgroundColor = colors[obj.label];
-	          var after = node.splitText(start);
-	          after.nodeValue = after.nodeValue.substring(word.length);
-	          node.parentNode.insertBefore(match, after);
-	          subtract += end;
-	          node = after;
-	        }
-	      } catch (err) {
-	        _didIteratorError5 = true;
-	        _iteratorError5 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	            _iterator5.return();
-	          }
-	        } finally {
-	          if (_didIteratorError5) {
-	            throw _iteratorError5;
-	          }
-	        }
-	      }
 	    }
 	  }, {
 	    key: 'wordlists_to_positions',
 	    value: function wordlists_to_positions(word_lists, raw_text) {
 	      var ret = [];
-	      var _iteratorNormalCompletion6 = true;
-	      var _didIteratorError6 = false;
-	      var _iteratorError6 = undefined;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator6 = word_lists[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var words = _step6.value;
+	        for (var _iterator5 = word_lists[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var words = _step5.value;
 	
 	          if (words.length === 0) {
 	            ret.push([]);
@@ -66827,16 +66674,16 @@ To see which labels have explanations, use the available_labels function.</p>
 	          ret.push(list);
 	        }
 	      } catch (err) {
-	        _didIteratorError6 = true;
-	        _iteratorError6 = err;
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
-	            _iterator6.return();
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
 	          }
 	        } finally {
-	          if (_didIteratorError6) {
-	            throw _iteratorError6;
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
 	          }
 	        }
 	      }
@@ -93461,10 +93308,10 @@ To see which labels have explanations, use the available_labels function.</p>
 /***/ }
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divLY8JQLB0V2MFID0"></div>
+        <div class="lime top_div" id="top_divXQB8CKUUUBKADCM"></div>
         
         <script>
-        var top_div = d3.select('#top_divLY8JQLB0V2MFID0').classed('lime top_div', true);
+        var top_div = d3.select('#top_divXQB8CKUUUBKADCM').classed('lime top_div', true);
         
             var pp_div = top_div.append('div').classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
@@ -93474,10 +93321,10 @@ To see which labels have explanations, use the available_labels function.</p>
             var exp = new lime.Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["Luther", 0.23541482863225305], ["deer", -0.21806175790971946], ["Catholic", 0.19099289595930716], ["Heck", -0.18779045062389982], ["doctrine", 0.15951225756077222], ["anti", -0.078470082632761895]], 15, exp_div);
+                exp.show([["Luther", 0.2327484768576111], ["deer", -0.22030133602915153], ["Catholic", 0.19157565549012595], ["Heck", -0.18782718496554179], ["doctrine", 0.16099374740027855], ["anti", -0.079345698040311843]], 15, exp_div);
                 
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["Luther", -0.20838701473637072], ["deer", 0.1857435213104468], ["Semitic", 0.15180664734532298], ["Jews", 0.10499239338468412], ["Heck", 0.099563145531806396], ["Catholic", -0.096073091447736209]], 17, exp_div);
+                exp.show([["Luther", -0.19908903955021398], ["deer", 0.18895515084142883], ["Semitic", 0.14702913233008755], ["Heck", 0.10659875570599935], ["Jews", 0.099361493425185049], ["Catholic", -0.098266198023559431]], 17, exp_div);
                 
         var raw_div = top_div.append('div');
         </script>
@@ -93752,57 +93599,6 @@ To see which labels have explanations, use the available_labels function.</p>
 	        }
 	      }
 	    }
-	    // data is an array of Objects, each containing 'name', 'value'.
-	    // color : object that maps from id to color
-	    // (optional)
-	
-	  }, {
-	    key: 'display_raw_tabular',
-	    value: function display_raw_tabular(div, data) {
-	      var colors = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-	
-	      div.append('h3').text('Data row:');
-	      var table = div.append('table');
-	      table.style('border-collapse', 'collapse').style('color', 'white').style('width', '100% !important').style('table-layout', 'fixed').style('overflow', 'scroll').style('border-style', 'hidden');
-	      var thead = table.append('tr').style('background-color', 'gray');
-	      var tbody = table.append('tr').attr('id', 'raw_tabular_body');
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
-	
-	      try {
-	        for (var _iterator3 = (0, _lodash.range)(data.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	          var i = _step3.value;
-	
-	          var feature = data[i];
-	          if ((0, _lodash.isUndefined)(this.exp['show_only_colored']) || !(0, _lodash.isUndefined)(colors[i])) {
-	            thead.append('td').text(feature['name']);
-	            var element = tbody.append('td').text(feature['value']);
-	            if (!(0, _lodash.isUndefined)(colors[i])) {
-	              element.style('background-color', colors[i]);
-	            } else {
-	              element.style('color', 'black');
-	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	            _iterator3.return();
-	          }
-	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
-	          }
-	        }
-	      }
-	
-	      table.selectAll('td').style('padding', '8px').style('border-style', 'hidden').style('max-width', '150px');
-	      //.style('word-break', 'break-all');
-	    }
 	    // sord_lists is an array of arrays, of length (colors). if with_positions is true,
 	    // word_lists is an array of [start,end] positions instead
 	
@@ -93822,21 +93618,61 @@ To see which labels have explanations, use the available_labels function.</p>
 	        position_lists = this.wordlists_to_positions(word_lists, raw_text);
 	      }
 	      var objects = [];
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
 	
 	      try {
 	        var _loop = function _loop() {
-	          var i = _step4.value;
+	          var i = _step3.value;
 	
 	          position_lists[i].map(function (x) {
 	            return objects.push({ 'label': i, 'start': x[0], 'end': x[1] });
 	          });
 	        };
 	
-	        for (var _iterator4 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	        for (var _iterator3 = (0, _lodash.range)(position_lists.length)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          _loop();
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      objects = (0, _lodash.sortBy)(objects, function (x) {
+	        return x['start'];
+	      });
+	      var node = text_span.node().childNodes[0];
+	      var subtract = 0;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = objects[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var obj = _step4.value;
+	
+	          var word = raw_text.slice(obj.start, obj.end);
+	          var start = obj.start - subtract;
+	          var end = obj.end - subtract;
+	          var match = document.createElement(highlight_tag);
+	          match.appendChild(document.createTextNode(word));
+	          match.style.backgroundColor = colors[obj.label];
+	          var after = node.splitText(start);
+	          after.nodeValue = after.nodeValue.substring(word.length);
+	          node.parentNode.insertBefore(match, after);
+	          subtract += end;
+	          node = after;
 	        }
 	      } catch (err) {
 	        _didIteratorError4 = true;
@@ -93852,58 +93688,18 @@ To see which labels have explanations, use the available_labels function.</p>
 	          }
 	        }
 	      }
-	
-	      objects = (0, _lodash.sortBy)(objects, function (x) {
-	        return x['start'];
-	      });
-	      var node = text_span.node().childNodes[0];
-	      var subtract = 0;
-	      var _iteratorNormalCompletion5 = true;
-	      var _didIteratorError5 = false;
-	      var _iteratorError5 = undefined;
-	
-	      try {
-	        for (var _iterator5 = objects[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var obj = _step5.value;
-	
-	          var word = raw_text.slice(obj.start, obj.end);
-	          var start = obj.start - subtract;
-	          var end = obj.end - subtract;
-	          var match = document.createElement(highlight_tag);
-	          match.appendChild(document.createTextNode(word));
-	          match.style.backgroundColor = colors[obj.label];
-	          var after = node.splitText(start);
-	          after.nodeValue = after.nodeValue.substring(word.length);
-	          node.parentNode.insertBefore(match, after);
-	          subtract += end;
-	          node = after;
-	        }
-	      } catch (err) {
-	        _didIteratorError5 = true;
-	        _iteratorError5 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	            _iterator5.return();
-	          }
-	        } finally {
-	          if (_didIteratorError5) {
-	            throw _iteratorError5;
-	          }
-	        }
-	      }
 	    }
 	  }, {
 	    key: 'wordlists_to_positions',
 	    value: function wordlists_to_positions(word_lists, raw_text) {
 	      var ret = [];
-	      var _iteratorNormalCompletion6 = true;
-	      var _didIteratorError6 = false;
-	      var _iteratorError6 = undefined;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator6 = word_lists[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var words = _step6.value;
+	        for (var _iterator5 = word_lists[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var words = _step5.value;
 	
 	          if (words.length === 0) {
 	            ret.push([]);
@@ -93918,16 +93714,16 @@ To see which labels have explanations, use the available_labels function.</p>
 	          ret.push(list);
 	        }
 	      } catch (err) {
-	        _didIteratorError6 = true;
-	        _iteratorError6 = err;
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
-	            _iterator6.return();
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
 	          }
 	        } finally {
-	          if (_didIteratorError6) {
-	            throw _iteratorError6;
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
 	          }
 	        }
 	      }
@@ -120552,10 +120348,10 @@ To see which labels have explanations, use the available_labels function.</p>
 /***/ }
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divFLKFZIZDH8OQ76O"></div>
+        <div class="lime top_div" id="top_divSVE82IN9NFW754X"></div>
         
         <script>
-        var top_div = d3.select('#top_divFLKFZIZDH8OQ76O').classed('lime top_div', true);
+        var top_div = d3.select('#top_divSVE82IN9NFW754X').classed('lime top_div', true);
         
             var pp_div = top_div.append('div').classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
@@ -120565,10 +120361,10 @@ To see which labels have explanations, use the available_labels function.</p>
             var exp = new lime.Explanation(["atheism", "graphics", "ms-windows.misc", "pc.hardware", "mac.hardware", "x", "misc.forsale", "autos", "motorcycles", "baseball", "hockey", "crypt", "electronics", "med", "space", "christian", "guns", "mideast", "politics.misc", "religion.misc"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["Luther", 0.23541482863225305], ["deer", -0.21806175790971946], ["Catholic", 0.19099289595930716], ["Heck", -0.18779045062389982], ["doctrine", 0.15951225756077222], ["anti", -0.078470082632761895]], 15, exp_div);
+                exp.show([["Luther", 0.2327484768576111], ["deer", -0.22030133602915153], ["Catholic", 0.19157565549012595], ["Heck", -0.18782718496554179], ["doctrine", 0.16099374740027855], ["anti", -0.079345698040311843]], 15, exp_div);
                 
         var raw_div = top_div.append('div');
-            exp.show_raw_text([["Luther", 37, 0.23541482863225305], ["deer", 89, -0.21806175790971946], ["Catholic", 116, 0.19099289595930716], ["Heck", 1, -0.18779045062389982], ["doctrine", 125, 0.15951225756077222], ["anti", 163, -0.078470082632761895]], 15, "\nHeck, I remember reading a quote of Luther as something like: \"Jews should\nbe shot like deer.\"  And of course much Catholic doctrine for centuries was \nextremely anti-Semitic.\n\n\n", raw_div);
+            exp.show_raw_text([["Luther", 37, 0.2327484768576111], ["deer", 89, -0.22030133602915153], ["Catholic", 116, 0.19157565549012595], ["Heck", 1, -0.18782718496554179], ["doctrine", 125, 0.16099374740027855], ["anti", 163, -0.079345698040311843]], 15, "\nHeck, I remember reading a quote of Luther as something like: \"Jews should\nbe shot like deer.\"  And of course much Catholic doctrine for centuries was \nextremely anti-Semitic.\n\n\n", raw_div);
             
         </script>
         </body></html>
