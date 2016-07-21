@@ -4,6 +4,8 @@ Functions for explaining classifiers that use tabular data (matrices).
 import collections
 import json
 import copy
+
+import inspect
 import numpy as np
 import sklearn
 import sklearn.preprocessing
@@ -122,6 +124,11 @@ class LimeTabularExplainer(object):
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(training_data)
 
+        if "sample_weight" not in inspect.signature(model_regressor.fit).parameters:
+            raise ValueError("the regressor's fit function must incorporate sample weights")
+        else:
+            self.model_regressor = model_regressor
+
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.feature_selection = feature_selection
         self.base = lime_base.LimeBase(kernel, verbose)
@@ -132,7 +139,7 @@ class LimeTabularExplainer(object):
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
-        self.model_regressor = model_regressor
+
         for feature in self.categorical_features:
             feature_count = collections.defaultdict(lambda: 0.0)
             column = training_data[:, feature]
@@ -151,7 +158,8 @@ class LimeTabularExplainer(object):
                                                  sum(frequencies))
             self.scaler.mean_[feature] = 0
             self.scaler.scale_[feature] = 1
-        #print self.feature_frequencies
+            #print self.feature_frequencies
+
     def explain_instance(self, data_row, classifier_fn, labels=(1,),
                          top_labels=None, num_features=10, num_samples=5000):
         """Generates explanations for a prediction.

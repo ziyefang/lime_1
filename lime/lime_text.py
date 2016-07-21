@@ -4,6 +4,8 @@ Functions for explaining text classifiers.
 from __future__ import unicode_literals
 import re
 import itertools
+
+import inspect
 import sklearn
 import numpy as np
 import scipy as sp
@@ -183,7 +185,10 @@ class LimeTextExplainer(object):
                 word order in some way (bigrams, etc).
 
         """
-        self.model_regressor = model_regressor
+        if "sample_weight" not in inspect.signature(model_regressor.fit).parameters:
+            raise ValueError("the regressor's fit function must incorporate sample weights")
+        else:
+            self.model_regressor = model_regressor
         # exponential kernel
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.base = lime_base.LimeBase(kernel, verbose)
