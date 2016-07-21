@@ -101,6 +101,7 @@ class LimeBase(object):
                                    distances,
                                    label,
                                    num_features,
+                                   model_regressor,
                                    feature_selection='auto'):
         """Takes perturbed data, labels and distances, returns explanation.
 
@@ -112,6 +113,7 @@ class LimeBase(object):
             distances: distances to original data point.
             label: label for which we want an explanation
             num_features: maximum number of features in explanation
+            model_regressor: the regressor used for the explanation
             feature_selection: how to select num_features. options are:
                 'forward_selection': iteratively add features to the model. This
                                      is costly when num_features is high
@@ -126,11 +128,12 @@ class LimeBase(object):
                         'highest_weights' otherwise.
 
         Returns:
-            (intercept, exp):
+            (intercept, exp, score):
             intercept is a float.
             exp is a sorted list of tuples, where each tuple (x,y) corresponds
             to the feature id (x) and the local weight (y). The list is sorted
             by decreasing absolute value of y.
+            score is the R^2 value of the returned explanation
         """
         weights = self.kernel_fn(distances)
         labels_column = neighborhood_labels[:, label]
@@ -140,7 +143,7 @@ class LimeBase(object):
                                                num_features,
                                                feature_selection)
 
-        easy_model = linear_model.Ridge(alpha=1, fit_intercept=True)
+        easy_model = model_regressor
         easy_model.fit(neighborhood_data[:, used_features],
                        labels_column, sample_weight=weights)
         prediction_score = easy_model.score(neighborhood_data[:, used_features],

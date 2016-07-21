@@ -7,6 +7,8 @@ import copy
 import numpy as np
 import sklearn
 import sklearn.preprocessing
+from sklearn.linear_model import Ridge
+
 from . import lime_base
 from . import explanation
 
@@ -79,7 +81,7 @@ class LimeTabularExplainer(object):
     means and stds in the training data. For categorical features, perturb by
     sampling according to the training distribution, and making a binary feature
     that is 1 when the value is the same as the instance being explained."""
-    def __init__(self, training_data, feature_names=None, categorical_features=None,
+    def __init__(self, training_data, model_regressor=Ridge(alpha=1, fit_intercept=True), feature_names=None, categorical_features=None,
                  categorical_names=None, kernel_width=3, verbose=False,
                  class_names=None, feature_selection='auto',
                  discretize_continuous=True):
@@ -87,6 +89,7 @@ class LimeTabularExplainer(object):
 
         Args:
             training_data: numpy 2d array
+            model_regressor: class of the regressor to use in explanation. Defaults to Ridge
             feature_names: list of names (strings) corresponding to the columns
                 in the training data.
             categorical_features: list of indices (ints) corresponding to the
@@ -129,6 +132,7 @@ class LimeTabularExplainer(object):
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
+        self.model_regressor = model_regressor
         for feature in self.categorical_features:
             feature_count = collections.defaultdict(lambda: 0.0)
             column = training_data[:, feature]
@@ -218,6 +222,7 @@ class LimeTabularExplainer(object):
         for label in labels:
             ret_exp.intercept[label], ret_exp.local_exp[label], ret_exp.score = self.base.explain_instance_with_data(
                 scaled_data, yss, distances, label, num_features,
+                model_regressor= self.model_regressor,
                 feature_selection=self.feature_selection)
         return ret_exp
 
