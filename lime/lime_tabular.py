@@ -91,7 +91,7 @@ class LimeTabularExplainer(object):
                 in the training data.
             categorical_features: list of indices (ints) corresponding to the
                 categorical columns. Everything else will be considered
-                continuous.
+                continuous. Values in these columns MUST be integers.
             categorical_names: map from int to list of names, where
                 categorical_names[x][y] represents the name of the yth value of
                 column x.
