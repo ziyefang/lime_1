@@ -318,8 +318,6 @@ var lime =
 	          var end = obj.end - subtract;
 	          var match = document.createElement(highlight_tag);
 	          match.appendChild(document.createTextNode(word));
-	          console.log("color from " + colors[obj.label] + " to " + this.applyAlpha(colors[obj.label], obj.alpha));
-	          console.log(obj);
 	          match.style.backgroundColor = this.applyAlpha(colors[obj.label], obj.alpha);
 	          var after = node.splitText(start);
 	          after.nodeValue = after.nodeValue.substring(word.length);

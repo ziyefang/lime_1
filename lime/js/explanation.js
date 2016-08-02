@@ -113,8 +113,6 @@ class Explanation {
       let end = obj.end - subtract;
       let match = document.createElement(highlight_tag);
       match.appendChild(document.createTextNode(word));
-      console.log("color from " + colors[obj.label] + " to " + this.applyAlpha(colors[obj.label], obj.alpha));
-      console.log(obj);
       match.style.backgroundColor = this.applyAlpha(colors[obj.label], obj.alpha);
       let after = node.splitText(start);
       after.nodeValue = after.nodeValue.substring(word.length);
