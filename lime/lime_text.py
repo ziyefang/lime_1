@@ -11,6 +11,8 @@ import itertools
 
 import inspect
 
+import scipy as sp
+import sklearn
 
 from . import lime_base
 from . import explanation
