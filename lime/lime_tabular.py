@@ -83,7 +83,7 @@ class LimeTabularExplainer(object):
     means and stds in the training data. For categorical features, perturb by
     sampling according to the training distribution, and making a binary feature
     that is 1 when the value is the same as the instance being explained."""
-    def __init__(self, training_data, model_regressor=Ridge(alpha=1, fit_intercept=True), feature_names=None, categorical_features=None,
+    def __init__(self, training_data, feature_names=None, categorical_features=None,
                  categorical_names=None, kernel_width=3, verbose=False,
                  class_names=None, feature_selection='auto',
                  discretize_continuous=True):
@@ -91,7 +91,6 @@ class LimeTabularExplainer(object):
 
         Args:
             training_data: numpy 2d array
-            model_regressor: class of the regressor to use in explanation. Defaults to Ridge
             feature_names: list of names (strings) corresponding to the columns
                 in the training data.
             categorical_features: list of indices (ints) corresponding to the
@@ -123,11 +122,6 @@ class LimeTabularExplainer(object):
             self.discretizer = QuartileDiscretizer(training_data, self.categorical_features, feature_names)
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(training_data)
-
-        if "sample_weight" not in inspect.signature(model_regressor.fit).parameters:
-            raise ValueError("the regressor's fit function must incorporate sample weights")
-        else:
-            self.model_regressor = model_regressor
 
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.feature_selection = feature_selection
@@ -161,7 +155,7 @@ class LimeTabularExplainer(object):
             #print self.feature_frequencies
 
     def explain_instance(self, data_row, classifier_fn, labels=(1,),
-                         top_labels=None, num_features=10, num_samples=5000):
+                         top_labels=None, num_features=10, num_samples=5000, model_regressor=None):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features from
@@ -180,6 +174,7 @@ class LimeTabularExplainer(object):
                 this parameter.
             num_features: maximum number of features present in explanation
             num_samples: size of the neighborhood to learn the linear model
+            model_regressor: class of the regressor to use in explanation. Defaults to Ridge in LimeBase
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
@@ -230,7 +225,7 @@ class LimeTabularExplainer(object):
         for label in labels:
             ret_exp.intercept[label], ret_exp.local_exp[label], ret_exp.score = self.base.explain_instance_with_data(
                 scaled_data, yss, distances, label, num_features,
-                model_regressor= self.model_regressor,
+                model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
         return ret_exp
 

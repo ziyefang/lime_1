@@ -2,8 +2,14 @@
 Contains abstract functionality for learning locally linear sparse model.
 """
 from __future__ import print_function
+
+import inspect
+import sklearn
 import numpy as np
-from sklearn import linear_model
+import scipy as sp
+import json
+
+from sklearn.linear_model import Ridge
 
 class LimeBase(object):
     """Class for learning a locally linear sparse model from perturbed data"""
@@ -39,7 +45,7 @@ class LimeBase(object):
     @staticmethod
     def forward_selection(data, labels, weights, num_features):
         """Iteratively adds features to the model"""
-        clf = linear_model.Ridge(alpha=0, fit_intercept=True)
+        clf = sklearn.linear_model.Ridge(alpha=0, fit_intercept=True)
         used_features = []
         for _ in range(min(num_features, data.shape[1])):
             max_ = -100000000
@@ -65,7 +71,7 @@ class LimeBase(object):
         elif method == 'forward_selection':
             return self.forward_selection(data, labels, weights, num_features)
         elif method == 'highest_weights':
-            clf = linear_model.Ridge(alpha=0, fit_intercept=True)
+            clf = sklearn.linear_model.Ridge(alpha=0, fit_intercept=True)
             clf.fit(data, labels, sample_weight=weights)
             feature_weights = sorted(zip(range(data.shape[0]),
                                          clf.coef_ * data[0]),
@@ -113,7 +119,7 @@ class LimeBase(object):
             distances: distances to original data point.
             label: label for which we want an explanation
             num_features: maximum number of features in explanation
-            model_regressor: the regressor used for the explanation
+            model_regressor: the regressor used for the explanation. Defaults to Ridge Regression
             feature_selection: how to select num_features. options are:
                 'forward_selection': iteratively add features to the model. This
                                      is costly when num_features is high
@@ -135,6 +141,7 @@ class LimeBase(object):
             by decreasing absolute value of y.
             score is the R^2 value of the returned explanation
         """
+
         weights = self.kernel_fn(distances)
         labels_column = neighborhood_labels[:, label]
         used_features = self.feature_selection(neighborhood_data,
@@ -142,6 +149,13 @@ class LimeBase(object):
                                                weights,
                                                num_features,
                                                feature_selection)
+
+        if not model_regressor:
+            model_regressor = Ridge(alpha=1, fit_intercept=True)
+        if "sample_weight" not in inspect.signature(model_regressor.fit).parameters:
+            raise ValueError("the regressor's fit function must incorporate sample weights")
+        else:
+            model_regressor = model_regressor
 
         easy_model = model_regressor
         easy_model.fit(neighborhood_data[:, used_features],

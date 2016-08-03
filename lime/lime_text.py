@@ -2,16 +2,15 @@
 Functions for explaining text classifiers.
 """
 from __future__ import unicode_literals
+
+import json
+
+import numpy as np
 import re
 import itertools
 
 import inspect
-import sklearn
-import numpy as np
-import scipy as sp
-import json
 
-from sklearn.linear_model import Ridge
 
 from . import lime_base
 from . import explanation
@@ -156,7 +155,6 @@ class LimeTextExplainer(object):
        Currently, we are using an exponential kernel on cosine distance, and
        restricting explanations to words that are present in documents."""
     def __init__(self,
-                 model_regressor=Ridge(alpha=1, fit_intercept=True),
                  kernel_width=25,
                  verbose=False,
                  class_names=None,
@@ -166,7 +164,6 @@ class LimeTextExplainer(object):
         """Init function.
 
         Args:
-            model_regressor: class of the regressor to use in explanation. Defaults to Ridge
             kernel_width: kernel width for the exponential kernel
             verbose: if true, print local prediction values from linear model
             class_names: list of class names, ordered according to whatever the
@@ -185,10 +182,6 @@ class LimeTextExplainer(object):
                 word order in some way (bigrams, etc).
 
         """
-        if "sample_weight" not in inspect.signature(model_regressor.fit).parameters:
-            raise ValueError("the regressor's fit function must incorporate sample weights")
-        else:
-            self.model_regressor = model_regressor
         # exponential kernel
         kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.base = lime_base.LimeBase(kernel, verbose)
@@ -203,7 +196,8 @@ class LimeTextExplainer(object):
                          labels=(1,),
                          top_labels=None,
                          num_features=10,
-                         num_samples=5000):
+                         num_samples=5000,
+                         model_regressor=None):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly hiding features from
@@ -222,7 +216,7 @@ class LimeTextExplainer(object):
                 this parameter.
             num_features: maximum number of features present in explanation
             num_samples: size of the neighborhood to learn the linear model
-
+            model_regressor: class of the regressor to use in explanation. Defaults to Ridge in LimeBase
         Returns:
             An Explanation object (see explanation.py) with the corresponding
             explanations.
@@ -245,7 +239,7 @@ class LimeTextExplainer(object):
         for label in labels:
             ret_exp.intercept[label], ret_exp.local_exp[label], ret_exp.score = self.base.explain_instance_with_data(
                 data, yss, distances, label, num_features,
-                model_regressor=self.model_regressor,
+                model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
         return ret_exp
 
