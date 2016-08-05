@@ -36,15 +36,17 @@ class Explanation {
       colors=[this.colors_i(0), this.colors_i(1)];
     }
     let word_lists = [[], []];
+    let max_weight = -1;
     for (let [word, start, weight] of exp) {
       if (weight > 0) {
-        word_lists[1].push([start, start + word.length]);
+        word_lists[1].push([start, start + word.length, weight]);
       }
       else {
-        word_lists[0].push([start, start + word.length]);
+        word_lists[0].push([start, start + word.length, -weight]);
       }
+      max_weight = Math.max(max_weight, Math.abs(weight));
     }
-    this.display_raw_text(div, raw, word_lists, colors, true);
+    this.display_raw_text(div, raw, word_lists, colors, max_weight, true);
   }
   // exp is list of (feature_name, value, weight)
   show_raw_tabular(exp, label, div) {
@@ -75,9 +77,21 @@ class Explanation {
       }
     }
   }
+  hexToRgb(hex) {
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+  }
+  applyAlpha(hex, alpha) {
+    let components = this.hexToRgb(hex);
+    return 'rgba(' + components.r + "," + components.g + "," + components.b + "," + alpha.toFixed(3) + ")"
+  }
   // sord_lists is an array of arrays, of length (colors). if with_positions is true,
   // word_lists is an array of [start,end] positions instead
-  display_raw_text(div, raw_text, word_lists=[], colors=[], positions=false) {
+  display_raw_text(div, raw_text, word_lists=[], colors=[], max_weight=1, positions=false) {
     div.classed('lime', true).classed('text_div', true);
     div.append('h3').text('Text with highlighted words');
     let highlight_tag = 'span';
@@ -88,7 +102,7 @@ class Explanation {
     }
     let objects = []
     for (let i of range(position_lists.length)) {
-      position_lists[i].map(x => objects.push({'label' : i, 'start': x[0], 'end': x[1]}));
+      position_lists[i].map(x => objects.push({'label' : i, 'start': x[0], 'end': x[1], 'alpha': x[2] / max_weight}));
     }
     objects = sortBy(objects, x=>x['start']);
     let node = text_span.node().childNodes[0];
@@ -99,7 +113,7 @@ class Explanation {
       let end = obj.end - subtract;
       let match = document.createElement(highlight_tag);
       match.appendChild(document.createTextNode(word));
-      match.style.backgroundColor = colors[obj.label];
+      match.style.backgroundColor = this.applyAlpha(colors[obj.label], obj.alpha);
       let after = node.splitText(start);
       after.nodeValue = after.nodeValue.substring(word.length);
       node.parentNode.insertBefore(match, after);

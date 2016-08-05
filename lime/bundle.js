@@ -142,6 +142,7 @@ var lime =
 	        colors = [this.colors_i(0), this.colors_i(1)];
 	      }
 	      var word_lists = [[], []];
+	      var max_weight = -1;
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
 	      var _iteratorError = undefined;
@@ -155,10 +156,11 @@ var lime =
 	          var weight = _step$value[2];
 	
 	          if (weight > 0) {
-	            word_lists[1].push([start, start + word.length]);
+	            word_lists[1].push([start, start + word.length, weight]);
 	          } else {
-	            word_lists[0].push([start, start + word.length]);
+	            word_lists[0].push([start, start + word.length, -weight]);
 	          }
+	          max_weight = Math.max(max_weight, Math.abs(weight));
 	        }
 	      } catch (err) {
 	        _didIteratorError = true;
@@ -175,7 +177,7 @@ var lime =
 	        }
 	      }
 	
-	      this.display_raw_text(div, raw, word_lists, colors, true);
+	      this.display_raw_text(div, raw, word_lists, colors, max_weight, true);
 	    }
 	    // exp is list of (feature_name, value, weight)
 	
@@ -231,6 +233,22 @@ var lime =
 	        }
 	      }
 	    }
+	  }, {
+	    key: 'hexToRgb',
+	    value: function hexToRgb(hex) {
+	      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	      return result ? {
+	        r: parseInt(result[1], 16),
+	        g: parseInt(result[2], 16),
+	        b: parseInt(result[3], 16)
+	      } : null;
+	    }
+	  }, {
+	    key: 'applyAlpha',
+	    value: function applyAlpha(hex, alpha) {
+	      var components = this.hexToRgb(hex);
+	      return 'rgba(' + components.r + "," + components.g + "," + components.b + "," + alpha.toFixed(3) + ")";
+	    }
 	    // sord_lists is an array of arrays, of length (colors). if with_positions is true,
 	    // word_lists is an array of [start,end] positions instead
 	
@@ -239,7 +257,8 @@ var lime =
 	    value: function display_raw_text(div, raw_text) {
 	      var word_lists = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
 	      var colors = arguments.length <= 3 || arguments[3] === undefined ? [] : arguments[3];
-	      var positions = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
+	      var max_weight = arguments.length <= 4 || arguments[4] === undefined ? 1 : arguments[4];
+	      var positions = arguments.length <= 5 || arguments[5] === undefined ? false : arguments[5];
 	
 	      div.classed('lime', true).classed('text_div', true);
 	      div.append('h3').text('Text with highlighted words');
@@ -259,7 +278,7 @@ var lime =
 	          var i = _step3.value;
 	
 	          position_lists[i].map(function (x) {
-	            return objects.push({ 'label': i, 'start': x[0], 'end': x[1] });
+	            return objects.push({ 'label': i, 'start': x[0], 'end': x[1], 'alpha': x[2] / max_weight });
 	          });
 	        };
 	
@@ -299,7 +318,7 @@ var lime =
 	          var end = obj.end - subtract;
 	          var match = document.createElement(highlight_tag);
 	          match.appendChild(document.createTextNode(word));
-	          match.style.backgroundColor = colors[obj.label];
+	          match.style.backgroundColor = this.applyAlpha(colors[obj.label], obj.alpha);
 	          var after = node.splitText(start);
 	          after.nodeValue = after.nodeValue.substring(word.length);
 	          node.parentNode.insertBefore(match, after);
@@ -26477,7 +26496,6 @@ var lime =
 	  // svg: d3 object with the svg in question
 	  // class_names: array of class names
 	  // predict_probas: array of prediction probabilities
-	
 	  function PredictProba(svg, class_names, predict_probas) {
 	    var title = arguments.length <= 3 || arguments[3] === undefined ? 'Prediction probabilities' : arguments[3];
 	
