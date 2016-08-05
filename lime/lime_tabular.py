@@ -129,6 +129,7 @@ class LimeTabularExplainer(object):
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
+
         for feature in self.categorical_features:
             feature_count = collections.defaultdict(lambda: 0.0)
             column = training_data[:, feature]
@@ -147,9 +148,11 @@ class LimeTabularExplainer(object):
                                                  sum(frequencies))
             self.scaler.mean_[feature] = 0
             self.scaler.scale_[feature] = 1
-        #print self.feature_frequencies
+            #print self.feature_frequencies
+
     def explain_instance(self, data_row, classifier_fn, labels=(1,),
-                         top_labels=None, num_features=10, num_samples=5000, distance_metric='euclidean'):
+                         top_labels=None, num_features=10, num_samples=5000,
+                         distance_metric='euclidean', model_regressor=None):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features from
@@ -169,6 +172,9 @@ class LimeTabularExplainer(object):
             num_features: maximum number of features present in explanation
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for weights.
+            model_regressor: sklearn regressor to use in explanation. Defaults to Ridge
+            regression in LimeBase. Must have model_regressor.coef_ and
+            'sample_weight' as a parameter to model_regressor.fit()
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
@@ -226,6 +232,7 @@ class LimeTabularExplainer(object):
         for label in labels:
             ret_exp.intercept[label], ret_exp.local_exp[label], ret_exp.score = self.base.explain_instance_with_data(
                 scaled_data, yss, distances, label, num_features,
+                model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
         return ret_exp
 

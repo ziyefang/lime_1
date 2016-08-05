@@ -2,12 +2,12 @@
 Functions for explaining text classifiers.
 """
 from __future__ import unicode_literals
+import json
+import numpy as np
 import re
 import itertools
-import sklearn
-import numpy as np
 import scipy as sp
-import json
+import sklearn
 from . import lime_base
 from . import explanation
 
@@ -196,7 +196,8 @@ class LimeTextExplainer(object):
                          top_labels=None,
                          num_features=10,
                          num_samples=5000,
-                         distance_metric='cosine'):
+                         distance_metric='cosine',
+                         model_regressor=None):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly hiding features from
@@ -217,7 +218,9 @@ class LimeTextExplainer(object):
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for sample weighting,
                 defaults to cosine similarity
-
+            model_regressor: sklearn regressor to use in explanation. Defaults to Ridge
+            regression in LimeBase. Must have model_regressor.coef_ and
+            'sample_weight' as a parameter to model_regressor.fit()
         Returns:
             An Explanation object (see explanation.py) with the corresponding
             explanations.
@@ -240,6 +243,7 @@ class LimeTextExplainer(object):
         for label in labels:
             ret_exp.intercept[label], ret_exp.local_exp[label], ret_exp.score = self.base.explain_instance_with_data(
                 data, yss, distances, label, num_features,
+                model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
         return ret_exp
 
