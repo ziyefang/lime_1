@@ -2,8 +2,9 @@
 Contains abstract functionality for learning locally linear sparse model.
 """
 from __future__ import print_function
+import sklearn
 import numpy as np
-from sklearn import linear_model
+from sklearn.linear_model import Ridge
 
 class LimeBase(object):
     """Class for learning a locally linear sparse model from perturbed data"""
@@ -39,7 +40,7 @@ class LimeBase(object):
     @staticmethod
     def forward_selection(data, labels, weights, num_features):
         """Iteratively adds features to the model"""
-        clf = linear_model.Ridge(alpha=0, fit_intercept=True)
+        clf = sklearn.linear_model.Ridge(alpha=0, fit_intercept=True)
         used_features = []
         for _ in range(min(num_features, data.shape[1])):
             max_ = -100000000
@@ -65,7 +66,7 @@ class LimeBase(object):
         elif method == 'forward_selection':
             return self.forward_selection(data, labels, weights, num_features)
         elif method == 'highest_weights':
-            clf = linear_model.Ridge(alpha=0, fit_intercept=True)
+            clf = sklearn.linear_model.Ridge(alpha=0, fit_intercept=True)
             clf.fit(data, labels, sample_weight=weights)
             feature_weights = sorted(zip(range(data.shape[0]),
                                          clf.coef_ * data[0]),
@@ -101,7 +102,8 @@ class LimeBase(object):
                                    distances,
                                    label,
                                    num_features,
-                                   feature_selection='auto'):
+                                   feature_selection='auto',
+                                   model_regressor=None):
         """Takes perturbed data, labels and distances, returns explanation.
 
         Args:
@@ -124,14 +126,19 @@ class LimeBase(object):
                 'none': uses all features, ignores num_features
                 'auto': uses forward_selection if num_features <= 6, and
                         'highest_weights' otherwise.
+            model_regressor: sklearn regressor to use in explanation. Defaults to Ridge
+            regression if None. Must have model_regressor.coef_ and
+            'sample_weight' as a parameter to model_regressor.fit()
 
         Returns:
-            (intercept, exp):
+            (intercept, exp, score):
             intercept is a float.
             exp is a sorted list of tuples, where each tuple (x,y) corresponds
             to the feature id (x) and the local weight (y). The list is sorted
             by decreasing absolute value of y.
+            score is the R^2 value of the returned explanation
         """
+
         weights = self.kernel_fn(distances)
         labels_column = neighborhood_labels[:, label]
         used_features = self.feature_selection(neighborhood_data,
@@ -140,7 +147,9 @@ class LimeBase(object):
                                                num_features,
                                                feature_selection)
 
-        easy_model = linear_model.Ridge(alpha=1, fit_intercept=True)
+        if model_regressor is None:
+            model_regressor = Ridge(alpha=1, fit_intercept=True)
+        easy_model = model_regressor
         easy_model.fit(neighborhood_data[:, used_features],
                        labels_column, sample_weight=weights)
         prediction_score = easy_model.score(neighborhood_data[:, used_features],
