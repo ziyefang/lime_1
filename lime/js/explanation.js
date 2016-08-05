@@ -29,7 +29,7 @@ class Explanation {
   }
   // exp has all ocurrences of words, with start index and weight:
   // exp = [('word', 132, -0.13), ('word3', 111, 1.3)
-  show_raw_text(exp, label, raw, div) {
+  show_raw_text(exp, label, raw, div, opacity=true) {
     //let colors=['#5F9EA0', this.colors(this.exp['class'])];
     let colors=['#5F9EA0', this.colors_i(label)];
     if (this.names.length == 2) {
@@ -45,6 +45,9 @@ class Explanation {
         word_lists[0].push([start, start + word.length, -weight]);
       }
       max_weight = Math.max(max_weight, Math.abs(weight));
+    }
+    if (!opacity) {
+      max_weight = 0;
     }
     this.display_raw_text(div, raw, word_lists, colors, max_weight, true);
   }
@@ -86,6 +89,7 @@ class Explanation {
     } : null;
   }
   applyAlpha(hex, alpha) {
+    console.log(alpha)
     let components = this.hexToRgb(hex);
     return 'rgba(' + components.r + "," + components.g + "," + components.b + "," + alpha.toFixed(3) + ")"
   }
@@ -102,7 +106,7 @@ class Explanation {
     }
     let objects = []
     for (let i of range(position_lists.length)) {
-      position_lists[i].map(x => objects.push({'label' : i, 'start': x[0], 'end': x[1], 'alpha': x[2] / max_weight}));
+      position_lists[i].map(x => objects.push({'label' : i, 'start': x[0], 'end': x[1], 'alpha': max_weight === 0 ? 1: x[2] / max_weight}));
     }
     objects = sortBy(objects, x=>x['start']);
     let node = text_span.node().childNodes[0];

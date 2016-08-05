@@ -40,7 +40,8 @@ class TextDomainMapper(explanation.DomainMapper):
         else:
             exp = [(self.indexed_string.word(x[0]), x[1]) for x in exp]
         return exp
-    def visualize_instance_html(self, exp, label, div_name, exp_object_name, text=True):
+    def visualize_instance_html(self, exp, label, div_name, exp_object_name,
+            text=True, opacity=True):
         """Adds text with highlighted words to visualization.
 
         Args:
@@ -49,6 +50,7 @@ class TextDomainMapper(explanation.DomainMapper):
              div_name: name of div object to be used for rendering(in js)
              exp_object_name: name of js explanation object
              text: if False, return empty
+             opacity: if True, fade colors according to weight
         """
         if not text:
             return u''
@@ -61,8 +63,9 @@ class TextDomainMapper(explanation.DomainMapper):
         all_ocurrences = list(itertools.chain.from_iterable(
             [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
         ret = '''
-            %s.show_raw_text(%s, %d, %s, %s);
-            ''' % (exp_object_name, json.dumps(all_ocurrences), label, json.dumps(text), div_name)
+            %s.show_raw_text(%s, %d, %s, %s, %s);
+            ''' % (exp_object_name, json.dumps(all_ocurrences), label,
+                    json.dumps(text), div_name, json.dumps(opacity))
         return ret
 
 class IndexedString(object):
