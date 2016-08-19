@@ -89,7 +89,6 @@ class Explanation {
     } : null;
   }
   applyAlpha(hex, alpha) {
-    console.log(alpha)
     let components = this.hexToRgb(hex);
     return 'rgba(' + components.r + "," + components.g + "," + components.b + "," + alpha.toFixed(3) + ")"
   }

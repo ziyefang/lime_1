@@ -174,7 +174,9 @@ class Explanation(object):
         bundle = open(os.path.join(this_dir, 'bundle.js'),
                       encoding="utf8").read()
 
-        out = u'''<html><head><script>%s </script></head><body>''' % bundle
+        out = u'''<html>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8">
+        <head><script>%s </script></head><body>''' % bundle
         random_id = id_generator()
         out += u'''
         <div class="lime top_div" id="top_div%s"></div>
