@@ -6,6 +6,7 @@ import sklearn
 import numpy as np
 from sklearn.linear_model import Ridge
 
+
 class LimeBase(object):
     """Class for learning a locally linear sparse model from perturbed data"""
     def __init__(self,
@@ -20,6 +21,7 @@ class LimeBase(object):
         """
         self.kernel_fn = kernel_fn
         self.verbose = verbose
+
     @staticmethod
     def generate_lars_path(weighted_data, weighted_labels):
         """Generates the lars path for weighted data.
@@ -29,14 +31,16 @@ class LimeBase(object):
             weighted_label: labels, weighted by kernel
 
         Returns:
-            (alphas, coefs), both are arrays corresponding to the regularization
-            parameter and coefficients, respectively
+            (alphas, coefs), both are arrays corresponding to the
+            regularization parameter and coefficients, respectively
         """
         x_vector = weighted_data
-        alphas, _, coefs = linear_model.lars_path(x_vector, weighted_labels,
-                                                  method='lasso',
-                                                  verbose=False)
+        alphas, _, coefs = sklearn.linear_model.lars_path(x_vector,
+                                                          weighted_labels,
+                                                          method='lasso',
+                                                          verbose=False)
         return alphas, coefs
+
     @staticmethod
     def forward_selection(data, labels, weights, num_features):
         """Iteratively adds features to the model"""
@@ -48,7 +52,8 @@ class LimeBase(object):
             for feature in range(data.shape[1]):
                 if feature in used_features:
                     continue
-                clf.fit(data[:, used_features + [feature]], labels, sample_weight=weights)
+                clf.fit(data[:, used_features + [feature]], labels,
+                        sample_weight=weights)
                 score = clf.score(data[:, used_features + [feature]],
                                   labels,
                                   sample_weight=weights)
@@ -76,7 +81,8 @@ class LimeBase(object):
         elif method == 'lasso_path':
             weighted_data = ((data - np.average(data, axis=0, weights=weights))
                              * np.sqrt(weights[:, np.newaxis]))
-            weighted_labels = (labels - np.average(labels, weights=weights)) * np.sqrt(weights)
+            weighted_labels = ((labels - np.average(labels, weights=weights))
+                               * np.sqrt(weights))
             used_features = range(weighted_data.shape[1])
             nonzero = range(weighted_data.shape[1])
             _, coefs = self.generate_lars_path(weighted_data,
@@ -94,7 +100,6 @@ class LimeBase(object):
                 n_method = 'highest_weights'
             return self.feature_selection(data, labels, weights,
                                           num_features, n_method)
-
 
     def explain_instance_with_data(self,
                                    neighborhood_data,
@@ -115,20 +120,20 @@ class LimeBase(object):
             label: label for which we want an explanation
             num_features: maximum number of features in explanation
             feature_selection: how to select num_features. options are:
-                'forward_selection': iteratively add features to the model. This
-                                     is costly when num_features is high
+                'forward_selection': iteratively add features to the model.
+                    This is costly when num_features is high
                 'highest_weights': selects the features that have the highest
-                                   product of absolute weight * original data
-                                   point when learning with all the
-                                   features
-                'lasso_path': chooses features based on the lasso regularization
-                              path
+                    product of absolute weight * original data point when
+                    learning with all the features
+                'lasso_path': chooses features based on the lasso
+                    regularization path
                 'none': uses all features, ignores num_features
                 'auto': uses forward_selection if num_features <= 6, and
-                        'highest_weights' otherwise.
-            model_regressor: sklearn regressor to use in explanation. Defaults to Ridge
-            regression if None. Must have model_regressor.coef_ and
-            'sample_weight' as a parameter to model_regressor.fit()
+                    'highest_weights' otherwise.
+            model_regressor: sklearn regressor to use in explanation.
+                Defaults to Ridge regression if None. Must have
+                model_regressor.coef_ and 'sample_weight' as a parameter
+                to model_regressor.fit()
 
         Returns:
             (intercept, exp, score):
@@ -152,13 +157,16 @@ class LimeBase(object):
         easy_model = model_regressor
         easy_model.fit(neighborhood_data[:, used_features],
                        labels_column, sample_weight=weights)
-        prediction_score = easy_model.score(neighborhood_data[:, used_features],
-                       labels_column, sample_weight=weights)
+        prediction_score = easy_model.score(
+            neighborhood_data[:, used_features],
+            labels_column, sample_weight=weights)
         if self.verbose:
             local_pred = easy_model.predict(
                 neighborhood_data[0, used_features].reshape(1, -1))
             print('Intercept', easy_model.intercept_)
             print('Prediction_local', local_pred,)
             print('Right:', neighborhood_labels[0, label])
-        return easy_model.intercept_, sorted(zip(used_features, easy_model.coef_),
-                      key=lambda x: np.abs(x[1]), reverse=True), prediction_score
+        return (easy_model.intercept_,
+                sorted(zip(used_features, easy_model.coef_),
+                       key=lambda x: np.abs(x[1]), reverse=True),
+                prediction_score)

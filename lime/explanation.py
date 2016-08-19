@@ -9,11 +9,13 @@ import json
 import string
 import numpy as np
 
+
 def id_generator(size=15):
     """Helper function to generate random div ids. This is useful for embedding
     HTML into ipython notebooks."""
     chars = list(string.ascii_uppercase + string.digits)
     return ''.join(np.random.choice(chars, size, replace=True))
+
 
 class DomainMapper(object):
     """Class for mapping features to the specific domain.
@@ -24,6 +26,7 @@ class DomainMapper(object):
     """
     def __init__(self):
         pass
+
     def map_exp_ids(self, exp, **kwargs):
         """Maps the feature ids to concrete names.
 
@@ -38,11 +41,13 @@ class DomainMapper(object):
             exp: list of tuples [(name, weight), (name, weight)...]
         """
         return exp
-    def visualize_instance_html(self, exp, label, div_name, exp_object_name, **kwargs):
+
+    def visualize_instance_html(self, exp, label, div_name, exp_object_name,
+                                **kwargs):
         """Produces html for visualizing the instance.
 
-        Default behaviour does nothing. Subclasses can implement this as they see
-        fit.
+        Default behaviour does nothing. Subclasses can implement this as they
+        see fit.
 
         Args:
              exp: list of tuples [(id, weight), (id,weight)]
@@ -55,7 +60,6 @@ class DomainMapper(object):
              js code for visualizing the instance
         """
         return ''
-
 
 
 class Explanation(object):
@@ -129,7 +133,6 @@ class Explanation(object):
         plt.title('Local explanation for class %s' % self.class_names[label])
         return fig
 
-
     def show_in_notebook(self, labels=None, predict_proba=True, **kwargs):
         """Shows html explanation in ipython notebook.
 
@@ -138,7 +141,8 @@ class Explanation(object):
         from IPython.core.display import display, HTML
         display(HTML(self.as_html(labels, predict_proba, **kwargs)))
 
-    def save_to_file(self, file_path, labels=None, predict_proba=True, **kwargs):
+    def save_to_file(self, file_path, labels=None, predict_proba=True,
+                     **kwargs):
         """Saves html explanation to file. See as_html for paramaters.
 
         Params:
@@ -148,15 +152,14 @@ class Explanation(object):
         file_.write(self.as_html(labels, predict_proba, **kwargs))
         file_.close()
 
-
     def as_html(self, labels=None, predict_proba=True, **kwargs):
         """Returns the explanation as an html page.
 
         Args:
             labels: desired labels to show explanations for (as barcharts).
-                If you ask for a label for which an explanation wasn't computed,
-                will throw an exception. If None, will show explanations for all
-                available labels.
+                If you ask for a label for which an explanation wasn't
+                computed, will throw an exception. If None, will show
+                explanations for all available labels.
             predict_proba: if true, add  barchart with prediction probabilities
                 for the top classes.
             kwargs: keyword arguments, passed to domain_mapper
@@ -164,7 +167,7 @@ class Explanation(object):
         Returns:
             code for an html page, including javascript includes.
         """
-        jsonize = lambda x: json.dumps(x)
+        def jsonize(x): return json.dumps(x)
         if labels is None:
             labels = self.available_labels()
         this_dir, _ = os.path.split(__file__)
@@ -178,10 +181,12 @@ class Explanation(object):
         predict_proba_js = ''
         if predict_proba:
             predict_proba_js = u'''
-            var pp_div = top_div.append('div').classed('lime predict_proba', true);
+            var pp_div = top_div.append('div')
+                                .classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%%');
             var pp = new lime.PredictProba(pp_svg, %s, %s);
-            ''' % (jsonize(self.class_names), jsonize(list(self.predict_proba.astype(float))))
+            ''' % (jsonize(self.class_names),
+                   jsonize(list(self.predict_proba.astype(float))))
 
         exp_js = '''var exp_div;
             var exp = new lime.Explanation(%s);
@@ -189,9 +194,9 @@ class Explanation(object):
         for label in labels:
             exp = jsonize(self.as_list(label))
             exp_js += u'''
-                exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show(%s, %d, exp_div);
-                ''' % (exp, label)
+            exp_div = top_div.append('div').classed('lime explanation', true);
+            exp.show(%s, %d, exp_div);
+            ''' % (exp, label)
         raw_js = '''var raw_div = top_div.append('div');'''
         raw_js += self.domain_mapper.visualize_instance_html(
             self.local_exp[labels[0]], labels[0], 'raw_div', 'exp', **kwargs)

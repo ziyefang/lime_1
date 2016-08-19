@@ -11,6 +11,7 @@ import sklearn
 from . import lime_base
 from . import explanation
 
+
 class TextDomainMapper(explanation.DomainMapper):
     """Maps feature ids to words or word-positions"""
     def __init__(self, indexed_string):
@@ -20,6 +21,7 @@ class TextDomainMapper(explanation.DomainMapper):
             indexed_string: lime_text.IndexedString, original string
         """
         self.indexed_string = indexed_string
+
     def map_exp_ids(self, exp, positions=False):
         """Maps ids to words or word-position strings.
 
@@ -35,13 +37,15 @@ class TextDomainMapper(explanation.DomainMapper):
             exp = [('%s_%s' % (
                 self.indexed_string.word(x[0]),
                 '-'.join(
-                    map(str, self.indexed_string.string_position(x[0])))), x[1])
+                    map(str,
+                        self.indexed_string.string_position(x[0])))), x[1])
                    for x in exp]
         else:
             exp = [(self.indexed_string.word(x[0]), x[1]) for x in exp]
         return exp
+
     def visualize_instance_html(self, exp, label, div_name, exp_object_name,
-            text=True, opacity=True):
+                                text=True, opacity=True):
         """Adds text with highlighted words to visualization.
 
         Args:
@@ -65,8 +69,9 @@ class TextDomainMapper(explanation.DomainMapper):
         ret = '''
             %s.show_raw_text(%s, %d, %s, %s, %s);
             ''' % (exp_object_name, json.dumps(all_ocurrences), label,
-                    json.dumps(text), div_name, json.dumps(opacity))
+                   json.dumps(text), div_name, json.dumps(opacity))
         return ret
+
 
 class IndexedString(object):
     """String with various indexes."""
@@ -85,7 +90,8 @@ class IndexedString(object):
         self.as_list = re.split(r'(%s)|$' % split_expression, self.raw)
         self.as_np = np.array(self.as_list)
         non_word = re.compile(r'(%s)|$' % split_expression).match
-        self.string_start = np.hstack(([0], np.cumsum([len(x) for x in self.as_np[:-1]])))
+        self.string_start = np.hstack(
+            ([0], np.cumsum([len(x) for x in self.as_np[:-1]])))
         vocab = {}
         self.inverse_vocab = []
         self.positions = []
@@ -109,21 +115,26 @@ class IndexedString(object):
                 self.positions.append(i)
         if not bow:
             self.positions = np.array(self.positions)
+
     def raw_string(self):
         """Returns the original raw string"""
         return self.raw
+
     def num_words(self):
         """Returns the number of tokens in the vocabulary for this document."""
         return len(self.inverse_vocab)
+
     def word(self, id_):
         """Returns the word that corresponds to id_ (int)"""
         return self.inverse_vocab[id_]
+
     def string_position(self, id_):
         """Returns a np array with indices to id_ (int) ocurrences"""
         if self.bow:
             return self.string_start[self.positions[id_]]
         else:
             return self.string_start[[self.positions[id_]]]
+
     def inverse_removing(self, words_to_remove):
         """Returns a string after removing the appropriate words.
 
@@ -139,12 +150,15 @@ class IndexedString(object):
         mask = np.ones(self.as_np.shape[0], dtype='bool')
         mask[self.__get_idxs(words_to_remove)] = False
         if not self.bow:
-           return ''.join([self.as_list[i] if mask[i] else 'UNKWORDZ' for i in range(mask.shape[0])])
+            return ''.join([self.as_list[i] if mask[i]
+                            else 'UNKWORDZ' for i in range(mask.shape[0])])
         return ''.join([self.as_list[v] for v in mask.nonzero()[0]])
+
     def __get_idxs(self, words):
         """Returns indexes to appropriate words."""
         if self.bow:
-            return list(itertools.chain.from_iterable([self.positions[z] for z in words]))
+            return list(itertools.chain.from_iterable(
+                [self.positions[z] for z in words]))
         else:
             return self.positions[words]
 
@@ -173,22 +187,22 @@ class LimeTextExplainer(object):
                 See function 'explain_instance_with_data' in lime_base.py for
                 details on what each of the options does.
             split_expression: strings will be split by this.
-            bow: if True (bag of words), will perturb input data by removing all
-                ocurrences of individual words.  Explanations will be in terms of
-                these words. Otherwise, will explain in terms of word-positions,
-                so that a word may be important the first time it appears and
-                uninportant the second. Only set to false if the classifier uses
-                word order in some way (bigrams, etc).
-
+            bow: if True (bag of words), will perturb input data by removing
+                all ocurrences of individual words.  Explanations will be in
+                terms of these words. Otherwise, will explain in terms of
+                word-positions, so that a word may be important the first time
+                it appears and uninportant the second. Only set to false if the
+                classifier uses word order in some way (bigrams, etc).
         """
         # exponential kernel
-        kernel = lambda d: np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
+        def kernel(d): return np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.base = lime_base.LimeBase(kernel, verbose)
         self.class_names = class_names
         self.vocabulary = None
         self.feature_selection = feature_selection
         self.bow = bow
         self.split_expression = split_expression
+
     def explain_instance(self,
                          text_instance,
                          classifier_fn,
@@ -202,8 +216,8 @@ class LimeTextExplainer(object):
 
         First, we generate neighborhood data by randomly hiding features from
         the instance (see __data_labels_distance_mapping). We then learn
-        locally weighted linear models on this neighborhood data to explain each
-        of the classes in an interpretable way (see lime_base.py).
+        locally weighted linear models on this neighborhood data to explain
+        each of the classes in an interpretable way (see lime_base.py).
 
         Args:
             text_instance: raw text string to be explained.
@@ -218,9 +232,9 @@ class LimeTextExplainer(object):
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for sample weighting,
                 defaults to cosine similarity
-            model_regressor: sklearn regressor to use in explanation. Defaults to Ridge
-            regression in LimeBase. Must have model_regressor.coef_ and
-            'sample_weight' as a parameter to model_regressor.fit()
+            model_regressor: sklearn regressor to use in explanation. Defaults
+            to Ridge regression in LimeBase. Must have model_regressor.coef_
+            and 'sample_weight' as a parameter to model_regressor.fit()
         Returns:
             An Explanation object (see explanation.py) with the corresponding
             explanations.
@@ -229,19 +243,21 @@ class LimeTextExplainer(object):
                                        split_expression=self.split_expression)
         domain_mapper = TextDomainMapper(indexed_string)
         data, yss, distances = self.__data_labels_distances(
-            indexed_string, classifier_fn, num_samples, distance_metric=distance_metric)
+            indexed_string, classifier_fn, num_samples,
+            distance_metric=distance_metric)
         if self.class_names is None:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
         ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
                                           class_names=self.class_names)
         ret_exp.predict_proba = yss[0]
-        #map_exp = lambda exp: [(indexed_string.word(x[0]), x[1]) for x in exp]
         if top_labels:
             labels = np.argsort(yss[0])[-top_labels:]
             ret_exp.top_labels = list(labels)
             ret_exp.top_labels.reverse()
         for label in labels:
-            ret_exp.intercept[label], ret_exp.local_exp[label], ret_exp.score = self.base.explain_instance_with_data(
+            (ret_exp.intercept[label],
+             ret_exp.local_exp[label],
+             ret_exp.score) = self.base.explain_instance_with_data(
                 data, yss, distances, label, num_features,
                 model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
@@ -279,7 +295,9 @@ class LimeTextExplainer(object):
                     each perturbed instance (computed in the binary 'data'
                     matrix), times 100.
         """
-        distance_fn = lambda x: sklearn.metrics.pairwise.pairwise_distances(x, x[0], metric=distance_metric).ravel() * 100
+        def distance_fn(x):
+            return sklearn.metrics.pairwise.pairwise_distances(
+                x, x[0], metric=distance_metric).ravel() * 100
         doc_size = indexed_string.num_words()
         sample = np.random.randint(1, doc_size + 1, num_samples - 1)
         data = np.ones((num_samples, doc_size))
