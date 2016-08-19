@@ -171,7 +171,8 @@ class Explanation(object):
         if labels is None:
             labels = self.available_labels()
         this_dir, _ = os.path.split(__file__)
-        bundle = open(os.path.join(this_dir, 'bundle.js')).read()
+        bundle = open(os.path.join(this_dir, 'bundle.js'),
+                      encoding="utf8").read()
 
         out = u'''<html><head><script>%s </script></head><body>''' % bundle
         random_id = id_generator()

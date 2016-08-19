@@ -66,6 +66,7 @@ class TextDomainMapper(explanation.DomainMapper):
                 x[1]) for x in exp]
         all_ocurrences = list(itertools.chain.from_iterable(
             [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
+        all_ocurrences = [(x[0], int(x[1]), x[2]) for x in all_ocurrences]
         ret = '''
             %s.show_raw_text(%s, %d, %s, %s, %s);
             ''' % (exp_object_name, json.dumps(all_ocurrences), label,
