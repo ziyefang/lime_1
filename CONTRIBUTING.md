@@ -14,3 +14,4 @@ Here are a few high level features I want to incorporate in LIME. If you want to
 3. Making LIME work with images in a reasonable time. The explanations we used in the paper took a few minutes, which is too slow.
 4. Thinking through what is needed to use LIME in regression problems. An obvious problem is that features with different scales make it really hard to interpret.
 5. Figuring out better alternatives to discretizing the data for tabular data. Discretizing is definitely more interpretable, but we may just want to treat features as continuous.
+6. Figuring out better ways to sample around a data point for tabular data. One example is sampling columns from the training set assuming independence, or some form of conditional sampling.
