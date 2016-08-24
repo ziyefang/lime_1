@@ -87,7 +87,7 @@ class LimeTabularExplainer(object):
     explained."""
     def __init__(self, training_data, feature_names=None,
                  categorical_features=None, categorical_names=None,
-                 kernel_width=3, verbose=False, class_names=None,
+                 kernel_width=None, verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True):
         """Init function.
 
@@ -101,7 +101,8 @@ class LimeTabularExplainer(object):
             categorical_names: map from int to list of names, where
                 categorical_names[x][y] represents the name of the yth value of
                 column x.
-            kernel_width: kernel width for the exponential kernel
+            kernel_width: kernel width for the exponential kernel.
+            If None, defaults to sqrt(number of columns) * 0.75
             verbose: if true, print local prediction values from linear model
             class_names: list of class names, ordered according to whatever the
                 classifier is using. If not present, class names will be '0',
@@ -127,6 +128,10 @@ class LimeTabularExplainer(object):
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(
                 training_data)
+
+        if kernel_width is None:
+            kernel_width = np.sqrt(training_data.shape[1]) * .75
+        kernel_width = float(kernel_width)
 
         def kernel(d): return np.sqrt(np.exp(-(d**2) / kernel_width ** 2))
         self.feature_selection = feature_selection
