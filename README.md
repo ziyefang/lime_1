@@ -1,6 +1,6 @@
 # lime
 This project is about explaining what machine learning classifiers (or models) are doing.
-At the moment, we support explaining individual predictions for text classifiers or classifiers that act on tables (numpy arrays of numerical or categorical data), with a package caled lime (short for local interpretable model-agnostic explanations).  
+At the moment, we support explaining individual predictions for text classifiers or classifiers that act on tables (numpy arrays of numerical or categorical data), with a package called lime (short for local interpretable model-agnostic explanations).
 Lime is based on the work presented in [this paper](http://arxiv.org/abs/1602.04938). Here is a link to the promo video:
 
 <a href="https://www.youtube.com/watch?v=hUnRCxnydCc" target="_blank"><img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/video_screenshot.png" width="450" alt="KDD promo video"/></a>
@@ -44,7 +44,7 @@ While treating the model as a black box, we perturb the instance we want to expl
 The figure below illustrates the intuition for this procedure. The model's decision function is represented by the blue/pink background, and is clearly nonlinear.
 The bright red cross is the instance being explained (let's call it X).
 We sample instances around X, and weight them according to their proximity to X (weight here is indicated by size).
-We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necessarily globaly. For more information, [read our paper](http://arxiv.org/abs/1602.04938), or take a look at [this blog post](https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime).
+We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necessarily globally. For more information, [read our paper](http://arxiv.org/abs/1602.04938), or take a look at [this blog post](https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime).
 
 <img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/lime.png" width=300px />
 
