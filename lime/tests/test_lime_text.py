@@ -2,7 +2,6 @@ import unittest
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import Lasso
-from sklearn.linear_model import LinearRegression
 from sklearn.metrics import f1_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
@@ -11,12 +10,13 @@ from lime.lime_text import LimeTextExplainer
 
 
 class TestLimeText(unittest.TestCase):
-
     def test_lime_text_explainer_good_regressor(self):
         from sklearn.datasets import fetch_20newsgroups
         categories = ['alt.atheism', 'soc.religion.christian']
-        newsgroups_train = fetch_20newsgroups(subset='train', categories=categories)
-        newsgroups_test = fetch_20newsgroups(subset='test', categories=categories)
+        newsgroups_train = fetch_20newsgroups(subset='train',
+                                              categories=categories)
+        newsgroups_test = fetch_20newsgroups(subset='test',
+                                             categories=categories)
         class_names = ['atheism', 'christian']
         vectorizer = TfidfVectorizer(lowercase=False)
         train_vectors = vectorizer.fit_transform(newsgroups_train.data)
@@ -28,7 +28,8 @@ class TestLimeText(unittest.TestCase):
         c = make_pipeline(vectorizer, nb)
         explainer = LimeTextExplainer(class_names=class_names)
         idx = 83
-        exp = explainer.explain_instance(newsgroups_test.data[idx], c.predict_proba, num_features=6)
+        exp = explainer.explain_instance(newsgroups_test.data[idx],
+                                         c.predict_proba, num_features=6)
         self.assertIsNotNone(exp)
         self.assertEquals(6, len(exp.as_list()))
 
@@ -57,5 +58,6 @@ class TestLimeText(unittest.TestCase):
                 newsgroups_test.data[idx], c.predict_proba, num_features=6,
                 labels=[0, 17], model_regressor=Lasso())
 
+
 if __name__ == '__main__':
-        unittest.main()
+    unittest.main()

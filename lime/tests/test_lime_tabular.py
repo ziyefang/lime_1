@@ -30,7 +30,8 @@ class TestLimeTabular(unittest.TestCase):
                 class_names=iris.target_names,
                 discretize_continuous=True)
 
-            exp = explainer.explain_instance(test[i], rf.predict_proba, # noqa:F841
+            exp = explainer.explain_instance(test[i], rf.predict_proba,
+                                             # noqa:F841
                                              num_features=2, top_labels=1,
                                              model_regressor=lasso)
 
@@ -57,17 +58,21 @@ class TestLimeTabular(unittest.TestCase):
 
         self.assertIsNotNone(exp)
         keys = [x[0] for x in exp.as_list()]
-        self.assertEquals(1, sum([1 if 'petal width' in x else 0 for x in keys]), "Petal Width is a major feature")
-        self.assertEquals(1, sum([1 if 'petal length' in x else 0 for x in keys]), "Petal Length is a major feature")
+        self.assertEquals(1,
+                          sum([1 if 'petal width' in x else 0 for x in keys]),
+                          "Petal Width is a major feature")
+        self.assertEquals(1,
+                          sum([1 if 'petal length' in x else 0 for x in keys]),
+                          "Petal Length is a major feature")
 
     def test_lime_explainer_good_regressor_synthetic_data(self):
         X, y = datasets.make_classification(n_samples=1000, n_features=20,
-                                    n_informative=2, n_redundant=2)
+                                            n_informative=2, n_redundant=2)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(X, y)
         i = np.random.randint(0, X.shape[0])
-        feature_names = ["feature"+str(i) for i in range(20)]
+        feature_names = ["feature" + str(i) for i in range(20)]
         explainer = LimeTabularExplainer(X,
                                          feature_names=feature_names,
                                          discretize_continuous=True)
@@ -76,7 +81,6 @@ class TestLimeTabular(unittest.TestCase):
 
         self.assertIsNotNone(exp)
         self.assertEqual(10, len(exp.as_list()))
-
 
     def test_lime_explainer_no_regressor(self):
         np.random.seed(1)
@@ -98,8 +102,13 @@ class TestLimeTabular(unittest.TestCase):
                                          num_features=2)
         self.assertIsNotNone(exp)
         keys = [x[0] for x in exp.as_list()]
-        self.assertEquals(1, sum([1 if 'petal width' in x else 0 for x in keys]), "Petal Width is a major feature")
-        self.assertEquals(1, sum([1 if 'petal length' in x else 0 for x in keys]), "Petal Length is a major feature")
+        self.assertEquals(1,
+                          sum([1 if 'petal width' in x else 0 for x in keys]),
+                          "Petal Width is a major feature")
+        self.assertEquals(1,
+                          sum([1 if 'petal length' in x else 0 for x in keys]),
+                          "Petal Length is a major feature")
+
 
 if __name__ == '__main__':
-        unittest.main()
+    unittest.main()
