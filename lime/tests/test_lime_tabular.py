@@ -29,9 +29,8 @@ class TestLimeTabular(unittest.TestCase):
                 feature_names=iris.feature_names,
                 class_names=iris.target_names,
                 discretize_continuous=True)
-
-            exp = explainer.explain_instance(test[i], rf.predict_proba,
-                                             # noqa:F841
+            exp = explainer.explain_instance(test[i],  # noqa:F841
+                                             rf.predict_proba,
                                              num_features=2, top_labels=1,
                                              model_regressor=lasso)
 
