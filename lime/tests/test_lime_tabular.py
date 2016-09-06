@@ -70,13 +70,13 @@ class TestLimeTabular(unittest.TestCase):
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(X, y)
-        i = np.random.randint(0, X.shape[0])
+        instance = np.random.randint(0, X.shape[0])
         feature_names = ["feature" + str(i) for i in range(20)]
         explainer = LimeTabularExplainer(X,
                                          feature_names=feature_names,
                                          discretize_continuous=True)
 
-        exp = explainer.explain_instance(X[i], rf.predict_proba)
+        exp = explainer.explain_instance(X[instance], rf.predict_proba)
 
         self.assertIsNotNone(exp)
         self.assertEqual(10, len(exp.as_list()))
