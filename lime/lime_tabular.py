@@ -10,6 +10,8 @@ import sklearn
 import sklearn.preprocessing
 
 from lime.discretize import QuartileDiscretizer
+from lime.discretize import DecileDiscretizer
+from lime.discretize import EntropyDiscretizer
 from . import explanation
 from . import lime_base
 
@@ -90,15 +92,17 @@ class LimeTabularExplainer(object):
     feature that is 1 when the value is the same as the instance being
     explained."""
 
-    def __init__(self, training_data, labels=None, feature_names=None,
+    def __init__(self, training_data, training_labels=None, feature_names=None,
                  categorical_features=None, categorical_names=None,
                  kernel_width=None, verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True,
-                 discretizer=None):
+                 discretizer='quartile'):
         """Init function.
 
         Args:
             training_data: numpy 2d array
+            training_labels: labels for training data. Not required, but may be
+                used by discretizer.
             feature_names: list of names (strings) corresponding to the columns
                 in the training data.
             categorical_features: list of indices (ints) corresponding to the
@@ -119,6 +123,8 @@ class LimeTabularExplainer(object):
                 details on what each of the options does.
             discretize_continuous: if True, all non-categorical features will
                 be discretized into quartiles.
+            discretizer: only matters if discretize_continuous is True. Options
+                are 'quartile', 'decile' or 'entropy'
         """
         self.categorical_names = categorical_names
         self.categorical_features = categorical_features
@@ -127,15 +133,23 @@ class LimeTabularExplainer(object):
         if self.categorical_features is None:
             self.categorical_features = []
         self.discretizer = None
-        if discretizer:
-            self.discretizer = discretizer(training_data,
-                                           self.categorical_features,
-                                           feature_names, labels=labels)
-        else:
+        if discretizer == 'quartile':
             self.discretizer = QuartileDiscretizer(training_data,
                                                    self.categorical_features,
                                                    feature_names,
-                                                   labels=labels)
+                                                   labels=training_labels)
+        elif discretizer == 'decile':
+            self.discretizer = DecileDiscretizer(training_data,
+                                                 self.categorical_features,
+                                                 feature_names,
+                                                 labels=training_labels)
+        elif discretizer == 'entropy':
+            self.discretizer = EntropyDiscretizer(training_data,
+                                                  self.categorical_features,
+                                                  feature_names,
+                                                  labels=training_labels)
+        else:
+            raise '''Discretizer must be 'quartile', 'decile' or 'entropy' '''
         if discretize_continuous:
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(

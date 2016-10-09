@@ -7,8 +7,6 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LinearRegression
-
-from lime.discretize import EntropyDiscretizer
 from lime.lime_tabular import LimeTabularExplainer
 
 
@@ -122,10 +120,10 @@ class TestLimeTabular(unittest.TestCase):
 
         explainer = LimeTabularExplainer(train,
                                          feature_names=iris.feature_names,
-                                         labels=labels_train,
+                                         training_labels=labels_train,
                                          class_names=iris.target_names,
                                          discretize_continuous=True,
-                                         discretizer=EntropyDiscretizer)
+                                         discretizer='entropy')
 
         exp = explainer.explain_instance(test[i], rf.predict_proba,
                                          num_features=2)
