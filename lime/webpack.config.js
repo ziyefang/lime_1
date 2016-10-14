@@ -14,7 +14,7 @@ module.exports = {
                 loader: 'babel-loader',
                 test: path.join(__dirname, 'js'),
                 query: {
-                  presets: 'es2015',
+                  presets: 'es2015-ie',
                 },
             },
             {
