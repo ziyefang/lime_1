@@ -203,7 +203,7 @@ class LimeTabularExplainer(object):
         Args:
             data_row: 1d numpy array, corresponding to a row
             classifier_fn: classifier prediction probability function, which
-                takes a string and outputs prediction probabilities.  For
+                takes a numpy array and outputs prediction probabilities.  For
                 ScikitClassifiers , this is classifier.predict_proba.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
