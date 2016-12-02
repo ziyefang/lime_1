@@ -1,8 +1,16 @@
-Lime module api
+lime package
 ============
 
 Submodules
 ----------
+
+lime.lime_tabular module
+------------------------
+
+.. automodule:: lime.lime_tabular
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 lime.lime_text module
 ---------------------
@@ -12,10 +20,10 @@ lime.lime_text module
     :undoc-members:
     :show-inheritance:
 
-lime.lime_tabular module
----------------------
+lime.discretize module
+----------------------
 
-.. automodule:: lime.lime_tabular
+.. automodule:: lime.discretize
     :members:
     :undoc-members:
     :show-inheritance:
