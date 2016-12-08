@@ -74,9 +74,6 @@ var lime =
 	exports.Explanation = _explanation2.default;
 	exports.Barchart = _bar_chart2.default;
 	exports.PredictProba = _predict_proba2.default;
-	
-	
-	console.log("foooobarrrr");
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -35382,7 +35379,7 @@ var lime =
 	
 	
 	// module
-	exports.push([module.id, ".lime {\n  all: initial;\n}\n.lime.top_div {\n  display: flex;\n  flex-wrap: wrap;\n}\n.lime.predict_proba {\n  width: 245px;\n}\n.lime.explanation {\n  width: 300px;\n}\n\n.lime.text_div {\n  max-height:300px;\n  flex: 1 0 300px;\n  overflow:scroll;\n}\n.lime.table_div {\n  max-height:300px;\n  flex: 1 0 300px;\n  overflow:scroll;\n}\n.lime.table_div table {\n  border-collapse: collapse;\n  color: white;\n  border-style: hidden;\n  margin: 0 auto;\n}\n", ""]);
+	exports.push([module.id, ".lime {\n  all: initial;\n}\n.lime.top_div {\n  display: flex;\n  flex-wrap: wrap;\n}\n.lime.predict_proba {\n  width: 245px;\n}\n.lime.explanation {\n  width: 350px;\n}\n\n.lime.text_div {\n  max-height:300px;\n  flex: 1 0 300px;\n  overflow:scroll;\n}\n.lime.table_div {\n  max-height:300px;\n  flex: 1 0 300px;\n  overflow:scroll;\n}\n.lime.table_div table {\n  border-collapse: collapse;\n  color: white;\n  border-style: hidden;\n  margin: 0 auto;\n}\n", ""]);
 	
 	// exports
 

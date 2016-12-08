@@ -1,1 +1,2 @@
 include lime/*.js
+include LICENSE

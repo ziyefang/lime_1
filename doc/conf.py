@@ -25,7 +25,7 @@ sys.path.insert(0, libpath)
 sys.path.insert(0, curr_path)
 
 import mock
-MOCK_MODULES = ['numpy', 'scipy', 'scipy.sparse', 'sklearn', 'sklearn.preprocessing', 'matplotlib']
+MOCK_MODULES = ['numpy', 'scipy', 'scipy.sparse', 'sklearn', 'sklearn.preprocessing', 'sklearn.linear_model', 'matplotlib']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
@@ -289,6 +289,7 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+autoclass_content = 'both'
 # Documents to append as an appendix to all manuals.
 #texinfo_appendices = []
 

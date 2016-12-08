@@ -133,24 +133,22 @@ class LimeTabularExplainer(object):
         if self.categorical_features is None:
             self.categorical_features = []
         self.discretizer = None
-        if discretizer == 'quartile':
-            self.discretizer = QuartileDiscretizer(training_data,
-                                                   self.categorical_features,
-                                                   feature_names,
-                                                   labels=training_labels)
-        elif discretizer == 'decile':
-            self.discretizer = DecileDiscretizer(training_data,
-                                                 self.categorical_features,
-                                                 feature_names,
-                                                 labels=training_labels)
-        elif discretizer == 'entropy':
-            self.discretizer = EntropyDiscretizer(training_data,
-                                                  self.categorical_features,
-                                                  feature_names,
-                                                  labels=training_labels)
-        else:
-            raise '''Discretizer must be 'quartile', 'decile' or 'entropy' '''
         if discretize_continuous:
+            if discretizer == 'quartile':
+                self.discretizer = QuartileDiscretizer(
+                    training_data, self.categorical_features, feature_names,
+                    labels=training_labels)
+            elif discretizer == 'decile':
+                self.discretizer = DecileDiscretizer(
+                    training_data, self.categorical_features, feature_names,
+                    labels=training_labels)
+            elif discretizer == 'entropy':
+                self.discretizer = EntropyDiscretizer(
+                    training_data, self.categorical_features, feature_names,
+                    labels=training_labels)
+            else:
+                raise ('''Discretizer must be 'quartile', 'decile' ''' +
+                       '''or 'entropy' ''')
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(
                 training_data)
@@ -203,7 +201,7 @@ class LimeTabularExplainer(object):
         Args:
             data_row: 1d numpy array, corresponding to a row
             classifier_fn: classifier prediction probability function, which
-                takes a string and outputs prediction probabilities.  For
+                takes a numpy array and outputs prediction probabilities.  For
                 ScikitClassifiers , this is classifier.predict_proba.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
