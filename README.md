@@ -25,6 +25,8 @@ Negative (blue) words indicate atheism, while positive (orange) words indicate c
 <img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/multiclass.png" />
 #### Tabular data
 <img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/tabular.png" />
+#### Images (explaining prediction of 'Cat' in pros and cons)
+<img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/images.png" width=200 />
 
 ## Tutorials and API
 For example usage for text classifiers, take a look at the following two tutorials (generated from ipython notebooks):
@@ -33,6 +35,11 @@ For example usage for text classifiers, take a look at the following two tutoria
 
 For classifiers that use numerical or categorical data, take a look at the following tutorial (this is newer, so please let me know if you find something wrong):
 - [Tabular data](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
+
+For image classifiers:
+- [Images](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
+
+The raw (non-html) notebooks for these tutorials are available [here](https://github.com/marcotcr/lime/tree/master/doc/notebooks).
 
 The api reference is available [here](http://lime-ml.readthedocs.io/en/latest/).
 
