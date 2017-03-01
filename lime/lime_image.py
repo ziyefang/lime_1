@@ -43,8 +43,7 @@ class ImageExplanation(object):
             skimage.segmentation.mark_boundaries
         """
         if label not in self.local_exp:
-            print 'Label not in explanation'
-            return
+            raise 'Label not in explanation'
         segments = self.segments
         image = self.image
         exp = self.local_exp[label]
