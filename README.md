@@ -37,7 +37,7 @@ For classifiers that use numerical or categorical data, take a look at the follo
 - [Tabular data](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
 
 For image classifiers:
-- [Images](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
+- [Images](http://marcotcr.github.io/lime/tutorials/Tutorial%20images.html)
 
 The raw (non-html) notebooks for these tutorials are available [here](https://github.com/marcotcr/lime/tree/master/doc/notebooks).
 
