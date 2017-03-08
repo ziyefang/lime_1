@@ -228,10 +228,36 @@ class LimeTabularExplainer(object):
         ).ravel()
 
         yss = classifier_fn(inverse)
-        if self.class_names is None:
-            self.class_names = [str(x) for x in range(yss[0].shape[0])]
+
+        if len(yss.shape) == 1:
+            predict_proba = False
+        elif len(yss.shape) == 2:
+            predict_proba = True
         else:
-            self.class_names = list(self.class_names)
+            # raise exceptions.ModelException("Your model is outputting arrays with {} dimensions".format(len(yss.shape)))
+            raise ValueError("Your model is outputting arrays with {} dimensions".format(len(yss.shape)))
+
+        if not predict_proba:
+            label_encoder = sklearn.preprocessing.LabelEncoder()
+            _labels = label_encoder.fit_transform(yss)[:, np.newaxis]
+            self.class_names = self.class_names or label_encoder.classes_.tolist()
+
+            onehot_encoder = sklearn.preprocessing.OneHotEncoder()
+            yss = onehot_encoder.fit_transform(_labels).todense()
+            yss = np.squeeze(np.asarray(yss))
+
+        elif predict_proba:
+            if self.class_names is None:
+                self.class_names = [str(x) for x in range(yss[0].shape[0])]
+            else:
+                self.class_names = list(self.class_names)
+            if not np.allclose(yss.sum(axis=1), 1.0):
+                warn("""
+                Predictions are not summing to 1, and
+                thus does not constitute a probability space.
+                Check that you classifier outputs probabilities
+                (Not log_probas, or class predictions).
+                """)
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
             feature_names = [str(x) for x in range(data_row.shape[0])]
