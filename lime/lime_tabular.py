@@ -339,17 +339,13 @@ class LimeTabularExplainer(object):
         """Generates explanations for a prediction.
         First, we generate neighborhood data by randomly perturbing features
         from the instance (see __data_inverse). We then learn locally weighted
-        linear models on this neighborhood data to explain each of the classes
+        linear models on this neighborhood data to explain changes in the prediction
         in an interpretable way (see lime_base.py).
         Args:
             data_row: 1d numpy array, corresponding to a row
-            classifier_fn: classifier prediction probability function, which
-                takes a numpy array and outputs prediction probabilities.  For
-                ScikitClassifiers , this is classifier.predict_proba.
-            labels: iterable with labels to be explained.
-            top_labels: if not None, ignore labels and produce explanations for
-                the K labels with highest prediction probabilities, where K is
-                this parameter.
+            predict_fn: prediction function, which
+                takes a numpy array and expected values.  For
+                ScikitRegressors , this is classifier.predict.
             num_features: maximum number of features present in explanation
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for weights.

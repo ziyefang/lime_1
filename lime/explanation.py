@@ -290,7 +290,7 @@ class RegressionsExplanation(object):
     def as_html(self, show_predicted_value=False, **kwargs):
         """Returns the explanation as an html page.
         Args:
-            show_expected_value: if true, add  barchart with expected value
+            show_predicted_value: if true, add  barchart with expected value
             kwargs: keyword arguments, passed to domain_mapper
         Returns:
             code for an html page, including javascript includes.
