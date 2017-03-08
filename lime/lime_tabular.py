@@ -126,25 +126,29 @@ class LimeTabularExplainer(object):
             discretizer: only matters if discretize_continuous is True. Options
                 are 'quartile', 'decile' or 'entropy'
         """
+        self.feature_names = feature_names
         self.categorical_names = categorical_names
         self.categorical_features = categorical_features
         if self.categorical_names is None:
             self.categorical_names = {}
         if self.categorical_features is None:
             self.categorical_features = []
+        if self.feature_names is None:
+            self.feature_names = [str(i) for i in range(training_data.shape[1])]
+
         self.discretizer = None
         if discretize_continuous:
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
+                    training_data, self.categorical_features, self.feature_names,
                     labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
+                    training_data, self.categorical_features, self.feature_names,
                     labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features, feature_names,
+                    training_data, self.categorical_features, self.feature_names,
                     labels=training_labels)
             else:
                 raise ('''Discretizer must be 'quartile', 'decile' ''' +
