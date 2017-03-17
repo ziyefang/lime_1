@@ -1,7 +1,6 @@
 import unittest
 
 import numpy as np
-import sklearn.datasets
 from sklearn import datasets
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
@@ -15,6 +14,7 @@ except ImportError:
     from sklearn.cross_validation import train_test_split
 
 from lime.lime_tabular import LimeTabularExplainer
+
 
 class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_bad_regressor(self):
