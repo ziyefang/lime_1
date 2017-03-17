@@ -4,7 +4,7 @@
 
 This project is about explaining what machine learning classifiers (or models) are doing.
 At the moment, we support explaining individual predictions for text classifiers or classifiers that act on tables (numpy arrays of numerical or categorical data), with a package called lime (short for local interpretable model-agnostic explanations).
-Lime is based on the work presented in [this paper](http://arxiv.org/abs/1602.04938). Here is a link to the promo video:
+Lime is based on the work presented in [this paper](https://arxiv.org/abs/1602.04938). Here is a link to the promo video:
 
 <a href="https://www.youtube.com/watch?v=hUnRCxnydCc" target="_blank"><img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/video_screenshot.png" width="450" alt="KDD promo video"/></a>
 
@@ -52,20 +52,20 @@ Negative (blue) words indicate atheism, while positive (orange) words indicate c
 
 For example usage for text classifiers, take a look at the following two tutorials (generated from ipython notebooks):
 
-- [Basic usage, two class. We explain random forest classifiers.](http://marcotcr.github.io/lime/tutorials/Lime%20-%20basic%20usage%2C%20two%20class%20case.html)
-- [Multiclass case](http://marcotcr.github.io/lime/tutorials/Lime%20-%20multiclass.html)
+- [Basic usage, two class. We explain random forest classifiers.](https://marcotcr.github.io/lime/tutorials/Lime%20-%20basic%20usage%2C%20two%20class%20case.html)
+- [Multiclass case](https://marcotcr.github.io/lime/tutorials/Lime%20-%20multiclass.html)
 
 For classifiers that use numerical or categorical data, take a look at the following tutorial (this is newer, so please let me know if you find something wrong):
 
-- [Tabular data](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
+- [Tabular data](https://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
 
 For image classifiers:
 
-- [Images](http://marcotcr.github.io/lime/tutorials/Tutorial%20-%20images.html)
+- [Images](https://marcotcr.github.io/lime/tutorials/Tutorial%20-%20images.html)
 
 The raw (non-html) notebooks for these tutorials are available [here](https://github.com/marcotcr/lime/tree/master/doc/notebooks).
 
-The api reference is available [here](http://lime-ml.readthedocs.io/en/latest/).
+The api reference is available [here](https://lime-ml.readthedocs.io/en/latest/).
 
 ## What are explanations?
 
@@ -75,7 +75,7 @@ While treating the model as a black box, we perturb the instance we want to expl
 The figure below illustrates the intuition for this procedure. The model's decision function is represented by the blue/pink background, and is clearly nonlinear.
 The bright red cross is the instance being explained (let's call it X).
 We sample instances around X, and weight them according to their proximity to X (weight here is indicated by size).
-We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necessarily globally. For more information, [read our paper](http://arxiv.org/abs/1602.04938), or take a look at [this blog post](https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime).
+We then learn a linear model (dashed line) that approximates the model well in the vicinity of X, but not necessarily globally. For more information, [read our paper](https://arxiv.org/abs/1602.04938), or take a look at [this blog post](https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime).
 
 <img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/lime.png" width=300px />
 
