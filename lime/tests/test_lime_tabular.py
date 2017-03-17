@@ -1,8 +1,7 @@
 import unittest
 
 import numpy as np
-from sklearn import datasets
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_iris, make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LinearRegression
@@ -67,8 +66,8 @@ class TestLimeTabular(unittest.TestCase):
                           "Petal Length is a major feature")
 
     def test_lime_explainer_good_regressor_synthetic_data(self):
-        X, y = datasets.make_classification(n_samples=1000, n_features=20,
-                                            n_informative=2, n_redundant=2)
+        X, y = make_classification(
+            n_samples=1000, n_features=20, n_informative=2, n_redundant=2)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(X, y)
