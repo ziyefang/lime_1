@@ -228,8 +228,9 @@ class RegressionsExplanation(object):
         self.min_value = 0.0
         self.max_value = 1.0
         self.score = None
+        self.label
 
-    def as_list(self, label='positive', **kwargs):
+    def as_list(self, **kwargs):
         """Returns the explanation as a list.
         Args:
             label: desired label. If you ask for a label for which an
@@ -239,7 +240,7 @@ class RegressionsExplanation(object):
             list of tuples (representation, weight), where representation is
             given by domain_mapper. Weight is a float.
         """
-        return self.domain_mapper.map_exp_ids(self.local_exp[label], **kwargs)
+        return self.domain_mapper.map_exp_ids(self.local_exp[self.label], **kwargs)
 
     def as_map(self):
         """Returns the map of explanations.
@@ -296,7 +297,7 @@ class RegressionsExplanation(object):
             code for an html page, including javascript includes.
         """
 
-        labels = [1]
+        labels = [self.label]
         class_names = ['negative','positive']
 
         def jsonize(x): return json.dumps(x)
