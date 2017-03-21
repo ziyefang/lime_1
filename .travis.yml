@@ -3,8 +3,8 @@ python:
   - "2.7"
   - "3.5"
 # command to install dependencies
-install: 
-  - "pip install flake8"
+install:
+  - "pip install sklearn"
 # command to run tests
-script: cd lime/tests && python test_lime_tabular.py && python test_lime_text.py
+script: "cd lime/tests && python test_lime_tabular.py && python test_lime_text.py"
 
