@@ -6,5 +6,5 @@ python:
 install: 
   - "pip install flake8"
 # command to run tests
-script: flake8 lime
+script: cd lime/tests && python test_lime_tabular.py && python test_lime_text.py
 

@@ -14,7 +14,7 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_bad_regressor(self):
         iris = load_iris()
         train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data,
+            sklearn.model_selection.train_test_split(iris.data,
                                                       iris.target,
                                                       train_size=0.80))
 
@@ -37,7 +37,7 @@ class TestLimeTabular(unittest.TestCase):
         np.random.seed(1)
         iris = load_iris()
         train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data, iris.target,
+            sklearn.model_selection.train_test_split(iris.data, iris.target,
                                                       train_size=0.80))
 
         rf = RandomForestClassifier(n_estimators=500)
@@ -84,7 +84,7 @@ class TestLimeTabular(unittest.TestCase):
         np.random.seed(1)
         iris = load_iris()
         train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data, iris.target,
+            sklearn.model_selection.train_test_split(iris.data, iris.target,
                                                       train_size=0.80))
 
         rf = RandomForestClassifier(n_estimators=500)
@@ -111,7 +111,7 @@ class TestLimeTabular(unittest.TestCase):
         np.random.seed(1)
         iris = load_iris()
         train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data, iris.target,
+            sklearn.model_selection.train_test_split(iris.data, iris.target,
                                                       train_size=0.80))
 
         rf = RandomForestClassifier(n_estimators=500)
