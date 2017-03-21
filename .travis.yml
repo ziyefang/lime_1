@@ -2,8 +2,11 @@ language: python
 python:
   - "2.7"
   - "3.5"
+before_install:
+  - "sudo apt-get install python-scipy"
 # command to install dependencies
 install:
+  - "pip install scipy"
   - "pip install sklearn"
 # command to run tests
 script: "cd lime/tests && python test_lime_tabular.py && python test_lime_text.py"
