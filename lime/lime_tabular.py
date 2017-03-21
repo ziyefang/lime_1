@@ -246,13 +246,26 @@ class LimeTabularExplainer(object):
             raise ValueError("Your model is outputting arrays with {} dimensions".format(len(yss.shape)))
 
         if not predict_proba:
-            label_encoder = sklearn.preprocessing.LabelEncoder()
-            _labels = label_encoder.fit_transform(yss)[:, np.newaxis]
-            self.class_names = self.class_names or label_encoder.classes_.tolist()
+            raise NotImplementedError("LIME does not currently support classifier models without "
+                                      "probability scores. If this conflicts with your use case,"
+                                      "please let us know: "
+                                      "https://github.com/datascienceinc/lime/issues/16")
+            # the code below reflects what we might do if we did support this.
+            # this is Dangertown USA. If predictions of samples do not include all classes,
+            # then local interpretation will only report on classes that were identified.
+            # label_encoder = sklearn.preprocessing.LabelEncoder()
+            # _labels = label_encoder.fit_transform(yss)[:, np.newaxis]
+            # self.class_names = self.class_names or label_encoder.classes_.tolist()
 
-            onehot_encoder = sklearn.preprocessing.OneHotEncoder()
-            yss = onehot_encoder.fit_transform(_labels).todense()
-            yss = np.squeeze(np.asarray(yss))
+            # onehot_encoder = sklearn.preprocessing.OneHotEncoder()
+            # yss = onehot_encoder.fit_transform(_labels).todense()
+            # yss = np.squeeze(np.asarray(yss))
+
+            # this implies that predictions of sampled points only belong to a single class
+            # print(yss)
+            # if len(yss.shape) == 1:
+            #     yss = yss[:, np.newaxis]
+
 
         elif predict_proba:
             if self.class_names is None:
