@@ -228,8 +228,9 @@ class RegressionsExplanation(object):
         self.min_value = 0.0
         self.max_value = 1.0
         self.score = None
+        self.label = 1
 
-    def as_list(self, label='positive', **kwargs):
+    def as_list(self, **kwargs):
         """Returns the explanation as a list.
         Args:
             label: desired label. If you ask for a label for which an
@@ -239,7 +240,7 @@ class RegressionsExplanation(object):
             list of tuples (representation, weight), where representation is
             given by domain_mapper. Weight is a float.
         """
-        return self.domain_mapper.map_exp_ids(self.local_exp[label], **kwargs)
+        return self.domain_mapper.map_exp_ids(self.local_exp[self.label], **kwargs)
 
     def as_map(self):
         """Returns the map of explanations.
@@ -257,7 +258,7 @@ class RegressionsExplanation(object):
             pyplot figure (barchart).
         """
         import matplotlib.pyplot as plt
-        exp = self.as_list(label, **kwargs)
+        exp = self.as_list(**kwargs)
         fig = plt.figure()
         vals = [x[1] for x in exp]
         names = [x[0] for x in exp]
@@ -267,7 +268,7 @@ class RegressionsExplanation(object):
         pos = np.arange(len(exp)) + .5
         plt.barh(pos, vals, align='center', color=colors)
         plt.yticks(pos, names)
-        plt.title('Local explanation for class %s' % self.class_names[label])
+        plt.title('Local explanation')
         return fig
 
     def show_in_notebook(self, show_predicted_value=True, **kwargs):
@@ -296,7 +297,7 @@ class RegressionsExplanation(object):
             code for an html page, including javascript includes.
         """
 
-        labels = [1]
+        labels = [self.label]
         class_names = ['negative','positive']
 
         def jsonize(x): return json.dumps(x)
@@ -332,15 +333,14 @@ class RegressionsExplanation(object):
             var exp = new lime.Explanation(%s);
         ''' % (jsonize(class_names))
 
-        for label in labels:
-            exp = jsonize(self.as_list(label))
-            exp_js += u'''
-            exp_div = top_div.append('div').classed('lime explanation', true);
-            exp.show(%s, %s, exp_div);
-            ''' % (exp, label)
+        exp = jsonize(self.as_list())
+        exp_js += u'''
+        exp_div = top_div.append('div').classed('lime explanation', true);
+        exp.show(%s, %s, exp_div);
+        ''' % (exp, self.label)
         raw_js = '''var raw_div = top_div.append('div');'''
         raw_js += self.domain_mapper.visualize_instance_html(
-            self.local_exp[labels[0]], labels[0], 'raw_div', 'exp', **kwargs)
+            self.local_exp[self.label], self.label, 'raw_div', 'exp', **kwargs)
         out += u'''
         <script>
         var top_div = d3.select('#top_div%s').classed('lime top_div', true);
