@@ -8,6 +8,7 @@ before_install:
 install:
   - "pip install scipy"
   - "pip install sklearn"
+  - "python setup.py install"
 # command to run tests
 script: "cd lime/tests && python test_lime_tabular.py && python test_lime_text.py"
 
