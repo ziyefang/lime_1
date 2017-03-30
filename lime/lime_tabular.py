@@ -236,10 +236,7 @@ class LimeTabularExplainer(object):
         if feature_names is None:
             feature_names = [str(x) for x in range(data_row.shape[0])]
 
-        def round_stuff(x):
-            return ['%.2f' % a for a in x]
-
-        values = round_stuff(data_row)
+        values = ['%.2f' % a for a in data_row]
         for i in self.categorical_features:
             if self.discretizer is not None and i in self.discretizer.lambdas:
                 continue
