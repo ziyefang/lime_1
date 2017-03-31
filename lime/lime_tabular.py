@@ -331,17 +331,17 @@ class LimeTabularExplainer(object):
 
 class RecurrentTabularExplainer(LimeTabularExplainer):
     """
-    An explainer for keras-style recurrent neural networks, where the 
-    input shape is (n_samples, n_timesteps, n_features). This class 
+    An explainer for keras-style recurrent neural networks, where the
+    input shape is (n_samples, n_timesteps, n_features). This class
     just extends the LimeTabularExplainer class and reshapes the training
     data and feature names such that they become something like
 
     (val1_t1, val1_t2, val1_t3, ..., val2_t1, ..., valn_tn)
-    
+
     Each of the methods that take data reshape it appropriately,
     so you can pass in the training/testing data exactly as you
     would to the recurrent neural network.
-    
+
     """
     def __init__(self, training_data, training_labels=None, feature_names=None,
                  categorical_features=None, categorical_names=None,
@@ -349,9 +349,9 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
                  feature_selection='auto', discretize_continuous=True,
                  discretizer='quartile'):
         """
-        
+
         Args:
-            training_data: numpy 3d array with shape 
+            training_data: numpy 3d array with shape
                 (n_samples, n_timesteps, n_features)
             training_labels: labels for training data. Not required, but may be
                 used by discretizer.
@@ -404,7 +404,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
             discretizer=discretizer)
 
     def _make_predict_proba(self, func):
-        """ 
+        """
         The predict_proba method will expect 3d arrays, but we are reshaping
         them to 2D so that LIME works correctly. This wraps the function
         you give in explain_instance to first reshape the data to have
@@ -430,7 +430,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         in an interpretable way (see lime_base.py).
 
         Args:
-            data_row: 2d numpy array, corresponding to a row 
+            data_row: 2d numpy array, corresponding to a row
             classifier_fn: classifier prediction probability function, which
                 takes a numpy array and outputs prediction probabilities.  For
                 ScikitClassifiers , this is classifier.predict_proba.
@@ -442,8 +442,8 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for weights.
             model_regressor: sklearn regressor to use in explanation. Defaults
-                to Ridge regression in LimeBase. Must have 
-                model_regressor.coef_ and 'sample_weight' as a parameter 
+                to Ridge regression in LimeBase. Must have
+                model_regressor.coef_ and 'sample_weight' as a parameter
                 to model_regressor.fit()
 
         Returns:
