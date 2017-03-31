@@ -351,7 +351,8 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         """
         
         Args:
-            training_data: numpy 3d array with shape (n_samples, n_timesteps, n_features)
+            training_data: numpy 3d array with shape 
+                (n_samples, n_timesteps, n_features)
             training_labels: labels for training data. Not required, but may be
                 used by discretizer.
             feature_names: list of names (strings) corresponding to the columns
@@ -380,23 +381,27 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
         # Reshape X
         n_samples, n_timesteps, n_features = training_data.shape
-        training_data = np.transpose(training_data, axes=(0, 2, 1)).reshape(n_samples, n_timesteps * n_features)
+        training_data = np.transpose(training_data, axes=(0, 2, 1)).reshape(
+            n_samples, n_timesteps * n_features)
         self.n_timesteps = n_timesteps
         self.n_features = n_features
 
         # Update the feature names
-        feature_names = ['{}_t-{}'.format(n, n_timesteps - (i + 1)) for n in feature_names for i in range(n_timesteps)]
+        feature_names = ['{}_t-{}'.format(n, n_timesteps - (i + 1))
+                         for n in feature_names for i in range(n_timesteps)]
 
         # Send off the the super class to do its magic.
-        super(RecurrentTabularExplainer, self).__init__(training_data, training_labels=training_labels,
-                                                        feature_names=feature_names,
-                                                        categorical_features=categorical_features,
-                                                        categorical_names=categorical_names,
-                                                        kernel_width=kernel_width, verbose=verbose,
-                                                        class_names=class_names,
-                                                        feature_selection=feature_selection,
-                                                        discretize_continuous=discretize_continuous,
-                                                        discretizer=discretizer)
+        super(RecurrentTabularExplainer, self).__init__(
+            training_data,
+            training_labels=training_labels,
+            feature_names=feature_names,
+            categorical_features=categorical_features,
+            categorical_names=categorical_names,
+            kernel_width=kernel_width, verbose=verbose,
+            class_names=class_names,
+            feature_selection=feature_selection,
+            discretize_continuous=discretize_continuous,
+            discretizer=discretizer)
 
     def _make_predict_proba(self, func):
         """ 
@@ -408,7 +413,8 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
         def predict_proba(X):
             n_samples = X.shape[0]
-            X = np.transpose(X.reshape((n_samples, self.n_features, self.n_timesteps)), axes=(0, 2, 1))
+            new_shape = (n_samples, self.n_features, self.n_timesteps)
+            X = np.transpose(X.reshape(new_shape), axes=(0, 2, 1))
             return func(X)
 
         return predict_proba
@@ -436,8 +442,9 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for weights.
             model_regressor: sklearn regressor to use in explanation. Defaults
-                to Ridge regression in LimeBase. Must have model_regressor.coef_
-                and 'sample_weight' as a parameter to model_regressor.fit()
+                to Ridge regression in LimeBase. Must have 
+                model_regressor.coef_ and 'sample_weight' as a parameter 
+                to model_regressor.fit()
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
@@ -449,10 +456,11 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
         # Wrap the classifier to reshape input
         classifier_fn = self._make_predict_proba(classifier_fn)
-        return super(RecurrentTabularExplainer, self).explain_instance(data_row, classifier_fn,
-                                                                       labels=labels,
-                                                                       top_labels=top_labels,
-                                                                       num_features=num_features,
-                                                                       num_samples=num_samples,
-                                                                       distance_metric=distance_metric,
-                                                                       model_regressor=model_regressor)
+        return super(RecurrentTabularExplainer, self).explain_instance(
+            data_row, classifier_fn,
+            labels=labels,
+            top_labels=top_labels,
+            num_features=num_features,
+            num_samples=num_samples,
+            distance_metric=distance_metric,
+            model_regressor=model_regressor)
