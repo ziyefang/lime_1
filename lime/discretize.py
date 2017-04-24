@@ -44,6 +44,7 @@ class BaseDiscretizer():
 
         # To override when implementing a custom binning
         bins = self.bins(data, labels)
+        bins = [np.unique(x) for x in bins]
 
         for feature, qts in zip(self.to_discretize, bins):
             n_bins = qts.shape[0]  # Actually number of borders (= #bins-1)
