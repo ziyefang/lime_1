@@ -46,7 +46,7 @@ class BaseDiscretizer():
         bins = self.bins(data, labels)
 
         for feature, qts in zip(self.to_discretize, bins):
-            n_bins = len(qts.shape)  # Actually number of borders (= #bins-1)
+            n_bins = len(qts)  # Actually number of borders (= #bins-1)
             boundaries = np.min(data[:, feature]), np.max(data[:, feature])
             name = feature_names[feature]
 
@@ -165,7 +165,7 @@ class EntropyDiscretizer(BaseDiscretizer):
             dt.fit(x, labels)
             qts = dt.tree_.threshold[np.where(dt.tree_.children_left > -1)]
 
-            if len(qts.shape) == 0:
+            if len(qts) == 0:
                 qts = np.array([np.median(data[:, feature])])
             else:
                 qts = np.sort(qts)
