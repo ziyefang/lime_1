@@ -126,6 +126,7 @@ class LimeImageExplainer(object):
                          hide_color=None,
                          top_labels=5, num_features=100000, num_samples=1000,
                          batch_size=10,
+                         qs_kernel_size = 4,
                          distance_metric='cosine', model_regressor=None):
         """Generates explanations for a prediction.
 
@@ -149,13 +150,15 @@ class LimeImageExplainer(object):
             model_regressor: sklearn regressor to use in explanation. Defaults
             to Ridge regression in LimeBase. Must have model_regressor.coef_
             and 'sample_weight' as a parameter to model_regressor.fit()
+            qs_kernel_size: the size of the kernal to use for the quickshift
+                segmentation
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
         from skimage.segmentation import quickshift
-        segments = quickshift(image, kernel_size=4,
+        segments = quickshift(image, kernel_size=qs_kernel_size,
                               max_dist=200, ratio=0.2)
         fudged_image = image.copy()
         if hide_color is None:
