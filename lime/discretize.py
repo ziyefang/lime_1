@@ -68,8 +68,8 @@ class BaseDiscretizer():
                 std = 0 if len(selection) == 0 else np.std(selection)
                 std += 0.00000000001
                 self.stds[feature].append(std)
-            self.mins[feature] = [boundaries[0]] + qts.tolist()
-            self.maxs[feature] = qts.tolist() + [boundaries[1]]
+            self.mins[feature] = [boundaries[0]] + qts
+            self.maxs[feature] = qts + [boundaries[1]]
 
     @abstractmethod
     def bins(self, data, labels):
@@ -166,9 +166,9 @@ class EntropyDiscretizer(BaseDiscretizer):
             qts = dt.tree_.threshold[np.where(dt.tree_.children_left > -1)]
 
             if len(qts) == 0:
-                qts = np.array([np.median(data[:, feature])])
+                qts = [np.median(data[:, feature])]
             else:
-                qts = np.sort(qts)
+                qts = np.sort(qts).tolist()
 
             bins.append(qts)
 
