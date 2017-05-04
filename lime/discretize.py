@@ -107,6 +107,7 @@ class BaseDiscretizer():
             stds = self.stds[feature]
 
             def get_inverse(q):
+                q = np.array(q)
                 return max(mins[q],
                            min(np.random.normal(means[q], stds[q]), maxs[q]))
             if len(data.shape) == 1:
