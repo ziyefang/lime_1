@@ -10,7 +10,6 @@ class BaseDiscretizer():
     """
     Abstract class - Build a class that inherits from this class to implement
     a custom discretizer.
-
     Method bins() is to be redefined in the child class, as it is the actual
     custom part of the discretizer.
     """
@@ -19,7 +18,6 @@ class BaseDiscretizer():
 
     def __init__(self, data, categorical_features, feature_names, labels=None):
         """Initializer
-
         Args:
             data: numpy 2d array
             categorical_features: list of indices (ints) corresponding to the
@@ -47,7 +45,7 @@ class BaseDiscretizer():
         bins = [np.unique(x) for x in bins]
 
         for feature, qts in zip(self.to_discretize, bins):
-            n_bins = len(qts)  # Actually number of borders (= #bins-1)
+            n_bins = qts.shape[0]  # Actually number of borders (= #bins-1)
             boundaries = np.min(data[:, feature]), np.max(data[:, feature])
             name = feature_names[feature]
 
@@ -69,8 +67,8 @@ class BaseDiscretizer():
                 std = 0 if len(selection) == 0 else np.std(selection)
                 std += 0.00000000001
                 self.stds[feature].append(std)
-            self.mins[feature] = [boundaries[0]] + qts
-            self.maxs[feature] = qts + [boundaries[1]]
+            self.mins[feature] = [boundaries[0]] + qts.tolist()
+            self.maxs[feature] = qts.tolist() + [boundaries[1]]
 
     @abstractmethod
     def bins(self, data, labels):
@@ -83,10 +81,8 @@ class BaseDiscretizer():
 
     def discretize(self, data):
         """Discretizes the data.
-
         Args:
             data: numpy 2d or 1d array
-
         Returns:
             numpy array of same dimension, discretized.
         """
@@ -108,7 +104,6 @@ class BaseDiscretizer():
             stds = self.stds[feature]
 
             def get_inverse(q):
-                q = np.array(q)
                 return max(mins[q],
                            min(np.random.normal(means[q], stds[q]), maxs[q]))
             if len(data.shape) == 1:
@@ -129,7 +124,7 @@ class QuartileDiscretizer(BaseDiscretizer):
     def bins(self, data, labels):
         bins = []
         for feature in self.to_discretize:
-            qts = np.percentile(data[:, feature], [25, 50, 75])
+            qts = np.array(np.percentile(data[:, feature], [25, 50, 75]))
             bins.append(qts)
         return bins
 
@@ -142,8 +137,8 @@ class DecileDiscretizer(BaseDiscretizer):
     def bins(self, data, labels):
         bins = []
         for feature in self.to_discretize:
-            qts = np.percentile(data[:, feature],
-                                [10, 20, 30, 40, 50, 60, 70, 80, 90])
+            qts = np.array(np.percentile(data[:, feature],
+                                [10, 20, 30, 40, 50, 60, 70, 80, 90]))
             bins.append(qts)
         return bins
 
@@ -166,10 +161,10 @@ class EntropyDiscretizer(BaseDiscretizer):
             dt.fit(x, labels)
             qts = dt.tree_.threshold[np.where(dt.tree_.children_left > -1)]
 
-            if len(qts) == 0:
-                qts = [np.median(data[:, feature])]
+            if qts.shape[0] == 0:
+                qts = np.array([np.median(data[:, feature])])
             else:
-                qts = np.sort(qts).tolist()
+                qts = np.sort(qts)
 
             bins.append(qts)
 
