@@ -1,22 +1,25 @@
 import unittest
 
 import numpy as np
-import sklearn.datasets
-from sklearn import datasets
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_iris, make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LinearRegression
+
+try:
+    from sklearn.model_selection import train_test_split
+except ImportError:
+    # Deprecated in scikit-learn version 0.18, removed in 0.20
+    from sklearn.cross_validation import train_test_split
+
 from lime.lime_tabular import LimeTabularExplainer
 
 
 class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_bad_regressor(self):
         iris = load_iris()
-        train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data,
-                                                      iris.target,
-                                                      train_size=0.80))
+        train, test, labels_train, labels_test = train_test_split(
+            iris.data, iris.target, train_size=0.80)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
@@ -36,9 +39,8 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_good_regressor(self):
         np.random.seed(1)
         iris = load_iris()
-        train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data, iris.target,
-                                                      train_size=0.80))
+        train, test, labels_train, labels_test = train_test_split(
+            iris.data, iris.target, train_size=0.80)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
@@ -64,8 +66,8 @@ class TestLimeTabular(unittest.TestCase):
                           "Petal Length is a major feature")
 
     def test_lime_explainer_good_regressor_synthetic_data(self):
-        X, y = datasets.make_classification(n_samples=1000, n_features=20,
-                                            n_informative=2, n_redundant=2)
+        X, y = make_classification(
+            n_samples=1000, n_features=20, n_informative=2, n_redundant=2)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(X, y)
@@ -83,9 +85,8 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_no_regressor(self):
         np.random.seed(1)
         iris = load_iris()
-        train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data, iris.target,
-                                                      train_size=0.80))
+        train, test, labels_train, labels_test = train_test_split(
+            iris.data, iris.target, train_size=0.80)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
@@ -110,9 +111,8 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_entropy_discretizer(self):
         np.random.seed(1)
         iris = load_iris()
-        train, test, labels_train, labels_test = (
-            sklearn.cross_validation.train_test_split(iris.data, iris.target,
-                                                      train_size=0.80))
+        train, test, labels_train, labels_test = train_test_split(
+            iris.data, iris.target, train_size=0.80)
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
