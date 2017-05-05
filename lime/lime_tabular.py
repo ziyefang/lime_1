@@ -4,6 +4,7 @@ Functions for explaining classifiers that use tabular data (matrices).
 import collections
 import copy
 import json
+import warnings
 
 import numpy as np
 import sklearn
@@ -140,16 +141,16 @@ class LimeTabularExplainer(object):
         if discretize_continuous:
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features, self.feature_names,
-                    labels=training_labels)
+                    training_data, self.categorical_features,
+                    self.feature_names,labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features, self.feature_names,
-                    labels=training_labels)
+                    training_data, self.categorical_features,
+                    self.feature_names,labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features, self.feature_names,
-                    labels=training_labels)
+                    training_data, self.categorical_features,
+                    self.feature_names,labels=training_labels)
             else:
                 raise ('''Discretizer must be 'quartile', 'decile' ''' +
                        '''or 'entropy' ''')
@@ -242,30 +243,17 @@ class LimeTabularExplainer(object):
         elif len(yss.shape) == 2:
             predict_proba = True
         else:
-            # raise exceptions.ModelException("Your model is outputting arrays with {} dimensions".format(len(yss.shape)))
-            raise ValueError("Your model is outputting arrays with {} dimensions".format(len(yss.shape)))
+            # raise exceptions.ModelException("Your model is outputting arrays
+            # with {} dimensions".format(len(yss.shape)))
+            raise ValueError("Your model is outputting "\
+                             "arrays with {} dimensions".format(len(yss.shape)))
 
         if not predict_proba:
-            raise NotImplementedError("LIME does not currently support classifier models without "
-                                      "probability scores. If this conflicts with your use case,"
-                                      "please let us know: "
+            raise NotImplementedError("LIME does not currently support "\
+                                      "classifier models without probability "\
+                                      "scores. If this conflicts with your "\
+                                      "use case, please let us know: "\
                                       "https://github.com/datascienceinc/lime/issues/16")
-            # the code below reflects what we might do if we did support this.
-            # this is Dangertown USA. If predictions of samples do not include all classes,
-            # then local interpretation will only report on classes that were identified.
-            # label_encoder = sklearn.preprocessing.LabelEncoder()
-            # _labels = label_encoder.fit_transform(yss)[:, np.newaxis]
-            # self.class_names = self.class_names or label_encoder.classes_.tolist()
-
-            # onehot_encoder = sklearn.preprocessing.OneHotEncoder()
-            # yss = onehot_encoder.fit_transform(_labels).todense()
-            # yss = np.squeeze(np.asarray(yss))
-
-            # this implies that predictions of sampled points only belong to a single class
-            # print(yss)
-            # if len(yss.shape) == 1:
-            #     yss = yss[:, np.newaxis]
-
 
         elif predict_proba:
             if self.class_names is None:
@@ -273,7 +261,7 @@ class LimeTabularExplainer(object):
             else:
                 self.class_names = list(self.class_names)
             if not np.allclose(yss.sum(axis=1), 1.0):
-                warn("""
+                warnings.warn("""
                 Predictions are not summing to 1, and
                 thus does not constitute a probability space.
                 Check that you classifier outputs probabilities
@@ -375,7 +363,7 @@ class LimeTabularExplainer(object):
             inverse[1:] = self.discretizer.undiscretize(inverse[1:])
         inverse[0] = data_row
         return data, inverse
-      
+
     def explain_regressor_instance(self, data_row, predict_fn, num_features=10,
                                    num_samples=5000, distance_metric='euclidean',
                                    model_regressor=None, testing=False):
@@ -389,14 +377,12 @@ class LimeTabularExplainer(object):
             predict_fn: prediction function, which
                 takes a numpy array and expected values.  For
                 ScikitRegressors , this is classifier.predict.
-        """        
+        """
         labels = ['negative', 'positive']
-
 
         data, inverse = self.__data_inverse(data_row, num_samples)
 
         scaled_data = (data - self.scaler.mean_) / self.scaler.scale_
-
 
         distances = sklearn.metrics.pairwise_distances(
             scaled_data,
@@ -455,7 +441,7 @@ class LimeTabularExplainer(object):
         ret_exp.predicted_value = predicted_value
         ret_exp.min_value = min_y
         ret_exp.max_value = max_y
-        
+
         (ret_exp.intercept[1],
          ret_exp.local_exp[1],
          ret_exp.score) = self.base.explain_instance_with_data(
@@ -467,6 +453,7 @@ class LimeTabularExplainer(object):
         ret_exp.local_exp[0] = [(i, -1 * j) for i,j in ret_exp.local_exp[1]]
 
         return ret_exp
+
 
 class RecurrentTabularExplainer(LimeTabularExplainer):
     """
@@ -488,7 +475,6 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
                  feature_selection='auto', discretize_continuous=True,
                  discretizer='quartile'):
         """
-
         Args:
             training_data: numpy 3d array with shape
                 (n_samples, n_timesteps, n_features)
@@ -603,4 +589,3 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
             num_samples=num_samples,
             distance_metric=distance_metric,
             model_regressor=model_regressor)
-

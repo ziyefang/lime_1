@@ -213,6 +213,8 @@ class Explanation(object):
         ''' % (random_id, predict_proba_js, exp_js, raw_js)
         out += u'</body></html>'
         return out
+
+
 class RegressionsExplanation(object):
     """Object returned by explainers."""
     def __init__(self, domain_mapper):
@@ -240,7 +242,8 @@ class RegressionsExplanation(object):
             list of tuples (representation, weight), where representation is
             given by domain_mapper. Weight is a float.
         """
-        return self.domain_mapper.map_exp_ids(self.local_exp[self.label], **kwargs)
+        return self.domain_mapper.map_exp_ids(self.local_exp[self.label],
+        **kwargs)
 
     def as_map(self):
         """Returns the map of explanations.
@@ -276,7 +279,8 @@ class RegressionsExplanation(object):
            See as_html for parameters.
            This will throw an error if you don't have IPython installed"""
         from IPython.core.display import display, HTML
-        display(HTML(self.as_html(show_predicted_value = show_predicted_value, **kwargs)))
+        display(HTML(self.as_html(show_predicted_value=show_predicted_value,
+        **kwargs)))
 
     def save_to_file(self, file_path, labels=None, show_predicted_value=True,
                      **kwargs):
@@ -297,7 +301,6 @@ class RegressionsExplanation(object):
             code for an html page, including javascript includes.
         """
 
-        labels = [self.label]
         class_names = ['negative','positive']
 
         def jsonize(x): return json.dumps(x)
@@ -326,8 +329,6 @@ class RegressionsExplanation(object):
                     ''' % (jsonize(self.predicted_value),
                            jsonize(float(self.min_value)),
                            jsonize(float(self.max_value)))
-
-
 
         exp_js = '''var exp_div;
             var exp = new lime.Explanation(%s);
