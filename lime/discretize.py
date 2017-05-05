@@ -47,7 +47,7 @@ class BaseDiscretizer():
         bins = [np.unique(x) for x in bins]
 
         for feature, qts in zip(self.to_discretize, bins):
-            n_bins = qts.shape[0]  # Actually number of borders (= #bins-1)
+            n_bins = len(qts)  # Actually number of borders (= #bins-1)
             boundaries = np.min(data[:, feature]), np.max(data[:, feature])
             name = feature_names[feature]
 
@@ -69,8 +69,8 @@ class BaseDiscretizer():
                 std = 0 if len(selection) == 0 else np.std(selection)
                 std += 0.00000000001
                 self.stds[feature].append(std)
-            self.mins[feature] = [boundaries[0]] + qts.tolist()
-            self.maxs[feature] = qts.tolist() + [boundaries[1]]
+            self.mins[feature] = [boundaries[0]] + qts
+            self.maxs[feature] = qts + [boundaries[1]]
 
     @abstractmethod
     def bins(self, data, labels):
@@ -108,6 +108,7 @@ class BaseDiscretizer():
             stds = self.stds[feature]
 
             def get_inverse(q):
+                q = np.array(q)
                 return max(mins[q],
                            min(np.random.normal(means[q], stds[q]), maxs[q]))
             if len(data.shape) == 1:
@@ -165,10 +166,10 @@ class EntropyDiscretizer(BaseDiscretizer):
             dt.fit(x, labels)
             qts = dt.tree_.threshold[np.where(dt.tree_.children_left > -1)]
 
-            if qts.shape[0] == 0:
-                qts = np.array([np.median(data[:, feature])])
+            if len(qts) == 0:
+                qts = [np.median(data[:, feature])]
             else:
-                qts = np.sort(qts)
+                qts = np.sort(qts).tolist()
 
             bins.append(qts)
 

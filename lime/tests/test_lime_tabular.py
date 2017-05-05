@@ -18,8 +18,10 @@ from lime.lime_tabular import LimeTabularExplainer
 class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_bad_regressor(self):
         iris = load_iris()
+        
         train, test, labels_train, labels_test = train_test_split(
             iris.data, iris.target, train_size=0.80)
+
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
@@ -39,6 +41,7 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_good_regressor(self):
         np.random.seed(1)
         iris = load_iris()
+
         train, test, labels_train, labels_test = train_test_split(
             iris.data, iris.target, train_size=0.80)
 
@@ -85,8 +88,10 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_no_regressor(self):
         np.random.seed(1)
         iris = load_iris()
+
         train, test, labels_train, labels_test = train_test_split(
             iris.data, iris.target, train_size=0.80)
+
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
@@ -111,8 +116,10 @@ class TestLimeTabular(unittest.TestCase):
     def test_lime_explainer_entropy_discretizer(self):
         np.random.seed(1)
         iris = load_iris()
+
         train, test, labels_train, labels_test = train_test_split(
             iris.data, iris.target, train_size=0.80)
+
 
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(train, labels_train)
