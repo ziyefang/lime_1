@@ -126,7 +126,7 @@ class LimeImageExplainer(object):
                          hide_color=None,
                          top_labels=5, num_features=100000, num_samples=1000,
                          batch_size=10,
-                         qs_kernel_size = 4,
+                         qs_kernel_size=4,
                          distance_metric='cosine', model_regressor=None):
         """Generates explanations for a prediction.
 
