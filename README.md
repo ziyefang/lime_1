@@ -61,7 +61,10 @@ For classifiers that use numerical or categorical data, take a look at the follo
 
 For image classifiers:
 
-- [Images](https://marcotcr.github.io/lime/tutorials/Tutorial%20-%20images.html)
+- [Images - basic](https://marcotcr.github.io/lime/tutorials/Tutorial%20-%20images.html)
+- [Images - Faces](https://github.com/marcotcr/lime/blob/master/doc/notebooks/Tutorial%20-%20Faces%20and%20GradBoost.ipynb)
+- [Images with keras](https://github.com/marcotcr/lime/blob/master/doc/notebooks/Tutorial%20-%20Image%20Classification%20Keras.ipynb)
+- [MNIST with random forests](https://github.com/marcotcr/lime/blob/master/doc/notebooks/Tutorial%20-%20MNIST%20and%20RF.ipynb)
 
 The raw (non-html) notebooks for these tutorials are available [here](https://github.com/marcotcr/lime/tree/master/doc/notebooks).
 
