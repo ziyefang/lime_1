@@ -394,7 +394,8 @@ class LimeTabularExplainer(object):
         min_y = min(yss)
         max_y = max(yss)
 
-        if not isinstance(yss, np.ndarray): raise exceptions.ModelException("Your model needs to output numpy arrays")
+        if not isinstance(yss, np.ndarray):
+            raise(ValueError("Your model needs to output numpy arrays"))
 
         # if predictions are a single column, then either the model is a predict_proba
         # with only a single class (where probabilities are all one),
@@ -404,7 +405,7 @@ class LimeTabularExplainer(object):
         if len(yss.shape) == 1:
             pass
         else:
-            raise exceptions.ModelException("Your regressor model is outputting arrays with {} dimensions".format(len(yss.shape)))
+            raise(ValueError("Your regressor model is outputting arrays with {} dimensions".format(len(yss.shape))))
 
         yss = yss[:, np.newaxis] #add a dimension
 
