@@ -138,7 +138,7 @@ class DecileDiscretizer(BaseDiscretizer):
         bins = []
         for feature in self.to_discretize:
             qts = np.array(np.percentile(data[:, feature],
-                                [10, 20, 30, 40, 50, 60, 70, 80, 90]))
+                                         [10, 20, 30, 40, 50, 60, 70, 80, 90]))
             bins.append(qts)
         return bins
 

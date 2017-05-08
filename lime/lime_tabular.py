@@ -142,15 +142,15 @@ class LimeTabularExplainer(object):
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
                     training_data, self.categorical_features,
-                    self.feature_names,labels=training_labels)
+                    self.feature_names, labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
                     training_data, self.categorical_features,
-                    self.feature_names,labels=training_labels)
+                    self.feature_names, labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
                     training_data, self.categorical_features,
-                    self.feature_names,labels=training_labels)
+                    self.feature_names, labels=training_labels)
             else:
                 raise ('''Discretizer must be 'quartile', 'decile' ''' +
                        '''or 'entropy' ''')
@@ -245,14 +245,14 @@ class LimeTabularExplainer(object):
         else:
             # raise exceptions.ModelException("Your model is outputting arrays
             # with {} dimensions".format(len(yss.shape)))
-            raise ValueError("Your model is outputting "\
+            raise ValueError("Your model is outputting "
                              "arrays with {} dimensions".format(len(yss.shape)))
 
         if not predict_proba:
-            raise NotImplementedError("LIME does not currently support "\
-                                      "classifier models without probability "\
-                                      "scores. If this conflicts with your "\
-                                      "use case, please let us know: "\
+            raise NotImplementedError("LIME does not currently support "
+                                      "classifier models without probability "
+                                      "scores. If this conflicts with your "
+                                      "use case, please let us know: "
                                       "https://github.com/datascienceinc/lime/issues/16")
 
         elif predict_proba:
@@ -378,7 +378,6 @@ class LimeTabularExplainer(object):
                 takes a numpy array and expected values.  For
                 ScikitRegressors , this is classifier.predict.
         """
-        labels = ['negative', 'positive']
 
         data, inverse = self.__data_inverse(data_row, num_samples)
 
@@ -398,9 +397,10 @@ class LimeTabularExplainer(object):
         if not isinstance(yss, np.ndarray): raise exceptions.ModelException("Your model needs to output numpy arrays")
 
         # if predictions are a single column, then either the model is a predict_proba
-        #with only a single class (where probabilities are all one),
-        #or the model is predicting the most likely class. We will assume
-        #its the latter case, but perhaps we eventually want to check for the former case.
+        # with only a single class (where probabilities are all one),
+        # or the model is predicting the most likely class. We will assume
+        # its the latter case, but perhaps we eventually want to check for the former case.
+        # We should use the skater.ModelObject to abstract this stuff.
         if len(yss.shape) == 1:
             pass
         else:

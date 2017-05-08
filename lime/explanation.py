@@ -243,7 +243,7 @@ class RegressionsExplanation(object):
             given by domain_mapper. Weight is a float.
         """
         return self.domain_mapper.map_exp_ids(self.local_exp[self.label],
-        **kwargs)
+                                              **kwargs)
 
     def as_map(self):
         """Returns the map of explanations.
@@ -280,7 +280,7 @@ class RegressionsExplanation(object):
            This will throw an error if you don't have IPython installed"""
         from IPython.core.display import display, HTML
         display(HTML(self.as_html(show_predicted_value=show_predicted_value,
-        **kwargs)))
+                                  **kwargs)))
 
     def save_to_file(self, file_path, labels=None, show_predicted_value=True,
                      **kwargs):
@@ -301,7 +301,7 @@ class RegressionsExplanation(object):
             code for an html page, including javascript includes.
         """
 
-        class_names = ['negative','positive']
+        class_names = ['negative', 'positive']
 
         def jsonize(x): return json.dumps(x)
 
@@ -319,8 +319,8 @@ class RegressionsExplanation(object):
         predict_value_js = ''
         if show_predicted_value:
 
-            #reference self.predicted_value
-            #(svg, predicted_value, min_value, max_value)
+            # reference self.predicted_value
+            # (svg, predicted_value, min_value, max_value)
             predict_value_js = u'''
                     var pp_div = top_div.append('div')
                                         .classed('lime predicted_value', true);
