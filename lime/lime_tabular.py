@@ -405,9 +405,11 @@ class LimeTabularExplainer(object):
         if len(yss.shape) == 1:
             pass
         else:
-            raise(ValueError("Your regressor model is outputting arrays with {} dimensions".format(len(yss.shape))))
+            raise(ValueError("Your regressor model is outputting "
+                             "arrays with {} dimensions".format(len(yss.shape))))
 
-        yss = yss[:, np.newaxis] #add a dimension
+        # add a dimension
+        yss = yss[:, np.newaxis]
 
         feature_names = copy.deepcopy(self.feature_names)
 
@@ -451,7 +453,7 @@ class LimeTabularExplainer(object):
             feature_selection=self.feature_selection)
 
         ret_exp.intercept[0] = ret_exp.intercept[1]
-        ret_exp.local_exp[0] = [(i, -1 * j) for i,j in ret_exp.local_exp[1]]
+        ret_exp.local_exp[0] = [(i, -1 * j) for i, j in ret_exp.local_exp[1]]
 
         return ret_exp
 
