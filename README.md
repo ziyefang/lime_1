@@ -32,7 +32,7 @@ Below are some screenshots of lime explanations. These are generated in html, an
 
 #### Two class case, text
 
-Negative (blue) words indicate atheism, while positive (orange) words indicate christian. The way to interpret the weights by applying them to the prediction probabilities. For example, if we remove the words Host and NNTP from the document, we expect the classifier to predict atheism with probability 0.57 - 0.14 - 0.12 = 0.31.
+Negative (blue) words indicate atheism, while positive (orange) words indicate christian. The way to interpret the weights by applying them to the prediction probabilities. For example, if we remove the words Host and NNTP from the document, we expect the classifier to predict atheism with probability 0.58 - 0.14 - 0.11 = 0.31.
 
 ![twoclass](doc/images/twoclass.png)
 
