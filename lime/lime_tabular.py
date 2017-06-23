@@ -12,6 +12,7 @@ import sklearn.preprocessing
 from lime.discretize import QuartileDiscretizer
 from lime.discretize import DecileDiscretizer
 from lime.discretize import EntropyDiscretizer
+from lime.exceptions import LimeError
 from . import explanation
 from . import lime_base
 
@@ -136,22 +137,28 @@ class LimeTabularExplainer(object):
         if discretize_continuous:
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
+                    training_data,
+                    self.categorical_features,
+                    feature_names,
                     labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
+                    training_data,
+                    self.categorical_features,
+                    feature_names,
                     labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features, feature_names,
+                    training_data,
+                    self.categorical_features,
+                    feature_names,
                     labels=training_labels)
             else:
                 raise ('''Discretizer must be 'quartile', 'decile' ''' +
                        '''or 'entropy' ''')
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(
-                training_data)
+                    training_data)
 
         if kernel_width is None:
             kernel_width = np.sqrt(training_data.shape[1]) * .75
@@ -226,9 +233,9 @@ class LimeTabularExplainer(object):
         scaled_data = (data - self.scaler.mean_) / self.scaler.scale_
 
         distances = sklearn.metrics.pairwise_distances(
-            scaled_data,
-            scaled_data[0].reshape(1, -1),
-            metric=distance_metric
+                scaled_data,
+                scaled_data[0].reshape(1, -1),
+                metric=distance_metric
         ).ravel()
 
         yss = classifier_fn(inverse)
@@ -239,7 +246,6 @@ class LimeTabularExplainer(object):
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
             feature_names = [str(x) for x in range(data_row.shape[0])]
-
 
         values = self.round_stuff(data_row)
         for i in self.categorical_features:
@@ -258,12 +264,12 @@ class LimeTabularExplainer(object):
             discretized_feature_names = copy.deepcopy(feature_names)
             for f in self.discretizer.names:
                 discretized_feature_names[f] = self.discretizer.names[f][int(
-                    discretized_instance[f])]
+                        discretized_instance[f])]
 
         domain_mapper = TableDomainMapper(
-            feature_names, values, scaled_data[0],
-            categorical_features=categorical_features,
-            discretized_feature_names=discretized_feature_names)
+                feature_names, values, scaled_data[0],
+                categorical_features=categorical_features,
+                discretized_feature_names=discretized_feature_names)
         ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
                                           class_names=self.class_names)
         ret_exp.predict_proba = yss[0]
@@ -275,9 +281,9 @@ class LimeTabularExplainer(object):
             (ret_exp.intercept[label],
              ret_exp.local_exp[label],
              ret_exp.score) = self.base.explain_instance_with_data(
-                scaled_data, yss, distances, label, num_features,
-                model_regressor=model_regressor,
-                feature_selection=self.feature_selection)
+                    scaled_data, yss, distances, label, num_features,
+                    model_regressor=model_regressor,
+                    feature_selection=self.feature_selection)
         return ret_exp
 
     def __data_inverse(self,
@@ -308,8 +314,8 @@ class LimeTabularExplainer(object):
         categorical_features = range(data_row.shape[0])
         if self.discretizer is None:
             data = np.random.normal(
-                0, 1, num_samples * data_row.shape[0]).reshape(
-                num_samples, data_row.shape[0])
+                    0, 1, num_samples * data_row.shape[0]).reshape(
+                    num_samples, data_row.shape[0])
             data = data * self.scaler.scale_ + self.scaler.mean_
             categorical_features = self.categorical_features
             first_row = data_row
@@ -333,14 +339,20 @@ class LimeTabularExplainer(object):
         inverse[0] = data_row
         return data, inverse
 
-    def explain_regressor_instance(self, data_row, predict_fn, num_features=10,
-                                   num_samples=5000, distance_metric='euclidean',
-                                   model_regressor=None, testing=False):
+    def explain_regressor_instance(
+            self,
+            data_row,
+            predict_fn,
+            num_features=10,
+            num_samples=5000,
+            distance_metric='euclidean',
+            model_regressor=None,
+            testing=False):
         """Generates explanations for a prediction.
         First, we generate neighborhood data by randomly perturbing features
         from the instance (see __data_inverse). We then learn locally weighted
-        linear models on this neighborhood data to explain changes in the prediction
-        in an interpretable way (see lime_base.py).
+        linear models on this neighborhood data to explain changes in the
+        prediction in an interpretable way (see lime_base.py).
         Args:
             data_row: 1d numpy array, corresponding to a row
             predict_fn: prediction function, which
@@ -356,18 +368,14 @@ class LimeTabularExplainer(object):
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
-        labels = ['negative', 'positive']
-
-
         data, inverse = self.__data_inverse(data_row, num_samples)
 
         scaled_data = (data - self.scaler.mean_) / self.scaler.scale_
 
-
         distances = sklearn.metrics.pairwise_distances(
-            scaled_data,
-            scaled_data[0].reshape(1, -1),
-            metric=distance_metric
+                scaled_data,
+                scaled_data[0].reshape(1, -1),
+                metric=distance_metric
         ).ravel()
 
         yss = predict_fn(inverse)
@@ -375,18 +383,21 @@ class LimeTabularExplainer(object):
         min_y = min(yss)
         max_y = max(yss)
 
-        if not isinstance(yss, np.ndarray): raise exceptions.ModelException("Your model needs to output numpy arrays")
+        if not isinstance(yss, np.ndarray):
+            raise LimeError(
+                "Your model needs to output numpy arrays")
 
-        # if predictions are a single column, then either the model is a predict_proba
-        #with only a single class (where probabilities are all one),
-        #or the model is predicting the most likely class. We will assume
-        #its the latter case, but perhaps we eventually want to check for the former case.
-        if len(yss.shape) == 1:
-            pass
-        else:
-            raise exceptions.ModelException("Your regressor model is outputting arrays with {} dimensions".format(len(yss.shape)))
+        # if predictions are a single column, then either the model is a
+        # predict_proba with only a single class (where probabilities
+        # are all one), or the model is predicting the most likely class.
+        #  We will assume it's the latter case, but perhaps we
+        # eventually want to check for the former case.
+        if len(yss.shape) != 1:
+            raise LimeError(
+                    "Your regressor model is outputting arrays"
+                    "with {} dimensions".format(len(yss.shape)))
 
-        yss = yss[:, np.newaxis] #add a dimension
+        yss = yss[:, np.newaxis]  # add a dimension
 
         feature_names = copy.deepcopy(self.feature_names)
 
@@ -411,28 +422,26 @@ class LimeTabularExplainer(object):
             discretized_feature_names = copy.deepcopy(feature_names)
             for f in self.discretizer.names:
                 discretized_feature_names[f] = self.discretizer.names[f][int(
-                    discretized_instance[f])]
+                        discretized_instance[f])]
 
         domain_mapper = TableDomainMapper(
-            feature_names, values, scaled_data[0],
-            categorical_features=categorical_features,
-            discretized_feature_names=discretized_feature_names)
-        ret_exp = explanation.RegressionsExplanation(domain_mapper=domain_mapper)
+                feature_names, values, scaled_data[0],
+                categorical_features=categorical_features,
+                discretized_feature_names=discretized_feature_names)
+        ret_exp = explanation.RegressionsExplanation(
+                domain_mapper=domain_mapper)
         ret_exp.predicted_value = predicted_value
         ret_exp.min_value = min_y
         ret_exp.max_value = max_y
 
-
-
-
         (ret_exp.intercept[1],
          ret_exp.local_exp[1],
          ret_exp.score) = self.base.explain_instance_with_data(
-            scaled_data, yss, distances, 0, num_features,
-            model_regressor=model_regressor,
-            feature_selection=self.feature_selection)
+                scaled_data, yss, distances, 0, num_features,
+                model_regressor=model_regressor,
+                feature_selection=self.feature_selection)
 
         ret_exp.intercept[0] = ret_exp.intercept[1]
-        ret_exp.local_exp[0] = [(i, -1 * j) for i,j in ret_exp.local_exp[1]]
+        ret_exp.local_exp[0] = [(i, -1 * j) for i, j in ret_exp.local_exp[1]]
 
         return ret_exp

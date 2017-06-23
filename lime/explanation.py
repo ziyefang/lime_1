@@ -24,6 +24,7 @@ class DomainMapper(object):
     images, etc), so that we can have a general Explanation class, and separate
     out the specifics of visualizing features in here.
     """
+
     def __init__(self):
         pass
 
@@ -64,6 +65,7 @@ class DomainMapper(object):
 
 class Explanation(object):
     """Object returned by explainers."""
+
     def __init__(self, domain_mapper, class_names=None):
         """Initializer.
 
@@ -167,7 +169,10 @@ class Explanation(object):
         Returns:
             code for an html page, including javascript includes.
         """
-        def jsonize(x): return json.dumps(x)
+
+        def jsonize(x):
+            return json.dumps(x)
+
         if labels is None:
             labels = self.available_labels()
         this_dir, _ = os.path.split(__file__)
@@ -202,7 +207,11 @@ class Explanation(object):
             ''' % (exp, label)
         raw_js = '''var raw_div = top_div.append('div');'''
         raw_js += self.domain_mapper.visualize_instance_html(
-            self.local_exp[labels[0]], labels[0], 'raw_div', 'exp', **kwargs)
+                self.local_exp[labels[0]],
+                labels[0],
+                'raw_div',
+                'exp',
+                **kwargs)
         out += u'''
         <script>
         var top_div = d3.select('#top_div%s').classed('lime top_div', true);
@@ -213,8 +222,11 @@ class Explanation(object):
         ''' % (random_id, predict_proba_js, exp_js, raw_js)
         out += u'</body></html>'
         return out
+
+
 class RegressionsExplanation(object):
     """Object returned by explainers."""
+
     def __init__(self, domain_mapper):
         """Initializer.
         Args:
@@ -240,7 +252,9 @@ class RegressionsExplanation(object):
             list of tuples (representation, weight), where representation is
             given by domain_mapper. Weight is a float.
         """
-        return self.domain_mapper.map_exp_ids(self.local_exp[self.label], **kwargs)
+        return self.domain_mapper.map_exp_ids(
+                self.local_exp[self.label],
+                **kwargs)
 
     def as_map(self):
         """Returns the map of explanations.
@@ -276,7 +290,11 @@ class RegressionsExplanation(object):
            See as_html for parameters.
            This will throw an error if you don't have IPython installed"""
         from IPython.core.display import display, HTML
-        display(HTML(self.as_html(show_predicted_value = show_predicted_value, **kwargs)))
+        display(
+            HTML(
+                self.as_html(
+                    show_predicted_value=show_predicted_value,
+                    **kwargs)))
 
     def save_to_file(self, file_path, labels=None, show_predicted_value=True,
                      **kwargs):
@@ -296,9 +314,7 @@ class RegressionsExplanation(object):
         Returns:
             code for an html page, including javascript includes.
         """
-
-        labels = [self.label]
-        class_names = ['negative','positive']
+        class_names = ['negative', 'positive']
 
         def jsonize(x): return json.dumps(x)
 
@@ -315,9 +331,8 @@ class RegressionsExplanation(object):
         ''' % random_id
         predict_value_js = ''
         if show_predicted_value:
-
-            #reference self.predicted_value
-            #(svg, predicted_value, min_value, max_value)
+            # reference self.predicted_value
+            # (svg, predicted_value, min_value, max_value)
             predict_value_js = u'''
                     var pp_div = top_div.append('div')
                                         .classed('lime predicted_value', true);
@@ -326,8 +341,6 @@ class RegressionsExplanation(object):
                     ''' % (jsonize(self.predicted_value),
                            jsonize(float(self.min_value)),
                            jsonize(float(self.max_value)))
-
-
 
         exp_js = '''var exp_div;
             var exp = new lime.Explanation(%s);
@@ -340,7 +353,11 @@ class RegressionsExplanation(object):
         ''' % (exp, self.label)
         raw_js = '''var raw_div = top_div.append('div');'''
         raw_js += self.domain_mapper.visualize_instance_html(
-            self.local_exp[self.label], self.label, 'raw_div', 'exp', **kwargs)
+                self.local_exp[self.label],
+                self.label,
+                'raw_div',
+                'exp',
+                **kwargs)
         out += u'''
         <script>
         var top_div = d3.select('#top_div%s').classed('lime top_div', true);
