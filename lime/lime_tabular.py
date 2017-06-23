@@ -142,16 +142,16 @@ class LimeTabularExplainer(object):
         if discretize_continuous:
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features,
-                    self.feature_names,labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features,
-                    self.feature_names,labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features,
-                    self.feature_names,labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             else:
                 raise ValueError('''Discretizer must be 'quartile',''' +
                                  ''' 'decile' or 'entropy' ''')
@@ -402,7 +402,7 @@ class LimeTabularExplainer(object):
 
         if not isinstance(yss, np.ndarray):
             raise LimeError(
-                "Your model needs to output numpy arrays")
+                    "Your model needs to output numpy arrays")
 
         # if predictions are a single column, then either the model is a
         # predict_proba with only a single class (where probabilities
@@ -479,6 +479,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
     would to the recurrent neural network.
 
     """
+
     def __init__(self, training_data, training_labels=None, feature_names=None,
                  categorical_features=None, categorical_names=None,
                  kernel_width=None, verbose=False, class_names=None,
@@ -517,7 +518,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Reshape X
         n_samples, n_timesteps, n_features = training_data.shape
         training_data = np.transpose(training_data, axes=(0, 2, 1)).reshape(
-            n_samples, n_timesteps * n_features)
+                n_samples, n_timesteps * n_features)
         self.n_timesteps = n_timesteps
         self.n_features = n_features
 
@@ -527,16 +528,16 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
         # Send off the the super class to do its magic.
         super(RecurrentTabularExplainer, self).__init__(
-            training_data,
-            training_labels=training_labels,
-            feature_names=feature_names,
-            categorical_features=categorical_features,
-            categorical_names=categorical_names,
-            kernel_width=kernel_width, verbose=verbose,
-            class_names=class_names,
-            feature_selection=feature_selection,
-            discretize_continuous=discretize_continuous,
-            discretizer=discretizer)
+                training_data,
+                training_labels=training_labels,
+                feature_names=feature_names,
+                categorical_features=categorical_features,
+                categorical_names=categorical_names,
+                kernel_width=kernel_width, verbose=verbose,
+                class_names=class_names,
+                feature_selection=feature_selection,
+                discretize_continuous=discretize_continuous,
+                discretizer=discretizer)
 
     def _make_predict_proba(self, func):
         """
@@ -592,10 +593,10 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Wrap the classifier to reshape input
         classifier_fn = self._make_predict_proba(classifier_fn)
         return super(RecurrentTabularExplainer, self).explain_instance(
-            data_row, classifier_fn,
-            labels=labels,
-            top_labels=top_labels,
-            num_features=num_features,
-            num_samples=num_samples,
-            distance_metric=distance_metric,
-            model_regressor=model_regressor)
+                data_row, classifier_fn,
+                labels=labels,
+                top_labels=top_labels,
+                num_features=num_features,
+                num_samples=num_samples,
+                distance_metric=distance_metric,
+                model_regressor=model_regressor)
