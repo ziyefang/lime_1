@@ -152,8 +152,8 @@ class LimeTabularExplainer(object):
                     training_data, self.categorical_features,
                     self.feature_names, labels=training_labels)
             else:
-                raise ('''Discretizer must be 'quartile', 'decile' ''' +
-                       '''or 'entropy' ''')
+                raise ValueError('''Discretizer must be 'quartile',''' +
+                                 ''' 'decile' or 'entropy' ''')
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(
                 training_data)

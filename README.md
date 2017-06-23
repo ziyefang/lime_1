@@ -32,7 +32,7 @@ Below are some screenshots of lime explanations. These are generated in html, an
 
 #### Two class case, text
 
-Negative (blue) words indicate atheism, while positive (orange) words indicate christian. The way to interpret the weights by applying them to the prediction probabilities. For example, if we remove the words Host and NNTP from the document, we expect the classifier to predict atheism with probability 0.57 - 0.14 - 0.12 = 0.31.
+Negative (blue) words indicate atheism, while positive (orange) words indicate christian. The way to interpret the weights by applying them to the prediction probabilities. For example, if we remove the words Host and NNTP from the document, we expect the classifier to predict atheism with probability 0.58 - 0.14 - 0.11 = 0.31.
 
 ![twoclass](doc/images/twoclass.png)
 
@@ -58,6 +58,7 @@ For example usage for text classifiers, take a look at the following two tutoria
 For classifiers that use numerical or categorical data, take a look at the following tutorial (this is newer, so please let me know if you find something wrong):
 
 - [Tabular data](https://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
+- [Tabular data with H2O models](https://marcotcr.github.io/lime/tutorials/Tutorial_H2O_continuous_and_cat.html)
 
 For image classifiers:
 
