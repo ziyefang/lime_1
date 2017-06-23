@@ -10,7 +10,6 @@ class BaseDiscretizer():
     """
     Abstract class - Build a class that inherits from this class to implement
     a custom discretizer.
-
     Method bins() is to be redefined in the child class, as it is the actual
     custom part of the discretizer.
     """
@@ -19,7 +18,6 @@ class BaseDiscretizer():
 
     def __init__(self, data, categorical_features, feature_names, labels=None):
         """Initializer
-
         Args:
             data: numpy 2d array
             categorical_features: list of indices (ints) corresponding to the
@@ -44,6 +42,7 @@ class BaseDiscretizer():
 
         # To override when implementing a custom binning
         bins = self.bins(data, labels)
+        bins = [np.unique(x) for x in bins]
 
         for feature, qts in zip(self.to_discretize, bins):
             n_bins = qts.shape[0]  # Actually number of borders (= #bins-1)
@@ -82,10 +81,8 @@ class BaseDiscretizer():
 
     def discretize(self, data):
         """Discretizes the data.
-
         Args:
             data: numpy 2d or 1d array
-
         Returns:
             numpy array of same dimension, discretized.
         """
@@ -127,7 +124,7 @@ class QuartileDiscretizer(BaseDiscretizer):
     def bins(self, data, labels):
         bins = []
         for feature in self.to_discretize:
-            qts = np.percentile(data[:, feature], [25, 50, 75])
+            qts = np.array(np.percentile(data[:, feature], [25, 50, 75]))
             bins.append(qts)
         return bins
 
@@ -140,8 +137,8 @@ class DecileDiscretizer(BaseDiscretizer):
     def bins(self, data, labels):
         bins = []
         for feature in self.to_discretize:
-            qts = np.percentile(data[:, feature],
-                                [10, 20, 30, 40, 50, 60, 70, 80, 90])
+            qts = np.array(np.percentile(data[:, feature],
+                                         [10, 20, 30, 40, 50, 60, 70, 80, 90]))
             bins.append(qts)
         return bins
 

@@ -9,6 +9,8 @@
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
 
+# Unit test / coverage reports
+.cache
 
 # Created by https://www.gitignore.io/api/pycharm
 
