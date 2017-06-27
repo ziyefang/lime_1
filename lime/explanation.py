@@ -9,7 +9,7 @@ import json
 import string
 import numpy as np
 
-from exceptions import LimeError
+from .exceptions import LimeError
 
 
 def id_generator(size=15):
