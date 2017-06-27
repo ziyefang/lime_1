@@ -83,7 +83,7 @@ class Explanation(object):
         Args:
             domain_mapper: must inherit from DomainMapper class
             type: "classification" or "regression"
-            class_names: list of class names (used for classification)
+            class_names: list of class names (only used for classification)
         """
         self.mode = mode
         self.domain_mapper = domain_mapper
