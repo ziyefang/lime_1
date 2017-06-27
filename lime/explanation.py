@@ -225,7 +225,8 @@ class Explanation(object):
                 explanations for all available labels. (only used for classification)
             predict_proba: if true, add  barchart with prediction probabilities
                 for the top classes. (only used for classification)
-            show_predicted_value: if true, add  barchart with expected value (only used for regression)
+            show_predicted_value: if true, add  barchart with expected value
+                (only used for regression)
             kwargs: keyword arguments, passed to domain_mapper
 
         Returns:
@@ -292,8 +293,14 @@ class Explanation(object):
             ''' % (exp, self.dummy_label)
 
         raw_js = '''var raw_div = top_div.append('div');'''
+
+        if self.mode == "classification":
+            html_data = self.local_exp[labels[0]]
+        else:
+            html_data = self.local_exp[self.dummy_label]
+
         raw_js += self.domain_mapper.visualize_instance_html(
-                self.local_exp[labels[0]] if self.mode == "classification" else self.local_exp[self.dummy_label],
+                html_data,
                 labels[0] if self.mode == "classification" else self.dummy_label,
                 'raw_div',
                 'exp',

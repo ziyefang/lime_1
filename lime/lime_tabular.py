@@ -229,7 +229,9 @@ class LimeTabularExplainer(object):
             predict_fn: prediction function. For classifiers, this should be a
                 function that takes a numpy array and outputs prediction
                 probabilities. For regressors, this takes a numpy array and
-                returns the predictions. For ScikitClassifiers, this is `classifier.predict_proba()`. For ScikitRegressors, this is `regressor.predict()`.
+                returns the predictions. For ScikitClassifiers, this is
+                    `classifier.predict_proba()`. For ScikitRegressors, this
+                    is `regressor.predict()`.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
                 the K labels with highest prediction probabilities, where K is
@@ -287,7 +289,8 @@ class LimeTabularExplainer(object):
             try:
                 assert isinstance(yss, np.ndarray) and len(yss.shape) == 1
             except AssertionError:
-                raise ValueError("Your model needs to output single-dimensional numpy arrays, not arrays of {} dimensions".format(yss.shape))
+                raise ValueError("Your model needs to output single-dimensional \
+                    numpyarrays, not arrays of {} dimensions".format(yss.shape))
 
             predicted_value = yss[0]
             min_y = min(yss)
@@ -345,13 +348,14 @@ class LimeTabularExplainer(object):
         for label in labels:
             (ret_exp.intercept[label],
              ret_exp.local_exp[label],
-             ret_exp.score) = self.base.explain_instance_with_data(scaled_data,
-                                                                   yss,
-                                                                   distances,
-                                                                   label,
-                                                                   num_features,
-                                                                   model_regressor=model_regressor,
-                                                                   feature_selection=self.feature_selection)
+             ret_exp.score) = self.base.explain_instance_with_data(
+                    scaled_data,
+                    yss,
+                    distances,
+                    label,
+                    num_features,
+                    model_regressor=model_regressor,
+                    feature_selection=self.feature_selection)
 
         if self.mode == "regression":
             ret_exp.intercept[0] = ret_exp.intercept[1]
