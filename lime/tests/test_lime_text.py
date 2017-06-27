@@ -1,5 +1,6 @@
 import unittest
 
+from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import Lasso
 from sklearn.metrics import f1_score
@@ -10,8 +11,8 @@ from lime.lime_text import LimeTextExplainer
 
 
 class TestLimeText(unittest.TestCase):
+
     def test_lime_text_explainer_good_regressor(self):
-        from sklearn.datasets import fetch_20newsgroups
         categories = ['alt.atheism', 'soc.religion.christian']
         newsgroups_train = fetch_20newsgroups(subset='train',
                                               categories=categories)
@@ -31,10 +32,9 @@ class TestLimeText(unittest.TestCase):
         exp = explainer.explain_instance(newsgroups_test.data[idx],
                                          c.predict_proba, num_features=6)
         self.assertIsNotNone(exp)
-        self.assertEquals(6, len(exp.as_list()))
+        self.assertEqual(6, len(exp.as_list()))
 
     def test_lime_text_explainer_bad_regressor(self):
-        from sklearn.datasets import fetch_20newsgroups
         newsgroups_train = fetch_20newsgroups(subset='train')
         newsgroups_test = fetch_20newsgroups(subset='test')
         # making class names shorter
