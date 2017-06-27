@@ -326,7 +326,8 @@ class LimeTabularExplainer(object):
                                           scaled_data[0],
                                           categorical_features=categorical_features,
                                           discretized_feature_names=discretized_feature_names)
-        ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
+        ret_exp = explanation.Explanation(domain_mapper,
+                                          mode=self.mode,
                                           class_names=self.class_names)
 
         if self.mode == "classification":
