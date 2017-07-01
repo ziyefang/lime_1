@@ -138,7 +138,7 @@ class LimeTabularExplainer(object):
                 are 'quartile', 'decile' or 'entropy'
         """
         self.mode = mode
-        self.feature_names = feature_names
+        self.feature_names = list(feature_names)
         self.categorical_names = categorical_names
         self.categorical_features = categorical_features
         if self.categorical_names is None:
@@ -180,7 +180,6 @@ class LimeTabularExplainer(object):
         self.base = lime_base.LimeBase(kernel, verbose)
         self.scaler = None
         self.class_names = class_names
-        self.feature_names = feature_names
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
@@ -343,7 +342,7 @@ class LimeTabularExplainer(object):
             ret_exp.predicted_value = predicted_value
             ret_exp.min_value = min_y
             ret_exp.max_value = max_y
-            labels = [1]
+            labels = [0]
 
         for label in labels:
             (ret_exp.intercept[label],
@@ -358,7 +357,8 @@ class LimeTabularExplainer(object):
                     feature_selection=self.feature_selection)
 
         if self.mode == "regression":
-            ret_exp.intercept[0] = ret_exp.intercept[1]
+            ret_exp.intercept[1] = ret_exp.intercept[0]
+            ret_exp.local_exp[1] = [x for x in ret_exp.local_exp[0]]
             ret_exp.local_exp[0] = [(i, -1 * j) for i, j in ret_exp.local_exp[1]]
 
         return ret_exp

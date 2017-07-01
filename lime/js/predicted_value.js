@@ -18,10 +18,14 @@ class PredictedValue {
 
     this.color = d3.scale.category10()
     this.color('predicted_value')
+    // + 2 is due to it being a float
+    let num_digits = Math.floor(Math.max(Math.log10(min_value), Math.log10(max_value))) + 2
+    num_digits = Math.max(num_digits, 3)
 
-    let bar_x = width - 125;
-    let class_names_width = bar_x;
-    let bar_width = width - bar_x - 32;
+    let corner_width = 12 * num_digits;
+    let corner_padding = 5.5 * num_digits;
+    let bar_x = corner_width + corner_padding;
+    let bar_width = width - corner_width * 2 - corner_padding * 2;
     let x_scale = d3.scale.linear().range([0, bar_width]);
     let bar_height = 17;
     let bar_yshift= title === '' ? 0 : 35;
@@ -58,7 +62,7 @@ class PredictedValue {
 
   //text for min value
   text = bar.append("text");
-  text.attr("x", bar_x - 10)
+  text.attr("x", bar_x - corner_padding)
       .attr("y", bar_y + bar_height - 3)
       .attr("fill", "black")
       .attr("text-anchor", "end")
@@ -68,7 +72,7 @@ class PredictedValue {
   //text for range min annotation
   let v_adjust_min_value_annotation = text.node().getBBox().height;
   text = bar.append("text");
-  text.attr("x", bar_x - 10)
+  text.attr("x", bar_x - corner_padding)
       .attr("y", bar_y + bar_height - 3 + v_adjust_min_value_annotation)
       .attr("fill", "black")
       .attr("text-anchor", "end")
@@ -77,15 +81,15 @@ class PredictedValue {
 
 
   //text for predicted value
-  console.log('bar height: ' + bar_height)
+  // console.log('bar height: ' + bar_height)
   text = bar.append("text");
   text.text(predicted_value.toFixed(2));
-  let h_adjust_predicted_value_text = text.node().getBBox().width / 2;
+  // let h_adjust_predicted_value_text = text.node().getBBox().width / 2;
   let v_adjust_predicted_value_text = text.node().getBBox().height;
-  text.attr("x", bar_x - 10 + x_scale(width_proportion) + h_adjust_predicted_value_text)
+  text.attr("x", bar_x + x_scale(width_proportion))
       .attr("y", bar_y + bar_height + v_adjust_predicted_value_text)
       .attr("fill", "black")
-      .attr("text-anchor", "end")
+      .attr("text-anchor", "middle")
       .style("font", "14px tahoma, sans-serif")
 
 
@@ -95,28 +99,28 @@ class PredictedValue {
   //text for max value
   text = bar.append("text");
   text.text(max_value.toFixed(2));
-  let h_adjust = text.node().getBBox().width;
-  text.attr("x", bar_x + bar_width +  h_adjust)
+  // let h_adjust = text.node().getBBox().width;
+  text.attr("x", bar_x + bar_width + corner_padding)
       .attr("y", bar_y + bar_height - 3)
       .attr("fill", "black")
-      .attr("text-anchor", "end")
+      .attr("text-anchor", "begin")
       .style("font", "14px tahoma, sans-serif");
 
 
   //text for range max annotation
   let v_adjust_max_value_annotation = text.node().getBBox().height;
   text = bar.append("text");
-  text.attr("x", bar_x + bar_width +  h_adjust)
+  text.attr("x", bar_x + bar_width + corner_padding)
       .attr("y", bar_y + bar_height - 3 + v_adjust_min_value_annotation)
       .attr("fill", "black")
-      .attr("text-anchor", "end")
+      .attr("text-anchor", "begin")
       .style("font", "14px tahoma, sans-serif")
       .text("(max)");
 
 
   //readjust svg size
-  let svg_width = width + 1 * h_adjust;
-  svg.style('width', svg_width + 'px');
+  // let svg_width = width + 1 * h_adjust;
+  // svg.style('width', svg_width + 'px');
 
   this.svg_height = n_bars * (bar_height) + bar_yshift + (2 * text.node().getBBox().height) + 10;
   svg.style('height', this.svg_height + 'px');
@@ -134,5 +138,3 @@ class PredictedValue {
 
 
 export default PredictedValue;
-
-
