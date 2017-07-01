@@ -8,6 +8,9 @@
 .lime.predict_proba {
   width: 245px;
 }
+.lime.predicted_value {
+  width: 245px;
+}
 .lime.explanation {
   width: 350px;
 }

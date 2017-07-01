@@ -4,6 +4,7 @@ Functions for explaining classifiers that use tabular data (matrices).
 import collections
 import copy
 import json
+import warnings
 
 import numpy as np
 import sklearn
@@ -73,7 +74,8 @@ class TableDomainMapper(explanation.DomainMapper):
         weights = [0] * len(self.feature_names)
         for x in exp:
             weights[x[0]] = x[1]
-        out_list = list(zip(self.exp_feature_names, self.feature_values,
+        out_list = list(zip(self.exp_feature_names,
+                            self.feature_values,
                             weights))
         if not show_all:
             out_list = [out_list[x[0]] for x in exp]
@@ -92,15 +94,24 @@ class LimeTabularExplainer(object):
     feature that is 1 when the value is the same as the instance being
     explained."""
 
-    def __init__(self, training_data, training_labels=None, feature_names=None,
-                 categorical_features=None, categorical_names=None,
-                 kernel_width=None, verbose=False, class_names=None,
-                 feature_selection='auto', discretize_continuous=True,
+    def __init__(self,
+                 training_data,
+                 mode="classification",
+                 training_labels=None,
+                 feature_names=None,
+                 categorical_features=None,
+                 categorical_names=None,
+                 kernel_width=None,
+                 verbose=False,
+                 class_names=None,
+                 feature_selection='auto',
+                 discretize_continuous=True,
                  discretizer='quartile'):
         """Init function.
 
         Args:
             training_data: numpy 2d array
+            mode: "classification" or "regression"
             training_labels: labels for training data. Not required, but may be
                 used by discretizer.
             feature_names: list of names (strings) corresponding to the columns
@@ -126,32 +137,37 @@ class LimeTabularExplainer(object):
             discretizer: only matters if discretize_continuous is True. Options
                 are 'quartile', 'decile' or 'entropy'
         """
+        self.mode = mode
+        self.feature_names = list(feature_names)
         self.categorical_names = categorical_names
         self.categorical_features = categorical_features
         if self.categorical_names is None:
             self.categorical_names = {}
         if self.categorical_features is None:
             self.categorical_features = []
+        if self.feature_names is None:
+            self.feature_names = [str(i) for i in range(training_data.shape[1])]
+
         self.discretizer = None
         if discretize_continuous:
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
-                    labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features, feature_names,
-                    labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features, feature_names,
-                    labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             else:
                 raise ValueError('''Discretizer must be 'quartile',''' +
                                  ''' 'decile' or 'entropy' ''')
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(
-                training_data)
+                    training_data)
 
         if kernel_width is None:
             kernel_width = np.sqrt(training_data.shape[1]) * .75
@@ -164,7 +180,6 @@ class LimeTabularExplainer(object):
         self.base = lime_base.LimeBase(kernel, verbose)
         self.scaler = None
         self.class_names = class_names
-        self.feature_names = feature_names
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
@@ -188,9 +203,19 @@ class LimeTabularExplainer(object):
             self.scaler.mean_[feature] = 0
             self.scaler.scale_[feature] = 1
 
-    def explain_instance(self, data_row, classifier_fn, labels=(1,),
-                         top_labels=None, num_features=10, num_samples=5000,
-                         distance_metric='euclidean', model_regressor=None):
+    @staticmethod
+    def convert_and_round(values):
+        return ['%.2f' % v for v in values]
+
+    def explain_instance(self,
+                         data_row,
+                         predict_fn,
+                         labels=(1,),
+                         top_labels=None,
+                         num_features=10,
+                         num_samples=5000,
+                         distance_metric='euclidean',
+                         model_regressor=None):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features
@@ -200,9 +225,12 @@ class LimeTabularExplainer(object):
 
         Args:
             data_row: 1d numpy array, corresponding to a row
-            classifier_fn: classifier prediction probability function, which
-                takes a numpy array and outputs prediction probabilities.  For
-                ScikitClassifiers , this is classifier.predict_proba.
+            predict_fn: prediction function. For classifiers, this should be a
+                function that takes a numpy array and outputs prediction
+                probabilities. For regressors, this takes a numpy array and
+                returns the predictions. For ScikitClassifiers, this is
+                    `classifier.predict_proba()`. For ScikitRegressors, this
+                    is `regressor.predict()`.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
                 the K labels with highest prediction probabilities, where K is
@@ -222,21 +250,60 @@ class LimeTabularExplainer(object):
         scaled_data = (data - self.scaler.mean_) / self.scaler.scale_
 
         distances = sklearn.metrics.pairwise_distances(
-            scaled_data,
-            scaled_data[0].reshape(1, -1),
-            metric=distance_metric
+                scaled_data,
+                scaled_data[0].reshape(1, -1),
+                metric=distance_metric
         ).ravel()
 
-        yss = classifier_fn(inverse)
-        if self.class_names is None:
-            self.class_names = [str(x) for x in range(yss[0].shape[0])]
+        yss = predict_fn(inverse)
+
+        # for classification, the model needs to provide a list of tuples - classes
+        # along with prediction proabilities
+        if self.mode == "classification":
+            if len(yss.shape) == 1:
+                raise NotImplementedError("LIME does not currently support "
+                                          "classifier models without probability "
+                                          "scores. If this conflicts with your "
+                                          "use case, please let us know: "
+                                          "https://github.com/datascienceinc/lime/issues/16")
+            elif len(yss.shape) == 2:
+                if self.class_names is None:
+                    self.class_names = [str(x) for x in range(yss[0].shape[0])]
+                else:
+                    self.class_names = list(self.class_names)
+                if not np.allclose(yss.sum(axis=1), 1.0):
+                    warnings.warn("""
+                    Prediction probabilties do not sum to 1, and
+                    thus does not constitute a probability space.
+                    Check that you classifier outputs probabilities
+                    (Not log probabilities, or actual class predictions).
+                    """)
+            else:
+                raise ValueError("Your model outputs "
+                                 "arrays with {} dimensions".format(len(yss.shape)))
+
+        # for regression, the output should be a one-dimensional array of predictions
         else:
-            self.class_names = list(self.class_names)
+            yss = predict_fn(inverse)
+            try:
+                assert isinstance(yss, np.ndarray) and len(yss.shape) == 1
+            except AssertionError:
+                raise ValueError("Your model needs to output single-dimensional \
+                    numpyarrays, not arrays of {} dimensions".format(yss.shape))
+
+            predicted_value = yss[0]
+            min_y = min(yss)
+            max_y = max(yss)
+
+            # add a dimension to be compatible with downstream machinery
+            yss = yss[:, np.newaxis]
+
         feature_names = copy.deepcopy(self.feature_names)
         if feature_names is None:
             feature_names = [str(x) for x in range(data_row.shape[0])]
 
-        values = ['%.2f' % a for a in data_row]
+        values = self.convert_and_round(data_row)
+
         for i in self.categorical_features:
             if self.discretizer is not None and i in self.discretizer.lambdas:
                 continue
@@ -246,6 +313,7 @@ class LimeTabularExplainer(object):
             feature_names[i] = '%s=%s' % (feature_names[i], name)
             values[i] = 'True'
         categorical_features = self.categorical_features
+
         discretized_feature_names = None
         if self.discretizer is not None:
             categorical_features = range(data.shape[1])
@@ -253,26 +321,46 @@ class LimeTabularExplainer(object):
             discretized_feature_names = copy.deepcopy(feature_names)
             for f in self.discretizer.names:
                 discretized_feature_names[f] = self.discretizer.names[f][int(
-                    discretized_instance[f])]
+                        discretized_instance[f])]
 
-        domain_mapper = TableDomainMapper(
-            feature_names, values, scaled_data[0],
-            categorical_features=categorical_features,
-            discretized_feature_names=discretized_feature_names)
-        ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
+        domain_mapper = TableDomainMapper(feature_names,
+                                          values,
+                                          scaled_data[0],
+                                          categorical_features=categorical_features,
+                                          discretized_feature_names=discretized_feature_names)
+        ret_exp = explanation.Explanation(domain_mapper,
+                                          mode=self.mode,
                                           class_names=self.class_names)
-        ret_exp.predict_proba = yss[0]
-        if top_labels:
-            labels = np.argsort(yss[0])[-top_labels:]
-            ret_exp.top_labels = list(labels)
-            ret_exp.top_labels.reverse()
+
+        if self.mode == "classification":
+            ret_exp.predict_proba = yss[0]
+            if top_labels:
+                labels = np.argsort(yss[0])[-top_labels:]
+                ret_exp.top_labels = list(labels)
+                ret_exp.top_labels.reverse()
+        else:
+            ret_exp.predicted_value = predicted_value
+            ret_exp.min_value = min_y
+            ret_exp.max_value = max_y
+            labels = [0]
+
         for label in labels:
             (ret_exp.intercept[label],
              ret_exp.local_exp[label],
              ret_exp.score) = self.base.explain_instance_with_data(
-                scaled_data, yss, distances, label, num_features,
-                model_regressor=model_regressor,
-                feature_selection=self.feature_selection)
+                    scaled_data,
+                    yss,
+                    distances,
+                    label,
+                    num_features,
+                    model_regressor=model_regressor,
+                    feature_selection=self.feature_selection)
+
+        if self.mode == "regression":
+            ret_exp.intercept[1] = ret_exp.intercept[0]
+            ret_exp.local_exp[1] = [x for x in ret_exp.local_exp[0]]
+            ret_exp.local_exp[0] = [(i, -1 * j) for i, j in ret_exp.local_exp[1]]
+
         return ret_exp
 
     def __data_inverse(self,
@@ -303,8 +391,8 @@ class LimeTabularExplainer(object):
         categorical_features = range(data_row.shape[0])
         if self.discretizer is None:
             data = np.random.normal(
-                0, 1, num_samples * data_row.shape[0]).reshape(
-                num_samples, data_row.shape[0])
+                    0, 1, num_samples * data_row.shape[0]).reshape(
+                    num_samples, data_row.shape[0])
             data = data * self.scaler.scale_ + self.scaler.mean_
             categorical_features = self.categorical_features
             first_row = data_row
@@ -343,13 +431,13 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
     would to the recurrent neural network.
 
     """
+
     def __init__(self, training_data, training_labels=None, feature_names=None,
                  categorical_features=None, categorical_names=None,
                  kernel_width=None, verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True,
                  discretizer='quartile'):
         """
-
         Args:
             training_data: numpy 3d array with shape
                 (n_samples, n_timesteps, n_features)
@@ -382,7 +470,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Reshape X
         n_samples, n_timesteps, n_features = training_data.shape
         training_data = np.transpose(training_data, axes=(0, 2, 1)).reshape(
-            n_samples, n_timesteps * n_features)
+                n_samples, n_timesteps * n_features)
         self.n_timesteps = n_timesteps
         self.n_features = n_features
 
@@ -392,16 +480,16 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
         # Send off the the super class to do its magic.
         super(RecurrentTabularExplainer, self).__init__(
-            training_data,
-            training_labels=training_labels,
-            feature_names=feature_names,
-            categorical_features=categorical_features,
-            categorical_names=categorical_names,
-            kernel_width=kernel_width, verbose=verbose,
-            class_names=class_names,
-            feature_selection=feature_selection,
-            discretize_continuous=discretize_continuous,
-            discretizer=discretizer)
+                training_data,
+                training_labels=training_labels,
+                feature_names=feature_names,
+                categorical_features=categorical_features,
+                categorical_names=categorical_names,
+                kernel_width=kernel_width, verbose=verbose,
+                class_names=class_names,
+                feature_selection=feature_selection,
+                discretize_continuous=discretize_continuous,
+                discretizer=discretizer)
 
     def _make_predict_proba(self, func):
         """
@@ -457,10 +545,10 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Wrap the classifier to reshape input
         classifier_fn = self._make_predict_proba(classifier_fn)
         return super(RecurrentTabularExplainer, self).explain_instance(
-            data_row, classifier_fn,
-            labels=labels,
-            top_labels=top_labels,
-            num_features=num_features,
-            num_samples=num_samples,
-            distance_metric=distance_metric,
-            model_regressor=model_regressor)
+                data_row, classifier_fn,
+                labels=labels,
+                top_labels=top_labels,
+                num_features=num_features,
+                num_samples=num_samples,
+                distance_metric=distance_metric,
+                model_regressor=model_regressor)
