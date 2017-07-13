@@ -252,7 +252,7 @@ class Explanation(object):
         ''' % random_id
 
         predict_proba_js = ''
-        if self.mode == "classifiction" and predict_proba:
+        if self.mode == "classification" and predict_proba:
             predict_proba_js = u'''
             var pp_div = top_div.append('div')
                                 .classed('lime predict_proba', true);
