@@ -1,46 +1,77 @@
 lime package
 ============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    lime.tests
+
 Submodules
 ----------
 
-lime.lime_tabular module
-------------------------
-
-.. automodule:: lime.lime_tabular
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-lime.lime_text module
----------------------
-
-.. automodule:: lime.lime_text
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-lime.discretize module
-----------------------
+lime\.discretize module
+-----------------------
 
 .. automodule:: lime.discretize
     :members:
     :undoc-members:
     :show-inheritance:
 
-lime.explanation module
+lime\.exceptions module
 -----------------------
+
+.. automodule:: lime.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lime\.explanation module
+------------------------
 
 .. automodule:: lime.explanation
     :members:
     :undoc-members:
     :show-inheritance:
 
-lime.lime_base module
----------------------
+lime\.lime\_base module
+-----------------------
 
 .. automodule:: lime.lime_base
     :members:
     :undoc-members:
     :show-inheritance:
 
+lime\.lime\_image module
+------------------------
+
+.. automodule:: lime.lime_image
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lime\.lime\_tabular module
+--------------------------
+
+.. automodule:: lime.lime_tabular
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lime\.lime\_text module
+-----------------------
+
+.. automodule:: lime.lime_text
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: lime
+    :members:
+    :undoc-members:
+    :show-inheritance:

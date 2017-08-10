@@ -123,7 +123,7 @@ class LimeTabularExplainer(object):
                 categorical_names[x][y] represents the name of the yth value of
                 column x.
             kernel_width: kernel width for the exponential kernel.
-            If None, defaults to sqrt(number of columns) * 0.75
+                If None, defaults to sqrt (number of columns) * 0.75
             verbose: if true, print local prediction values from linear model
             class_names: list of class names, ordered according to whatever the
                 classifier is using. If not present, class names will be '0',
@@ -229,8 +229,8 @@ class LimeTabularExplainer(object):
                 function that takes a numpy array and outputs prediction
                 probabilities. For regressors, this takes a numpy array and
                 returns the predictions. For ScikitClassifiers, this is
-                    `classifier.predict_proba()`. For ScikitRegressors, this
-                    is `regressor.predict()`.
+                `classifier.predict_proba()`. For ScikitRegressors, this
+                is `regressor.predict()`.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
                 the K labels with highest prediction probabilities, where K is
@@ -239,8 +239,8 @@ class LimeTabularExplainer(object):
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for weights.
             model_regressor: sklearn regressor to use in explanation. Defaults
-            to Ridge regression in LimeBase. Must have model_regressor.coef_
-            and 'sample_weight' as a parameter to model_regressor.fit()
+                to Ridge regression in LimeBase. Must have model_regressor.coef_
+                and 'sample_weight' as a parameter to model_regressor.fit()
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
