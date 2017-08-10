@@ -1,10 +1,10 @@
 import unittest
 
 import numpy as np
-import sklearn
+import sklearn # noqa
 import sklearn.datasets
 import sklearn.ensemble
-import sklearn.linear_model
+import sklearn.linear_model # noqa
 from sklearn.datasets import load_iris, make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso

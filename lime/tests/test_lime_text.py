@@ -1,6 +1,6 @@
 import unittest
 
-import sklearn
+import sklearn # noqa
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import Lasso
