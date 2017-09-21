@@ -35,7 +35,6 @@ class BaseDiscretizer():
                               if x not in categorical_features])
         self.names = {}
         self.lambdas = {}
-        self.ranges = {}
         self.means = {}
         self.stds = {}
         self.mins = {}
