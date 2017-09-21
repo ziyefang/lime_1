@@ -3,6 +3,7 @@ Discretizers classes, to be used in lime_tabular
 """
 import numpy as np
 import sklearn
+import sklearn.tree
 from abc import ABCMeta, abstractmethod
 
 
