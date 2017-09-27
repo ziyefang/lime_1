@@ -91,7 +91,7 @@ class Explanation(object):
                 generate random numbers. If None, the random state will be
                 initialized using the internal numpy seed.
         """
-        self.random_state = check_random_state(random_state)
+        self.random_state = random_state
         self.mode = mode
         self.domain_mapper = domain_mapper
         self.local_exp = {}
@@ -253,7 +253,7 @@ class Explanation(object):
         out = u'''<html>
         <meta http-equiv="content-type" content="text/html; charset=UTF8">
         <head><script>%s </script></head><body>''' % bundle
-        random_id = id_generator(size=15, random_state=self.random_state)
+        random_id = id_generator(size=15, random_state=check_random_state(self.random_state))
         out += u'''
         <div class="lime top_div" id="top_div%s"></div>
         ''' % random_id

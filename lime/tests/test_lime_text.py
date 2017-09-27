@@ -59,6 +59,53 @@ class TestLimeText(unittest.TestCase):
                 newsgroups_test.data[idx], c.predict_proba, num_features=6,
                 labels=[0, 17], model_regressor=Lasso())
 
+    def test_lime_text_tabular_equal_random_state(self):
+        categories = ['alt.atheism', 'soc.religion.christian']
+        newsgroups_train = fetch_20newsgroups(subset='train',
+                                              categories=categories)
+        newsgroups_test = fetch_20newsgroups(subset='test',
+                                             categories=categories)
+        class_names = ['atheism', 'christian']
+        vectorizer = TfidfVectorizer(lowercase=False)
+        train_vectors = vectorizer.fit_transform(newsgroups_train.data)
+        test_vectors = vectorizer.transform(newsgroups_test.data)
+        nb = MultinomialNB(alpha=.01)
+        nb.fit(train_vectors, newsgroups_train.target)
+        pred = nb.predict(test_vectors)
+        f1_score(newsgroups_test.target, pred, average='weighted')
+        c = make_pipeline(vectorizer, nb)
+
+        explainer = LimeTextExplainer(class_names=class_names, random_state=10)
+        exp_1 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+
+        explainer = LimeTextExplainer(class_names=class_names, random_state=10)
+        exp_2 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+
+        self.assertTrue(exp_1.as_map() == exp_2.as_map())
+
+    def test_lime_text_tabular_not_equal_random_state(self):
+            categories = ['alt.atheism', 'soc.religion.christian']
+            newsgroups_train = fetch_20newsgroups(subset='train',
+                                                  categories=categories)
+            newsgroups_test = fetch_20newsgroups(subset='test',
+                                                 categories=categories)
+            class_names = ['atheism', 'christian']
+            vectorizer = TfidfVectorizer(lowercase=False)
+            train_vectors = vectorizer.fit_transform(newsgroups_train.data)
+            test_vectors = vectorizer.transform(newsgroups_test.data)
+            nb = MultinomialNB(alpha=.01)
+            nb.fit(train_vectors, newsgroups_train.target)
+            pred = nb.predict(test_vectors)
+            f1_score(newsgroups_test.target, pred, average='weighted')
+            c = make_pipeline(vectorizer, nb)
+
+            explainer = LimeTextExplainer(class_names=class_names, random_state=10)
+            exp_1 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+
+            explainer = LimeTextExplainer(class_names=class_names, random_state=20)
+            exp_2 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+
+            self.assertFalse(exp_1.as_map() == exp_2.as_map())
 
 if __name__ == '__main__':
     unittest.main()
