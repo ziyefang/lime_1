@@ -75,7 +75,6 @@ class TestDiscretize(TestCase):
     def test_feature_names_1(self):
         self.maxDiff = None
         discretizer = QuartileDiscretizer(self.x, [], self.feature_names, self.y, random_state=10)
-        print(discretizer.names)
         self.assertDictEqual(
             {0: ['sepal length (cm) <= 5.10',
                  '5.10 < sepal length (cm) <= 5.80',
@@ -98,7 +97,6 @@ class TestDiscretize(TestCase):
     def test_feature_names_2(self):
         self.maxDiff = None
         discretizer = DecileDiscretizer(self.x, [], self.feature_names, self.y, random_state=10)
-        print(discretizer.names)
         self.assertDictEqual(
             {0: ['sepal length (cm) <= 4.80',
                  '4.80 < sepal length (cm) <= 5.00',

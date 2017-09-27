@@ -10,6 +10,7 @@ import re
 import numpy as np
 import scipy as sp
 import sklearn
+from sklearn.utils import check_random_state
 
 from . import explanation
 from . import lime_base
@@ -68,12 +69,12 @@ class TextDomainMapper(explanation.DomainMapper):
         exp = [(self.indexed_string.word(x[0]),
                 self.indexed_string.string_position(x[0]),
                 x[1]) for x in exp]
-        all_ocurrences = list(itertools.chain.from_iterable(
+        all_occurrences = list(itertools.chain.from_iterable(
             [itertools.product([x[0]], x[1], [x[2]]) for x in exp]))
-        all_ocurrences = [(x[0], int(x[1]), x[2]) for x in all_ocurrences]
+        all_occurrences = [(x[0], int(x[1]), x[2]) for x in all_occurrences]
         ret = '''
             %s.show_raw_text(%s, %d, %s, %s, %s);
-            ''' % (exp_object_name, json.dumps(all_ocurrences), label,
+            ''' % (exp_object_name, json.dumps(all_occurrences), label,
                    json.dumps(text), div_name, json.dumps(opacity))
         return ret
 
@@ -88,7 +89,7 @@ class IndexedString(object):
             raw_string: string with raw text in it
             split_expression: string will be split by this.
             bow: if True, a word is the same everywhere in the text - i.e. we
-                 will index multiple ocurrences of the same word. If False,
+                 will index multiple occurrences of the same word. If False,
                  order matters, so that the same word will have different ids
                  according to position.
         """
@@ -135,7 +136,7 @@ class IndexedString(object):
         return self.inverse_vocab[id_]
 
     def string_position(self, id_):
-        """Returns a np array with indices to id_ (int) ocurrences"""
+        """Returns a np array with indices to id_ (int) occurrences"""
         if self.bow:
             return self.string_start[self.positions[id_]]
         else:
@@ -180,7 +181,8 @@ class LimeTextExplainer(object):
                  class_names=None,
                  feature_selection='auto',
                  split_expression=r'\W+',
-                 bow=True):
+                 bow=True,
+                 random_state=None):
         """Init function.
 
         Args:
@@ -195,17 +197,21 @@ class LimeTextExplainer(object):
                 details on what each of the options does.
             split_expression: strings will be split by this.
             bow: if True (bag of words), will perturb input data by removing
-                all ocurrences of individual words.  Explanations will be in
+                all occurrences of individual words.  Explanations will be in
                 terms of these words. Otherwise, will explain in terms of
                 word-positions, so that a word may be important the first time
-                it appears and uninportant the second. Only set to false if the
+                it appears and unimportant the second. Only set to false if the
                 classifier uses word order in some way (bigrams, etc).
+            random_state: an integer or numpy.RandomState that will be used to
+                generate random numbers. If None, the random state will be
+                initialized using the internal numpy seed.
         """
 
         # exponential kernel
         def kernel(d): return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
 
-        self.base = lime_base.LimeBase(kernel, verbose)
+        self.random_state = check_random_state(random_state)
+        self.base = lime_base.LimeBase(kernel, verbose, random_state=self.random_state)
         self.class_names = class_names
         self.vocabulary = None
         self.feature_selection = feature_selection
@@ -258,7 +264,8 @@ class LimeTextExplainer(object):
         if self.class_names is None:
             self.class_names = [str(x) for x in range(yss[0].shape[0])]
         ret_exp = explanation.Explanation(domain_mapper=domain_mapper,
-                                          class_names=self.class_names)
+                                          class_names=self.class_names,
+                                          random_state=self.random_state)
         ret_exp.predict_proba = yss[0]
         if top_labels:
             labels = np.argsort(yss[0])[-top_labels:]
@@ -273,8 +280,7 @@ class LimeTextExplainer(object):
                 feature_selection=self.feature_selection)
         return ret_exp
 
-    @classmethod
-    def __data_labels_distances(cls,
+    def __data_labels_distances(self,
                                 indexed_string,
                                 classifier_fn,
                                 num_samples,
@@ -311,13 +317,13 @@ class LimeTextExplainer(object):
                 x, x[0], metric=distance_metric).ravel() * 100
 
         doc_size = indexed_string.num_words()
-        sample = np.random.randint(1, doc_size + 1, num_samples - 1)
+        sample = self.random_state.randint(1, doc_size + 1, num_samples - 1)
         data = np.ones((num_samples, doc_size))
         data[0] = np.ones(doc_size)
         features_range = range(doc_size)
         inverse_data = [indexed_string.raw_string()]
         for i, size in enumerate(sample, start=1):
-            inactive = np.random.choice(features_range, size, replace=False)
+            inactive = self.random_state.choice(features_range, size, replace=False)
             data[i, inactive] = 0
             inverse_data.append(indexed_string.inverse_removing(inactive))
         labels = classifier_fn(inverse_data)

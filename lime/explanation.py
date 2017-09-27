@@ -11,12 +11,14 @@ import numpy as np
 
 from .exceptions import LimeError
 
+from sklearn.utils import check_random_state
 
-def id_generator(size=15):
+
+def id_generator(size=15, random_state=None):
     """Helper function to generate random div ids. This is useful for embedding
     HTML into ipython notebooks."""
     chars = list(string.ascii_uppercase + string.digits)
-    return ''.join(np.random.choice(chars, size, replace=True))
+    return ''.join(random_state.choice(chars, size, replace=True))
 
 
 class DomainMapper(object):
@@ -75,7 +77,8 @@ class Explanation(object):
     def __init__(self,
                  domain_mapper,
                  mode='classification',
-                 class_names=None):
+                 class_names=None,
+                 random_state=None):
         """
 
         Initializer.
@@ -84,7 +87,11 @@ class Explanation(object):
             domain_mapper: must inherit from DomainMapper class
             type: "classification" or "regression"
             class_names: list of class names (only used for classification)
+            random_state: an integer or numpy.RandomState that will be used to
+                generate random numbers. If None, the random state will be
+                initialized using the internal numpy seed.
         """
+        self.random_state = check_random_state(random_state)
         self.mode = mode
         self.domain_mapper = domain_mapper
         self.local_exp = {}
@@ -246,7 +253,7 @@ class Explanation(object):
         out = u'''<html>
         <meta http-equiv="content-type" content="text/html; charset=UTF8">
         <head><script>%s </script></head><body>''' % bundle
-        random_id = id_generator()
+        random_id = id_generator(size=15, random_state=self.random_state)
         out += u'''
         <div class="lime top_div" id="top_div%s"></div>
         ''' % random_id

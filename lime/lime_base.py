@@ -2,25 +2,30 @@
 Contains abstract functionality for learning locally linear sparse model.
 """
 from __future__ import print_function
-import sklearn
 import numpy as np
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, lars_path
+from sklearn.utils import check_random_state
 
 
 class LimeBase(object):
     """Class for learning a locally linear sparse model from perturbed data"""
     def __init__(self,
                  kernel_fn,
-                 verbose=False):
+                 verbose=False,
+                 random_state=None):
         """Init function
 
         Args:
-            kernel_fn : function that transforms an array of distances into an
+            kernel_fn: function that transforms an array of distances into an
                         array of proximity values (floats).
             verbose: if true, print local prediction values from linear model.
+            random_state: an integer or numpy.RandomState that will be used to
+                generate random numbers. If None, the random state will be
+                initialized using the internal numpy seed.
         """
         self.kernel_fn = kernel_fn
         self.verbose = verbose
+        self.random_state = check_random_state(random_state)
 
     @staticmethod
     def generate_lars_path(weighted_data, weighted_labels):
@@ -35,16 +40,15 @@ class LimeBase(object):
             regularization parameter and coefficients, respectively
         """
         x_vector = weighted_data
-        alphas, _, coefs = sklearn.linear_model.lars_path(x_vector,
-                                                          weighted_labels,
-                                                          method='lasso',
-                                                          verbose=False)
+        alphas, _, coefs = lars_path(x_vector,
+                                     weighted_labels,
+                                     method='lasso',
+                                     verbose=False)
         return alphas, coefs
 
-    @staticmethod
-    def forward_selection(data, labels, weights, num_features):
+    def forward_selection(self, data, labels, weights, num_features):
         """Iteratively adds features to the model"""
-        clf = sklearn.linear_model.Ridge(alpha=0, fit_intercept=True)
+        clf = Ridge(alpha=0, fit_intercept=True, random_state=self.random_state)
         used_features = []
         for _ in range(min(num_features, data.shape[1])):
             max_ = -100000000
@@ -71,7 +75,7 @@ class LimeBase(object):
         elif method == 'forward_selection':
             return self.forward_selection(data, labels, weights, num_features)
         elif method == 'highest_weights':
-            clf = sklearn.linear_model.Ridge(alpha=0, fit_intercept=True)
+            clf = Ridge(alpha=0, fit_intercept=True, random_state=self.random_state)
             clf.fit(data, labels, sample_weight=weights)
             feature_weights = sorted(zip(range(data.shape[0]),
                                          clf.coef_ * data[0]),
@@ -83,7 +87,6 @@ class LimeBase(object):
                              * np.sqrt(weights[:, np.newaxis]))
             weighted_labels = ((labels - np.average(labels, weights=weights))
                                * np.sqrt(weights))
-            used_features = range(weighted_data.shape[1])
             nonzero = range(weighted_data.shape[1])
             _, coefs = self.generate_lars_path(weighted_data,
                                                weighted_labels)
@@ -153,7 +156,7 @@ class LimeBase(object):
                                                feature_selection)
 
         if model_regressor is None:
-            model_regressor = Ridge(alpha=1, fit_intercept=True)
+            model_regressor = Ridge(alpha=1, fit_intercept=True, random_state=self.random_state)
         easy_model = model_regressor
         easy_model.fit(neighborhood_data[:, used_features],
                        labels_column, sample_weight=weights)

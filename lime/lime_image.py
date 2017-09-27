@@ -6,8 +6,11 @@ import copy
 import numpy as np
 import sklearn
 import sklearn.preprocessing
+from sklearn.utils import check_random_state
 
 from . import lime_base
+
+from skimage.segmentation import quickshift
 
 
 class ImageExplanation(object):
@@ -36,6 +39,7 @@ class ImageExplanation(object):
             hide_rest: if True, make the non-explanation part of the return
                 image gray
             num_features: number of superpixels to include in explanation
+            min_weight: TODO
 
         Returns:
             (image, mask), where image is a 3d numpy array and mask is a 2d
@@ -84,50 +88,38 @@ class LimeImageExplainer(object):
     explained."""
 
     def __init__(self, kernel_width=.25, verbose=False,
-                 feature_selection='auto'):
+                 feature_selection='auto', random_state=None):
         """Init function.
 
         Args:
-            training_data: numpy 2d array
-            training_labels: labels for training data. Not required, but may be
-                used by discretizer.
-            feature_names: list of names (strings) corresponding to the columns
-                in the training data.
-            categorical_features: list of indices (ints) corresponding to the
-                categorical columns. Everything else will be considered
-                continuous. Values in these columns MUST be integers.
-            categorical_names: map from int to list of names, where
-                categorical_names[x][y] represents the name of the yth value of
-                column x.
             kernel_width: kernel width for the exponential kernel.
             If None, defaults to sqrt(number of columns) * 0.75
             verbose: if true, print local prediction values from linear model
-            class_names: list of class names, ordered according to whatever the
-                classifier is using. If not present, class names will be '0',
-                '1', ...
             feature_selection: feature selection method. can be
                 'forward_selection', 'lasso_path', 'none' or 'auto'.
                 See function 'explain_instance_with_data' in lime_base.py for
                 details on what each of the options does.
-            discretize_continuous: if True, all non-categorical features will
-                be discretized into quartiles.
-            discretizer: only matters if discretize_continuous is True. Options
-                are 'quartile', 'decile' or 'entropy'
+            random_state: an integer or numpy.RandomState that will be used to
+                generate random numbers. If None, the random state will be
+                initialized using the internal numpy seed.
         """
         kernel_width = float(kernel_width)
 
         def kernel(d):
             return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
 
+        self.random_state = check_random_state(random_state)
         self.feature_selection = feature_selection
-        self.base = lime_base.LimeBase(kernel, verbose)
+        self.base = lime_base.LimeBase(kernel, verbose, random_state=self.random_state)
 
     def explain_instance(self, image, classifier_fn, labels=(1,),
                          hide_color=None,
                          top_labels=5, num_features=100000, num_samples=1000,
                          batch_size=10,
                          qs_kernel_size=4,
-                         distance_metric='cosine', model_regressor=None):
+                         distance_metric='cosine',
+                         model_regressor=None,
+                         random_seed=None):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features
@@ -136,30 +128,37 @@ class LimeImageExplainer(object):
         in an interpretable way (see lime_base.py).
 
         Args:
-            data_row: 1d numpy array, corresponding to a row
+            image: TODO
             classifier_fn: classifier prediction probability function, which
                 takes a numpy array and outputs prediction probabilities.  For
                 ScikitClassifiers , this is classifier.predict_proba.
             labels: iterable with labels to be explained.
+            hide_color: TODO
             top_labels: if not None, ignore labels and produce explanations for
                 the K labels with highest prediction probabilities, where K is
                 this parameter.
             num_features: maximum number of features present in explanation
             num_samples: size of the neighborhood to learn the linear model
+            batch_size: TODO
             distance_metric: the distance metric to use for weights.
             model_regressor: sklearn regressor to use in explanation. Defaults
             to Ridge regression in LimeBase. Must have model_regressor.coef_
             and 'sample_weight' as a parameter to model_regressor.fit()
-            qs_kernel_size: the size of the kernal to use for the quickshift
+            qs_kernel_size: the size of the kernel to use for the quickshift
                 segmentation
+            random_seed: integer used as random seed for the segmentation
+                algorithm. If None, a random integer, between 0 and 1000,
+                will be generated using the internal random number generator.
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
-        from skimage.segmentation import quickshift
+        if random_seed is None:
+            random_seed = self.random_state.randint(0, high=1000)
+
         segments = quickshift(image, kernel_size=qs_kernel_size,
-                              max_dist=200, ratio=0.2)
+                              max_dist=200, ratio=0.2, random_seed=random_seed)
         fudged_image = image.copy()
         if hide_color is None:
             for x in np.unique(segments):
@@ -221,7 +220,7 @@ class LimeImageExplainer(object):
                 labels: prediction probabilities matrix
         """
         n_features = np.unique(segments).shape[0]
-        data = np.random.randint(0, 2, num_samples * n_features).reshape(
+        data = self.random_state.randint(0, 2, num_samples * n_features).reshape(
                 (num_samples, n_features))
         labels = []
         data[0, :] = 1
