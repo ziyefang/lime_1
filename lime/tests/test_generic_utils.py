@@ -1,6 +1,8 @@
-from lime.utils.generic_utils import has_arg
 import unittest
 import sys
+sys.path.append('/home/florentp/dev/github_projects/lime')
+from lime.utils.generic_utils import has_arg
+
 
 
 class TestGenericUtils(unittest.TestCase):
@@ -18,8 +20,8 @@ class TestGenericUtils(unittest.TestCase):
 			def __init__(self, word):
 				self.message = word
 
-			def __call__(self):
-				return self.message
+			def __call__(self, message):
+				return message
 
 			def positional_argument_call(self, arg1):
 				return self.message
@@ -46,14 +48,20 @@ class TestGenericUtils(unittest.TestCase):
 				return a
 
 		foo_callable = FooCallable('OK')
-		self.assertTrue(has_arg(foo_callable, 'word'))
+		self.assertTrue(has_arg(foo_callable, 'message'))
 
-		with self.assertRaises(TypeError):
+		if sys.version_info < (3,):
 			foo_not_callable = FooNotCallable('KO')
-			has_arg(foo_not_callable, 'word')
+			self.assertFalse(has_arg(foo_not_callable, 'message'))
+		elif sys.version_info < (3, 6):
+			with self.assertRaises(TypeError):
+				foo_not_callable = FooNotCallable('KO')
+				has_arg(foo_not_callable, 'message')
+
+
 
 		# Python 2, argument in / not in valid arguments / keyword arguments
-		if sys.version_info < (3):
+		if sys.version_info < (3,):
 			self.assertFalse(has_arg(foo_callable, 'invalid_arg'))
 			self.assertTrue(has_arg(foo_callable.positional_argument_call, 'arg1'))
 			self.assertFalse(has_arg(foo_callable.multiple_positional_arguments_call, 'argX'))
@@ -63,7 +71,7 @@ class TestGenericUtils(unittest.TestCase):
 			self.assertFalse(has_arg(foo_callable.multiple_keyword_arguments_call, 'arg3'))
 			self.assertFalse(has_arg(foo_callable.undefined_keyword_arguments_call, 'argX'))
 		# Python 3, argument in / not in valid arguments / keyword arguments
-		if sys.version_info < (3, 6):
+		elif sys.version_info < (3, 6):
 			self.assertFalse(has_arg(foo_callable, 'invalid_arg'))
 			self.assertTrue(has_arg(foo_callable.positional_argument_call, 'arg1'))
 			self.assertFalse(has_arg(foo_callable.multiple_positional_arguments_call, 'argX'))
@@ -83,3 +91,6 @@ class TestGenericUtils(unittest.TestCase):
 			self.assertFalse(has_arg(foo_callable.undefined_keyword_arguments_call, 'argX'))
 		# argname is None
 		self.assertFalse(has_arg(foo_callable, None))
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,5 +1,6 @@
 import sys
 import inspect
+import types
 
 
 def has_arg(fn, arg_name):
@@ -13,7 +14,13 @@ def has_arg(fn, arg_name):
         bool, whether `fn` accepts a `arg_name` keyword argument.
     """
     if sys.version_info < (3,):
-        arg_spec = inspect.getargspec(fn)
+        if isinstance(fn,types.FunctionType) or isinstance(fn,types.MethodType) :
+            arg_spec = inspect.getargspec(fn)
+        else:
+            try:
+                arg_spec = inspect.getargspec(fn.__call__)
+            except AttributeError:
+                return False
         return (arg_name in arg_spec.args)
     elif sys.version_info < (3, 6):
         arg_spec = inspect.getfullargspec(fn)
