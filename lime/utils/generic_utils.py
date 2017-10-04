@@ -15,12 +15,16 @@ def has_arg(fn, arg_name):
     if sys.version_info < (3,):
         arg_spec = inspect.getargspec(fn)
         return (arg_name in arg_spec.args)
-    elif sys.version_info < (3, 3):
+    elif sys.version_info < (3, 6):
         arg_spec = inspect.getfullargspec(fn)
         return (arg_name in arg_spec.args or
                 arg_name in arg_spec.kwonlyargs)
     else:
-        signature = inspect.signature(fn)
+        try:
+            signature = inspect.signature(fn)
+        except ValueError:
+            # handling Cython
+            signature = inspect.signature(fn.__call__)
         parameter = signature.parameters.get(arg_name)
         if parameter is None:
             return False

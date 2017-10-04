@@ -8,6 +8,7 @@ import sklearn
 import sklearn.preprocessing
 
 from . import lime_base
+from .wrappers.scikit_image import SegmentationAlgorithm
 
 
 class ImageExplanation(object):
