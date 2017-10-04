@@ -63,7 +63,7 @@ class TextDomainMapper(explanation.DomainMapper):
         if not text:
             return u''
         text = (self.indexed_string.raw_string()
-                .encode('ascii', 'xmlcharrefreplace').decode())
+                .encode('utf-8', 'xmlcharrefreplace').decode())
         text = re.sub(r'[<>&]', '|', text)
         exp = [(self.indexed_string.word(x[0]),
                 self.indexed_string.string_position(x[0]),
@@ -181,6 +181,7 @@ class LimeTextExplainer(object):
                  feature_selection='auto',
                  split_expression=r'\W+',
                  bow=True):
+        print('init LimeTextExplainer')
         """Init function.
 
         Args:

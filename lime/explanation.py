@@ -234,7 +234,7 @@ class Explanation(object):
         """
 
         def jsonize(x):
-            return json.dumps(x)
+            return json.dumps(x, ensure_ascii=False)
 
         if labels is None and self.mode == "classification":
             labels = self.available_labels()
