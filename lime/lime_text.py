@@ -297,7 +297,7 @@ class LimeTextExplainer(object):
                 ScikitClassifier, this is classifier.predict_proba.
             num_samples: size of the neighborhood to learn the linear model
             distance_metric: the distance metric to use for sample weighting,
-                defaults to cosine similarity
+                defaults to cosine similarity.
 
 
         Returns:
