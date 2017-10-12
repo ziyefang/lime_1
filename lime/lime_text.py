@@ -211,7 +211,8 @@ class LimeTextExplainer(object):
         def kernel(d): return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
 
         self.random_state = check_random_state(random_state)
-        self.base = lime_base.LimeBase(kernel, verbose, random_state=self.random_state)
+        self.base = lime_base.LimeBase(kernel, verbose,
+                                       random_state=self.random_state)
         self.class_names = class_names
         self.vocabulary = None
         self.feature_selection = feature_selection
@@ -323,7 +324,8 @@ class LimeTextExplainer(object):
         features_range = range(doc_size)
         inverse_data = [indexed_string.raw_string()]
         for i, size in enumerate(sample, start=1):
-            inactive = self.random_state.choice(features_range, size, replace=False)
+            inactive = self.random_state.choice(features_range, size,
+                                                replace=False)
             data[i, inactive] = 0
             inverse_data.append(indexed_string.inverse_removing(inactive))
         labels = classifier_fn(inverse_data)

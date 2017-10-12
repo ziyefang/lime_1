@@ -140,6 +140,7 @@ class TestLimeTabular(unittest.TestCase):
                                          num_features=2)
         self.assertIsNotNone(exp)
         keys = [x[0] for x in exp.as_list()]
+        print(keys)
         self.assertEqual(1,
                          sum([1 if 'petal width' in x else 0 for x in keys]),
                          "Petal Width is a major feature")
@@ -159,66 +160,78 @@ class TestLimeTabular(unittest.TestCase):
         instance = np.random.RandomState(10).randint(0, X.shape[0])
         feature_names = ["feature" + str(i) for i in range(20)]
 
-        # -------------------------------------------------------------------------
-        # -------------------------Quartile Discretizer----------------------------
-        # -------------------------------------------------------------------------
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=10)
+        # ----------------------------------------------------------------------
+        # -------------------------Quartile Discretizer-------------------------
+        # ----------------------------------------------------------------------
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=10)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertDictEqual(exp_1.as_map(), exp_2.as_map())
 
-        # -------------------------------------------------------------------------
-        # --------------------------Decile Discretizer-----------------------------
-        # -------------------------------------------------------------------------
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=10)
+        # ----------------------------------------------------------------------
+        # --------------------------Decile Discretizer--------------------------
+        # ----------------------------------------------------------------------
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=10)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertDictEqual(exp_1.as_map(), exp_2.as_map())
 
-        # -------------------------------------------------------------------------
-        # -------------------------Entropy Discretizer-----------------------------
-        # -------------------------------------------------------------------------
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=10)
+        # ----------------------------------------------------------------------
+        # -------------------------Entropy Discretizer--------------------------
+        # ----------------------------------------------------------------------
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=10)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertDictEqual(exp_1.as_map(), exp_2.as_map())
 
@@ -234,243 +247,291 @@ class TestLimeTabular(unittest.TestCase):
         instance = np.random.RandomState(10).randint(0, X.shape[0])
         feature_names = ["feature" + str(i) for i in range(20)]
 
-        # -------------------------------------------------------------------------
-        # -------------------------Quartile Discretizer----------------------------
-        # -------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
+        # -------------------------Quartile Discretizer-------------------------
+        # ----------------------------------------------------------------------
 
-        # ---------------------------------[1]-------------------------------------
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[1]----------------------------------
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[2]-------------------------------------
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[2]----------------------------------
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[3]-------------------------------------
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[3]----------------------------------
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=20)
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=20)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[4]-------------------------------------
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[4]----------------------------------
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = QuartileDiscretizer(X, [], feature_names, y, random_state=20)
+        discretizer = QuartileDiscretizer(X, [], feature_names, y,
+                                          random_state=20)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertFalse(exp_1.as_map() != exp_2.as_map())
 
-        # -------------------------------------------------------------------------
-        # --------------------------Decile Discretizer-----------------------------
-        # -------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
+        # --------------------------Decile Discretizer--------------------------
+        # ----------------------------------------------------------------------
 
-        # ---------------------------------[1]-------------------------------------
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[1]----------------------------------
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[2]-------------------------------------
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[2]----------------------------------
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[3]-------------------------------------
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[3]----------------------------------
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=20)
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=20)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[4]-------------------------------------
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[4]----------------------------------
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = DecileDiscretizer(X, [], feature_names, y, random_state=20)
+        discretizer = DecileDiscretizer(X, [], feature_names, y,
+                                        random_state=20)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertFalse(exp_1.as_map() != exp_2.as_map())
 
-        # -------------------------------------------------------------------------
-        # --------------------------Entropy Discretizer-----------------------------
-        # -------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
+        # --------------------------Entropy Discretizer-------------------------
+        # ----------------------------------------------------------------------
 
-        # ---------------------------------[1]-------------------------------------
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[1]----------------------------------
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[2]-------------------------------------
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[2]----------------------------------
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=10)
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=10)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[3]-------------------------------------
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[3]----------------------------------
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=20)
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=20)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=10)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertTrue(exp_1.as_map() != exp_2.as_map())
 
-        # ---------------------------------[4]-------------------------------------
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=20)
+        # ---------------------------------[4]----------------------------------
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=20)
         explainer_1 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_1 = explainer_1.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
-        discretizer = EntropyDiscretizer(X, [], feature_names, y, random_state=20)
+        discretizer = EntropyDiscretizer(X, [], feature_names, y,
+                                         random_state=20)
         explainer_2 = LimeTabularExplainer(X,
                                            feature_names=feature_names,
                                            discretize_continuous=True,
                                            discretizer=discretizer,
                                            random_state=20)
-        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba, num_samples=500)
+        exp_2 = explainer_2.explain_instance(X[instance], rf.predict_proba,
+                                             num_samples=500)
 
         self.assertFalse(exp_1.as_map() != exp_2.as_map())
 

@@ -101,11 +101,13 @@ class TestLimeText(unittest.TestCase):
             f1_score(newsgroups_test.target, pred, average='weighted')
             c = make_pipeline(vectorizer, nb)
 
-            explainer = LimeTextExplainer(class_names=class_names, random_state=10)
+            explainer = LimeTextExplainer(
+                class_names=class_names, random_state=10)
             exp_1 = explainer.explain_instance(newsgroups_test.data[83],
                                                c.predict_proba, num_features=6)
 
-            explainer = LimeTextExplainer(class_names=class_names, random_state=20)
+            explainer = LimeTextExplainer(
+                class_names=class_names, random_state=20)
             exp_2 = explainer.explain_instance(newsgroups_test.data[83],
                                                c.predict_proba, num_features=6)
 

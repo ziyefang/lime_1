@@ -75,7 +75,8 @@ class LimeBase(object):
         elif method == 'forward_selection':
             return self.forward_selection(data, labels, weights, num_features)
         elif method == 'highest_weights':
-            clf = Ridge(alpha=0, fit_intercept=True, random_state=self.random_state)
+            clf = Ridge(alpha=0, fit_intercept=True,
+                        random_state=self.random_state)
             clf.fit(data, labels, sample_weight=weights)
             feature_weights = sorted(zip(range(data.shape[0]),
                                          clf.coef_ * data[0]),
@@ -156,7 +157,8 @@ class LimeBase(object):
                                                feature_selection)
 
         if model_regressor is None:
-            model_regressor = Ridge(alpha=1, fit_intercept=True, random_state=self.random_state)
+            model_regressor = Ridge(alpha=1, fit_intercept=True,
+                                    random_state=self.random_state)
         easy_model = model_regressor
         easy_model.fit(neighborhood_data[:, used_features],
                        labels_column, sample_weight=weights)

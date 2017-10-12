@@ -17,10 +17,10 @@ class TestDiscretize(TestCase):
         self.y = iris.target
 
     def check_random_state_for_discretizer_class(self, DiscretizerClass):
-        # --------------------------------------------------------------------------------------
-        # ------------------Check if the same random_state produces the same--------------------
-        # --------------------results for different discretizer instances.----------------------
-        # --------------------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
+        # -----------Check if the same random_state produces the same-----------
+        # -------------results for different discretizer instances.-------------
+        # ----------------------------------------------------------------------
         discretizer = DiscretizerClass(self.x, [], self.feature_names, self.y,
                                        random_state=10)
         x_1 = discretizer.undiscretize(discretizer.discretize(self.x))
@@ -41,10 +41,10 @@ class TestDiscretize(TestCase):
 
         self.assertEqual((x_1 == x_2).sum(), x_1.shape[0] * x_1.shape[1])
 
-        # --------------------------------------------------------------------------------------
-        # -----------------Check if two different random_state values produces------------------
-        # ----------------different results for different discretizers instances.---------------
-        # --------------------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
+        # ---------Check if two different random_state values produces----------
+        # -------different results for different discretizers instances.--------
+        # ----------------------------------------------------------------------
         discretizer = DiscretizerClass(self.x, [], self.feature_names, self.y,
                                        random_state=10)
         x_1 = discretizer.undiscretize(discretizer.discretize(self.x))
@@ -74,7 +74,8 @@ class TestDiscretize(TestCase):
 
     def test_feature_names_1(self):
         self.maxDiff = None
-        discretizer = QuartileDiscretizer(self.x, [], self.feature_names, self.y, random_state=10)
+        discretizer = QuartileDiscretizer(self.x, [], self.feature_names,
+                                          self.y, random_state=10)
         self.assertDictEqual(
             {0: ['sepal length (cm) <= 5.10',
                  '5.10 < sepal length (cm) <= 5.80',
@@ -96,7 +97,8 @@ class TestDiscretize(TestCase):
 
     def test_feature_names_2(self):
         self.maxDiff = None
-        discretizer = DecileDiscretizer(self.x, [], self.feature_names, self.y, random_state=10)
+        discretizer = DecileDiscretizer(self.x, [], self.feature_names, self.y,
+                                        random_state=10)
         self.assertDictEqual(
             {0: ['sepal length (cm) <= 4.80',
                  '4.80 < sepal length (cm) <= 5.00',
@@ -140,7 +142,8 @@ class TestDiscretize(TestCase):
 
     def test_feature_names_3(self):
         self.maxDiff = None
-        discretizer = EntropyDiscretizer(self.x, [], self.feature_names, self.y, random_state=10)
+        discretizer = EntropyDiscretizer(self.x, [], self.feature_names,
+                                         self.y, random_state=10)
         self.assertDictEqual(
             {0: ['sepal length (cm) <= 4.85',
                  '4.85 < sepal length (cm) <= 5.45',

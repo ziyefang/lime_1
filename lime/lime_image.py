@@ -220,8 +220,8 @@ class LimeImageExplainer(object):
                 labels: prediction probabilities matrix
         """
         n_features = np.unique(segments).shape[0]
-        data = self.random_state.randint(0, 2, num_samples * n_features).reshape(
-                (num_samples, n_features))
+        data = self.random_state.randint(0, 2, num_samples * n_features)\
+            .reshape((num_samples, n_features))
         labels = []
         data[0, :] = 1
         imgs = []
