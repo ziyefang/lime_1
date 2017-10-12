@@ -269,7 +269,7 @@ class LimeTabularExplainer(object):
         yss = predict_fn(inverse)
 
         # for classification, the model needs to provide a list of tuples - classes
-        # along with prediction proabilities
+        # along with prediction probabilities
         if self.mode == "classification":
             if len(yss.shape) == 1:
                 raise NotImplementedError("LIME does not currently support "
@@ -415,7 +415,7 @@ class LimeTabularExplainer(object):
             values = self.feature_values[column]
             freqs = self.feature_frequencies[column]
             inverse_column = self.random_state.choice(values, size=num_samples,
-                                              replace=True, p=freqs)
+                                                      replace=True, p=freqs)
             binary_column = np.array([1 if x == first_row[column]
                                       else 0 for x in inverse_column])
             binary_column[0] = 1
@@ -536,7 +536,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         Args:
             data_row: 2d numpy array, corresponding to a row
             classifier_fn: classifier prediction probability function, which
-                takes a numpy array and outputs prediction probabilities.  For
+                takes a numpy array and outputs prediction probabilities. For
                 ScikitClassifiers , this is classifier.predict_proba.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
@@ -561,10 +561,10 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Wrap the classifier to reshape input
         classifier_fn = self._make_predict_proba(classifier_fn)
         return super(RecurrentTabularExplainer, self).explain_instance(
-                data_row, classifier_fn,
-                labels=labels,
-                top_labels=top_labels,
-                num_features=num_features,
-                num_samples=num_samples,
-                distance_metric=distance_metric,
-                model_regressor=model_regressor)
+            data_row, classifier_fn,
+            labels=labels,
+            top_labels=top_labels,
+            num_features=num_features,
+            num_samples=num_samples,
+            distance_metric=distance_metric,
+            model_regressor=model_regressor)

@@ -76,10 +76,12 @@ class TestLimeText(unittest.TestCase):
         c = make_pipeline(vectorizer, nb)
 
         explainer = LimeTextExplainer(class_names=class_names, random_state=10)
-        exp_1 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+        exp_1 = explainer.explain_instance(newsgroups_test.data[83],
+                                           c.predict_proba, num_features=6)
 
         explainer = LimeTextExplainer(class_names=class_names, random_state=10)
-        exp_2 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+        exp_2 = explainer.explain_instance(newsgroups_test.data[83],
+                                           c.predict_proba, num_features=6)
 
         self.assertTrue(exp_1.as_map() == exp_2.as_map())
 
@@ -100,12 +102,15 @@ class TestLimeText(unittest.TestCase):
             c = make_pipeline(vectorizer, nb)
 
             explainer = LimeTextExplainer(class_names=class_names, random_state=10)
-            exp_1 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+            exp_1 = explainer.explain_instance(newsgroups_test.data[83],
+                                               c.predict_proba, num_features=6)
 
             explainer = LimeTextExplainer(class_names=class_names, random_state=20)
-            exp_2 = explainer.explain_instance(newsgroups_test.data[83], c.predict_proba, num_features=6)
+            exp_2 = explainer.explain_instance(newsgroups_test.data[83],
+                                               c.predict_proba, num_features=6)
 
             self.assertFalse(exp_1.as_map() == exp_2.as_map())
+
 
 if __name__ == '__main__':
     unittest.main()

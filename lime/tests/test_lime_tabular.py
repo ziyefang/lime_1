@@ -474,5 +474,6 @@ class TestLimeTabular(unittest.TestCase):
 
         self.assertFalse(exp_1.as_map() != exp_2.as_map())
 
+
 if __name__ == '__main__':
     unittest.main()
