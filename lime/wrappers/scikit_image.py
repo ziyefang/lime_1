@@ -2,7 +2,6 @@ import types
 from lime.utils.generic_utils import has_arg
 from skimage.segmentation import felzenszwalb, slic, quickshift
 
-
 class BaseWrapper(object):
 	"""Base class for LIME Scikit-Image wrapper
 
@@ -19,35 +18,50 @@ class BaseWrapper(object):
 		self.target_fn = target_fn
 		self.target_params = target_params
 
-	def check_params(self, parameters):
-		"""Checks for mistakes in 'parameters'
+        self.target_fn = target_fn
+        self.target_params = target_params
 
-		Args :
-			parameters: dict, parameters to be checked
+    def check_params(self, parameters):
+        """Checks for mistakes in 'parameters'
 
-		Raises :
-			ValueError: if any parameter is not a valid argument for the target function
-		"""
+        Args :
+            parameters: dict, parameters to be checked
 
-		a_valid_fn = []
-		if self.target_fn is None:
-			a_valid_fn.append(self.__call__)
-		elif (not isinstance(self.target_fn, types.FunctionType) and not isinstance(self.target_fn, types.MethodType)):
-			a_valid_fn.append(self.target_fn.__call__)
-		else:
-			a_valid_fn.append(self.target_fn)
+        Raises :
+            ValueError: if any parameter is not a valid argument for the target function
+                        or the target function is not defined
+            TypeError: if argument parameters is not iterable
+            
+        """
+        a_valid_fn = []
+        if self.target_fn is None:
+            if callable(self):
+                a_valid_fn.append(self.__call__)
+            else:
+                raise TypeError('invalid argument: tested object is not callable, please provide a valid target_fn')
+        elif isinstance(self.target_fn, types.FunctionType) or isinstance(self.target_fn, types.MethodType):
+            a_valid_fn.append(self.target_fn)
+        else:
+            a_valid_fn.append(self.target_fn.__call__)
 
-		for p in parameters:
-			for fn in a_valid_fn:
-				if has_arg(fn, p):
-					pass
-				else:
-					raise ValueError('{} is not a valid parameter'.format(p))
+
+        if not isinstance(parameters, str):
+            for p in parameters:
+                for fn in a_valid_fn:
+                    if has_arg(fn, p):
+                        pass
+                    else:
+                        raise ValueError('{} is not a valid parameter'.format(p))
+        else:
+            raise TypeError('invalid argumebnt: list or dictionnary expected')
 
 	def set_params(self, **params):
 		"""Sets the parameters of this estimator.
 		Args:
 			**params: Dictionary of parameter names mapped to their values.
+            
+        Raises :
+            ValueError: if any parameter is not a valid argument for the target function
 		"""
 		self.check_params(params)
 		self.target_params = params
