@@ -1,6 +1,5 @@
 import unittest
 import sys
-sys.path.append('/home/florentp/dev/github_projects/lime')
 from lime.utils.generic_utils import has_arg
 
 
