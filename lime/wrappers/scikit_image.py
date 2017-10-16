@@ -2,6 +2,7 @@ import types
 from lime.utils.generic_utils import has_arg
 from skimage.segmentation import felzenszwalb, slic, quickshift
 
+
 class BaseWrapper(object):
 	"""Base class for LIME Scikit-Image wrapper
 
@@ -57,7 +58,7 @@ class BaseWrapper(object):
 		"""Sets the parameters of this estimator.
 		Args:
 			**params: Dictionary of parameter names mapped to their values.
-            
+
         Raises :
             ValueError: if any parameter is not a valid argument for the target function
 		"""
