@@ -88,5 +88,6 @@ class TestGenericUtils(unittest.TestCase):
         # argname is None
         self.assertFalse(has_arg(foo_callable, None))
 
+
 if __name__ == '__main__':
     unittest.main()
