@@ -9,10 +9,12 @@ import warnings
 import numpy as np
 import sklearn
 import sklearn.preprocessing
+from sklearn.utils import check_random_state
 
 from lime.discretize import QuartileDiscretizer
 from lime.discretize import DecileDiscretizer
 from lime.discretize import EntropyDiscretizer
+from lime.discretize import BaseDiscretizer
 from . import explanation
 from . import lime_base
 
@@ -106,7 +108,8 @@ class LimeTabularExplainer(object):
                  class_names=None,
                  feature_selection='auto',
                  discretize_continuous=True,
-                 discretizer='quartile'):
+                 discretizer='quartile',
+                 random_state=None):
         """Init function.
 
         Args:
@@ -135,8 +138,13 @@ class LimeTabularExplainer(object):
             discretize_continuous: if True, all non-categorical features will
                 be discretized into quartiles.
             discretizer: only matters if discretize_continuous is True. Options
-                are 'quartile', 'decile' or 'entropy'
+                are 'quartile', 'decile', 'entropy' or a BaseDiscretizer
+                instance.
+            random_state: an integer or numpy.RandomState that will be used to
+                generate random numbers. If None, the random state will be
+                initialized using the internal numpy seed.
         """
+        self.random_state = check_random_state(random_state)
         self.mode = mode
         self.feature_names = list(feature_names)
         self.categorical_names = categorical_names
@@ -162,9 +170,12 @@ class LimeTabularExplainer(object):
                 self.discretizer = EntropyDiscretizer(
                         training_data, self.categorical_features,
                         self.feature_names, labels=training_labels)
+            elif isinstance(discretizer, BaseDiscretizer):
+                self.discretizer = discretizer
             else:
                 raise ValueError('''Discretizer must be 'quartile',''' +
-                                 ''' 'decile' or 'entropy' ''')
+                                 ''' 'decile', 'entropy' or a''' +
+                                 ''' BaseDiscretizer instance''')
             self.categorical_features = range(training_data.shape[1])
             discretized_training_data = self.discretizer.discretize(
                     training_data)
@@ -177,7 +188,7 @@ class LimeTabularExplainer(object):
             return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
 
         self.feature_selection = feature_selection
-        self.base = lime_base.LimeBase(kernel, verbose)
+        self.base = lime_base.LimeBase(kernel, verbose, random_state=self.random_state)
         self.scaler = None
         self.class_names = class_names
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
@@ -258,7 +269,7 @@ class LimeTabularExplainer(object):
         yss = predict_fn(inverse)
 
         # for classification, the model needs to provide a list of tuples - classes
-        # along with prediction proabilities
+        # along with prediction probabilities
         if self.mode == "classification":
             if len(yss.shape) == 1:
                 raise NotImplementedError("LIME does not currently support "
@@ -390,7 +401,7 @@ class LimeTabularExplainer(object):
         data = np.zeros((num_samples, data_row.shape[0]))
         categorical_features = range(data_row.shape[0])
         if self.discretizer is None:
-            data = np.random.normal(
+            data = self.random_state.normal(
                     0, 1, num_samples * data_row.shape[0]).reshape(
                     num_samples, data_row.shape[0])
             data = data * self.scaler.scale_ + self.scaler.mean_
@@ -403,8 +414,8 @@ class LimeTabularExplainer(object):
         for column in categorical_features:
             values = self.feature_values[column]
             freqs = self.feature_frequencies[column]
-            inverse_column = np.random.choice(values, size=num_samples,
-                                              replace=True, p=freqs)
+            inverse_column = self.random_state.choice(values, size=num_samples,
+                                                      replace=True, p=freqs)
             binary_column = np.array([1 if x == first_row[column]
                                       else 0 for x in inverse_column])
             binary_column[0] = 1
@@ -436,7 +447,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
                  categorical_features=None, categorical_names=None,
                  kernel_width=None, verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True,
-                 discretizer='quartile'):
+                 discretizer='quartile', random_state=None):
         """
         Args:
             training_data: numpy 3d array with shape
@@ -464,7 +475,11 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
             discretize_continuous: if True, all non-categorical features will
                 be discretized into quartiles.
             discretizer: only matters if discretize_continuous is True. Options
-                are 'quartile', 'decile' or 'entropy'
+                are 'quartile', 'decile', 'entropy' or a BaseDiscretizer
+                instance.
+            random_state: an integer or numpy.RandomState that will be used to
+                generate random numbers. If None, the random state will be
+                initialized using the internal numpy seed.
         """
 
         # Reshape X
@@ -489,7 +504,8 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
                 class_names=class_names,
                 feature_selection=feature_selection,
                 discretize_continuous=discretize_continuous,
-                discretizer=discretizer)
+                discretizer=discretizer,
+                random_state=random_state)
 
     def _make_predict_proba(self, func):
         """
@@ -520,7 +536,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         Args:
             data_row: 2d numpy array, corresponding to a row
             classifier_fn: classifier prediction probability function, which
-                takes a numpy array and outputs prediction probabilities.  For
+                takes a numpy array and outputs prediction probabilities. For
                 ScikitClassifiers , this is classifier.predict_proba.
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
@@ -545,10 +561,10 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Wrap the classifier to reshape input
         classifier_fn = self._make_predict_proba(classifier_fn)
         return super(RecurrentTabularExplainer, self).explain_instance(
-                data_row, classifier_fn,
-                labels=labels,
-                top_labels=top_labels,
-                num_features=num_features,
-                num_samples=num_samples,
-                distance_metric=distance_metric,
-                model_regressor=model_regressor)
+            data_row, classifier_fn,
+            labels=labels,
+            top_labels=top_labels,
+            num_features=num_features,
+            num_samples=num_samples,
+            distance_metric=distance_metric,
+            model_regressor=model_regressor)
