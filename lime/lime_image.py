@@ -158,7 +158,8 @@ class LimeImageExplainer(object):
 
         if segmentation_fn is None:
             segmentation_fn = SegmentationAlgorithm('quickshift', kernel_size=4,
-                                                    max_dist=200, ratio=0.2, random_seed=random_seed)
+                                                    max_dist=200, ratio=0.2,
+                                                    random_seed=random_seed)
         try:
             segments = segmentation_fn(image)
         except ValueError as e:
