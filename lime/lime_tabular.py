@@ -82,7 +82,6 @@ class TableDomainMapper(explanation.DomainMapper):
         ret = u'''
             %s.show_raw_tabular(%s, %d, %s);
         ''' % (exp_object_name, json.dumps(out_list, ensure_ascii=False), label, div_name)
-        print('hi')
         return ret
 
 
