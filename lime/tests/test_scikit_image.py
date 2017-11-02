@@ -83,7 +83,7 @@ class TestBaseWrapper(unittest.TestCase):
         try:
             obj = BaseWrapper(Pipo())
             obj.set_params(invalid='KO')
-        except:
+        except Exception:
             self.assertEqual(obj.target_params, {})
 
     def test_filter_params(self):
