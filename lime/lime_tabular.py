@@ -242,7 +242,8 @@ class LimeTabularExplainer(object):
                 returns the predictions. For ScikitClassifiers, this is
                 `classifier.predict_proba()`. For ScikitRegressors, this
                 is `regressor.predict()`. The prediction function needs to work
-                on multiple feature vectors (the vectors randomly perturbed from the data_row). 
+                on multiple feature vectors (the vectors randomly perturbed 
+                from the data_row). 
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
                 the K labels with highest prediction probabilities, where K is
