@@ -241,7 +241,8 @@ class LimeTabularExplainer(object):
                 probabilities. For regressors, this takes a numpy array and
                 returns the predictions. For ScikitClassifiers, this is
                 `classifier.predict_proba()`. For ScikitRegressors, this
-                is `regressor.predict()`.
+                is `regressor.predict()`. The prediction function needs to work
+                on multiple feature vectors (the vectors randomly perturbed from the data_row). 
             labels: iterable with labels to be explained.
             top_labels: if not None, ignore labels and produce explanations for
                 the K labels with highest prediction probabilities, where K is
@@ -295,7 +296,6 @@ class LimeTabularExplainer(object):
 
         # for regression, the output should be a one-dimensional array of predictions
         else:
-            yss = predict_fn(inverse)
             try:
                 assert isinstance(yss, np.ndarray) and len(yss.shape) == 1
             except AssertionError:
