@@ -12,7 +12,7 @@ setup(name='lime',
           'numpy',
           'scipy',
           'scikit-learn>=0.18',
-          'scikit-image'
+          'scikit-image>=0.12'
       ],
       include_package_data=True,
       zip_safe=False)

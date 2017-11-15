@@ -9,8 +9,7 @@ import sklearn.preprocessing
 from sklearn.utils import check_random_state
 
 from . import lime_base
-
-from skimage.segmentation import quickshift
+from .wrappers.scikit_image import SegmentationAlgorithm
 
 
 class ImageExplanation(object):
@@ -116,7 +115,7 @@ class LimeImageExplainer(object):
                          hide_color=None,
                          top_labels=5, num_features=100000, num_samples=1000,
                          batch_size=10,
-                         qs_kernel_size=4,
+                         segmentation_fn=None,
                          distance_metric='cosine',
                          model_regressor=None,
                          random_seed=None):
@@ -144,8 +143,8 @@ class LimeImageExplainer(object):
             model_regressor: sklearn regressor to use in explanation. Defaults
             to Ridge regression in LimeBase. Must have model_regressor.coef_
             and 'sample_weight' as a parameter to model_regressor.fit()
-            qs_kernel_size: the size of the kernel to use for the quickshift
-                segmentation
+            segmentation_fn: SegmentationAlgorithm, wrapped skimage
+            segmentation function
             random_seed: integer used as random seed for the segmentation
                 algorithm. If None, a random integer, between 0 and 1000,
                 will be generated using the internal random number generator.
@@ -157,8 +156,15 @@ class LimeImageExplainer(object):
         if random_seed is None:
             random_seed = self.random_state.randint(0, high=1000)
 
-        segments = quickshift(image, kernel_size=qs_kernel_size,
-                              max_dist=200, ratio=0.2, random_seed=random_seed)
+        if segmentation_fn is None:
+            segmentation_fn = SegmentationAlgorithm('quickshift', kernel_size=4,
+                                                    max_dist=200, ratio=0.2,
+                                                    random_seed=random_seed)
+        try:
+            segments = segmentation_fn(image)
+        except ValueError as e:
+            raise e
+
         fudged_image = image.copy()
         if hide_color is None:
             for x in np.unique(segments):
