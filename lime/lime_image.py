@@ -7,6 +7,7 @@ import numpy as np
 import sklearn
 import sklearn.preprocessing
 from sklearn.utils import check_random_state
+from skimage.color import gray2rgb
 
 from . import lime_base
 from .wrappers.scikit_image import SegmentationAlgorithm
@@ -127,7 +128,8 @@ class LimeImageExplainer(object):
         in an interpretable way (see lime_base.py).
 
         Args:
-            image: TODO
+            image: 3 dimension RGB image. If this is only two dimensional,
+                we will assume it's a grayscale image and call gray2rgb.
             classifier_fn: classifier prediction probability function, which
                 takes a numpy array and outputs prediction probabilities.  For
                 ScikitClassifiers , this is classifier.predict_proba.
@@ -153,6 +155,8 @@ class LimeImageExplainer(object):
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
         if random_seed is None:
             random_seed = self.random_state.randint(0, high=1000)
 
