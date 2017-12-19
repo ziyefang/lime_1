@@ -5,6 +5,7 @@ import sklearn # noqa
 import sklearn.datasets
 import sklearn.ensemble
 import sklearn.linear_model # noqa
+from numpy.testing import assert_array_equal
 from sklearn.datasets import load_iris, make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
@@ -554,6 +555,27 @@ class TestLimeTabular(unittest.TestCase):
             discretize_continuous=False
         )
         self.assertEqual(explainer.categorical_features, [0])
+        
+    def testFeatureValues(self):
+        training_data = np.array([
+            [0, 0, 2],
+            [1, 1, 0],
+            [0, 2, 2],
+            [1, 3, 0]
+        ])
+
+        explainer = LimeTabularExplainer(
+            training_data=training_data,
+            categorical_features=[0, 1, 2]
+        )
+
+        self.assertEqual(set(explainer.feature_values[0]), {0, 1})
+        self.assertEqual(set(explainer.feature_values[1]), {0, 1, 2, 3})
+        self.assertEqual(set(explainer.feature_values[2]), {0, 2})
+
+        assert_array_equal(explainer.feature_frequencies[0], np.array([.5, .5]))
+        assert_array_equal(explainer.feature_frequencies[1], np.array([.25, .25, .25, .25]))
+        assert_array_equal(explainer.feature_frequencies[2], np.array([.5, .5]))
 
 
 if __name__ == '__main__':
