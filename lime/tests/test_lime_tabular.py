@@ -535,6 +535,11 @@ class TestLimeTabular(unittest.TestCase):
 
         self.assertFalse(exp_1.as_map() != exp_2.as_map())
 
+    def testFeatureNames(self):
+        explainer = LimeTabularExplainer(training_data=np.array([[0., 1.], [1., 0.]]))
+
+        self.assertEqual(explainer.feature_names, ['0', '1'])
+
 
 if __name__ == '__main__':
     unittest.main()
