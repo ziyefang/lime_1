@@ -275,7 +275,7 @@ class LimeTextExplainer(object):
         for label in labels:
             (ret_exp.intercept[label],
              ret_exp.local_exp[label],
-             ret_exp.score) = self.base.explain_instance_with_data(
+             ret_exp.score, ret_exp.local_pred) = self.base.explain_instance_with_data(
                 data, yss, distances, label, num_features,
                 model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
