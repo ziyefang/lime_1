@@ -277,7 +277,7 @@ class Explanation(object):
                                         .classed('lime predicted_value', true);
                     var pp_svg = pp_div.append('svg').style('width', '100%%');
                     var pp = new lime.PredictedValue(pp_svg, %s, %s, %s);
-                    ''' % (jsonize(self.predicted_value),
+                    ''' % (jsonize(float(self.predicted_value)),
                            jsonize(float(self.min_value)),
                            jsonize(float(self.max_value)))
 
