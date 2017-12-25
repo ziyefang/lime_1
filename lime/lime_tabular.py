@@ -147,11 +147,14 @@ class LimeTabularExplainer(object):
         self.random_state = check_random_state(random_state)
         self.mode = mode
         self.categorical_names = categorical_names or {}
-        self.categorical_features = [] if categorical_features is None else list(categorical_features)
+
+        if categorical_features is None:
+            categorical_features = []
         if feature_names is None:
-            self.feature_names = [str(i) for i in range(training_data.shape[1])]
-        else:
-            self.feature_names = list(feature_names)
+            feature_names = [str(i) for i in range(training_data.shape[1])]
+
+        self.categorical_features = list(categorical_features)
+        self.feature_names = list(feature_names)
 
         self.discretizer = None
         if discretize_continuous:

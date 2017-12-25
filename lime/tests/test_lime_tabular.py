@@ -537,21 +537,24 @@ class TestLimeTabular(unittest.TestCase):
 
     def testFeatureNamesAndCategoricalFeats(self):
         training_data = np.array([[0., 1.], [1., 0.]])
-        
+
         explainer = LimeTabularExplainer(training_data=training_data)
         self.assertEqual(explainer.feature_names, ['0', '1'])
         self.assertEqual(explainer.categorical_features, [0, 1])
-        
-        explainer = LimeTabularExplainer(training_data=training_data, feature_names=np.array(['one', 'two']))
+
+        explainer = LimeTabularExplainer(
+            training_data=training_data,
+            feature_names=np.array(['one', 'two'])
+        )
         self.assertEqual(explainer.feature_names, ['one', 'two'])
-        
+
         explainer = LimeTabularExplainer(
             training_data=training_data,
             categorical_features=np.array([0]),
             discretize_continuous=False
         )
         self.assertEqual(explainer.categorical_features, [0])
-        
+
 
 if __name__ == '__main__':
     unittest.main()
