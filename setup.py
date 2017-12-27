@@ -1,13 +1,14 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='lime',
-      version='0.1.1.27',
+      version='0.1.1.28',
       description='Local Interpretable Model-Agnostic Explanations for machine learning classifiers',
       url='http://github.com/marcotcr/lime',
       author='Marco Tulio Ribeiro',
       author_email='marcotcr@gmail.com',
       license='BSD',
-      packages=['lime'],
+      packages=find_packages('lime', exclude=['js', 'node_modules', 'tests']),
+      package_dir={'': 'lime'},
       install_requires=[
           'numpy',
           'scipy',
