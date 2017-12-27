@@ -147,8 +147,14 @@ class LimeTabularExplainer(object):
         self.random_state = check_random_state(random_state)
         self.mode = mode
         self.categorical_names = categorical_names or {}
-        self.categorical_features = categorical_features or []
-        self.feature_names = feature_names or [str(i) for i in range(training_data.shape[1])]
+
+        if categorical_features is None:
+            categorical_features = []
+        if feature_names is None:
+            feature_names = [str(i) for i in range(training_data.shape[1])]
+
+        self.categorical_features = list(categorical_features)
+        self.feature_names = list(feature_names)
 
         self.discretizer = None
         if discretize_continuous:
@@ -170,7 +176,7 @@ class LimeTabularExplainer(object):
                 raise ValueError('''Discretizer must be 'quartile',''' +
                                  ''' 'decile', 'entropy' or a''' +
                                  ''' BaseDiscretizer instance''')
-            self.categorical_features = range(training_data.shape[1])
+            self.categorical_features = list(range(training_data.shape[1]))
             discretized_training_data = self.discretizer.discretize(
                     training_data)
 
