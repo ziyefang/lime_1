@@ -25,6 +25,7 @@ class ImageExplanation(object):
         self.segments = segments
         self.intercept = {}
         self.local_exp = {}
+        self.local_pred = None
 
     def get_image_and_mask(self, label, positive_only=True, hide_rest=False,
                            num_features=5, min_weight=0.):
@@ -199,7 +200,7 @@ class LimeImageExplainer(object):
         for label in top:
             (ret_exp.intercept[label],
              ret_exp.local_exp[label],
-             ret_exp.score) = self.base.explain_instance_with_data(
+             ret_exp.score, ret_exp.local_pred) = self.base.explain_instance_with_data(
                 data, labels, distances, label, num_features,
                 model_regressor=model_regressor,
                 feature_selection=self.feature_selection)
