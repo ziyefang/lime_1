@@ -555,7 +555,7 @@ class TestLimeTabular(unittest.TestCase):
             discretize_continuous=False
         )
         self.assertEqual(explainer.categorical_features, [0])
-        
+
     def testFeatureValues(self):
         training_data = np.array([
             [0, 0, 2],
