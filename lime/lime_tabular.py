@@ -207,7 +207,7 @@ class LimeTabularExplainer(object):
 
             self.feature_values[feature] = values
             self.feature_frequencies[feature] = (np.array(frequencies) /
-                                                 sum(frequencies))
+                                                 float(sum(frequencies)))
             self.scaler.mean_[feature] = 0
             self.scaler.scale_[feature] = 1
 
