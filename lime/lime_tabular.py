@@ -197,20 +197,17 @@ class LimeTabularExplainer(object):
         self.feature_frequencies = {}
 
         for feature in self.categorical_features:
-            feature_count = collections.defaultdict(lambda: 0.0)
-            column = training_data[:, feature]
             if self.discretizer is not None:
                 column = discretized_training_data[:, feature]
-                feature_count[0] = 0.
-                feature_count[1] = 0.
-                feature_count[2] = 0.
-                feature_count[3] = 0.
-            for value in column:
-                feature_count[value] += 1
+            else:
+                column = training_data[:, feature]
+
+            feature_count = collections.Counter(column)
             values, frequencies = map(list, zip(*(feature_count.items())))
+
             self.feature_values[feature] = values
             self.feature_frequencies[feature] = (np.array(frequencies) /
-                                                 sum(frequencies))
+                                                 float(sum(frequencies)))
             self.scaler.mean_[feature] = 0
             self.scaler.scale_[feature] = 1
 
