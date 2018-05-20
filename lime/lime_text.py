@@ -170,6 +170,91 @@ class IndexedString(object):
             return self.positions[words]
 
 
+class IndexedCharacters(object):
+    """String with various indexes."""
+
+    def __init__(self, raw_string, bow=True):
+        """Initializer.
+
+        Args:
+            raw_string: string with raw text in it
+            bow: if True, a char is the same everywhere in the text - i.e. we
+                 will index multiple occurrences of the same character. If False,
+                 order matters, so that the same word will have different ids
+                 according to position.
+        """
+        self.raw = raw_string
+        self.as_list = list(self.raw)
+        self.as_np = np.array(self.as_list)
+        self.string_start = np.arange(len(self.raw))
+        vocab = {}
+        self.inverse_vocab = []
+        self.positions = []
+        self.bow = bow
+        non_vocab = set()
+        for i, char in enumerate(self.as_np):
+            if char in non_vocab:
+                continue
+            if bow:
+                if char not in vocab:
+                    vocab[char] = len(vocab)
+                    self.inverse_vocab.append(char)
+                    self.positions.append([])
+                idx_char = vocab[char]
+                self.positions[idx_char].append(i)
+            else:
+                self.inverse_vocab.append(char)
+                self.positions.append(i)
+        if not bow:
+            self.positions = np.array(self.positions)
+
+    def raw_string(self):
+        """Returns the original raw string"""
+        return self.raw
+
+    def num_words(self):
+        """Returns the number of tokens in the vocabulary for this document."""
+        return len(self.inverse_vocab)
+
+    def word(self, id_):
+        """Returns the word that corresponds to id_ (int)"""
+        return self.inverse_vocab[id_]
+
+    def string_position(self, id_):
+        """Returns a np array with indices to id_ (int) occurrences"""
+        if self.bow:
+            return self.string_start[self.positions[id_]]
+        else:
+            return self.string_start[[self.positions[id_]]]
+
+    def inverse_removing(self, words_to_remove):
+        """Returns a string after removing the appropriate words.
+
+        If self.bow is false, replaces word with UNKWORDZ instead of removing
+        it.
+
+        Args:
+            words_to_remove: list of ids (ints) to remove
+
+        Returns:
+            original raw string with appropriate words removed.
+        """
+        mask = np.ones(self.as_np.shape[0], dtype='bool')
+        mask[self.__get_idxs(words_to_remove)] = False
+        if not self.bow:
+            return ''.join([self.as_list[i] if mask[i]
+                            else chr(0) for i in range(mask.shape[0])])
+        return ''.join([self.as_list[v] for v in mask.nonzero()[0]])
+
+    def __get_idxs(self, words):
+        """Returns indexes to appropriate words."""
+        if self.bow:
+            return list(itertools.chain.from_iterable(
+                [self.positions[z] for z in words]))
+        else:
+            return self.positions[words]
+
+
 class LimeTextExplainer(object):
     """Explains text classifiers.
        Currently, we are using an exponential kernel on cosine distance, and
@@ -182,7 +267,8 @@ class LimeTextExplainer(object):
                  feature_selection='auto',
                  split_expression=r'\W+',
                  bow=True,
-                 random_state=None):
+                 random_state=None,
+                 char_level=False):
         """Init function.
 
         Args:
@@ -205,6 +291,8 @@ class LimeTextExplainer(object):
             random_state: an integer or numpy.RandomState that will be used to
                 generate random numbers. If None, the random state will be
                 initialized using the internal numpy seed.
+            char_level: an boolean identifying that we treat each character
+                as an independent occurence in the string
         """
 
         # exponential kernel
@@ -218,6 +306,7 @@ class LimeTextExplainer(object):
         self.feature_selection = feature_selection
         self.bow = bow
         self.split_expression = split_expression
+        self.char_level = char_level
 
     def explain_instance(self,
                          text_instance,
@@ -256,8 +345,10 @@ class LimeTextExplainer(object):
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
-        indexed_string = IndexedString(text_instance, bow=self.bow,
-                                       split_expression=self.split_expression)
+
+        indexed_string = IndexedCharacters(
+            text_instance, bow=self.bow) if self.char_level else IndexedString(
+            text_instance, bow=self.bow, split_expression=self.split_expression)
         domain_mapper = TextDomainMapper(indexed_string)
         data, yss, distances = self.__data_labels_distances(
             indexed_string, classifier_fn, num_samples,
