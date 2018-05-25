@@ -109,6 +109,7 @@ class LimeTabularExplainer(object):
                  feature_selection='auto',
                  discretize_continuous=True,
                  discretizer='quartile',
+                 sample_around_instance=False,
                  random_state=None):
         """Init function.
 
@@ -140,6 +141,10 @@ class LimeTabularExplainer(object):
             discretizer: only matters if discretize_continuous is True. Options
                 are 'quartile', 'decile', 'entropy' or a BaseDiscretizer
                 instance.
+            sample_around_instance: if True, will sample continuous features
+                in perturbed samples from a normal centered at the instance
+                being explained. Otherwise, the normal is centered on the mean
+                of the feature data.
             random_state: an integer or numpy.RandomState that will be used to
                 generate random numbers. If None, the random state will be
                 initialized using the internal numpy seed.
@@ -147,6 +152,7 @@ class LimeTabularExplainer(object):
         self.random_state = check_random_state(random_state)
         self.mode = mode
         self.categorical_names = categorical_names or {}
+        self.sample_around_instance = sample_around_instance
 
         if categorical_features is None:
             categorical_features = []
@@ -402,7 +408,10 @@ class LimeTabularExplainer(object):
             data = self.random_state.normal(
                     0, 1, num_samples * data_row.shape[0]).reshape(
                     num_samples, data_row.shape[0])
-            data = data * self.scaler.scale_ + self.scaler.mean_
+            if self.sample_around_instance:
+                data = data * self.scaler.scale_ + data_row
+            else:
+                data = data * self.scaler.scale_ + self.scaler.mean_
             categorical_features = self.categorical_features
             first_row = data_row
         else:
