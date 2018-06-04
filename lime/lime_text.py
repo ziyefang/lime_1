@@ -87,29 +87,30 @@ class IndexedString(object):
 
         Args:
             raw_string: string with raw text in it
-            split_expression: string will be split by this.
+            split_expression: Regex string or callable. If regex string, will be used with re.split.
+                If callable, the function should return a list of tokens.
             bow: if True, a word is the same everywhere in the text - i.e. we
                  will index multiple occurrences of the same word. If False,
                  order matters, so that the same word will have different ids
                  according to position.
         """
         self.raw = raw_string
-        self.as_list = re.split(r'(%s)|$' % split_expression, self.raw)
+
+        if callable(split_expression):
+            self.as_list = split_expression(self.raw)
+        else:
+            # with the split_expression as a non-capturing group (?:), we don't need to filter out
+            # the separator character from the split results.
+            self.as_list = re.split(r'(?:%s)|$' % split_expression, self.raw)
+
         self.as_np = np.array(self.as_list)
-        non_word = re.compile(r'(%s)|$' % split_expression).match
         self.string_start = np.hstack(
             ([0], np.cumsum([len(x) for x in self.as_np[:-1]])))
         vocab = {}
         self.inverse_vocab = []
         self.positions = []
         self.bow = bow
-        non_vocab = set()
         for i, word in enumerate(self.as_np):
-            if word in non_vocab:
-                continue
-            if non_word(word):
-                non_vocab.add(word)
-                continue
             if bow:
                 if word not in vocab:
                     vocab[word] = len(vocab)
@@ -281,7 +282,8 @@ class LimeTextExplainer(object):
                 'forward_selection', 'lasso_path', 'none' or 'auto'.
                 See function 'explain_instance_with_data' in lime_base.py for
                 details on what each of the options does.
-            split_expression: strings will be split by this.
+            split_expression: Regex string or callable. If regex string, will be used with re.split.
+                If callable, the function should return a list of tokens.
             bow: if True (bag of words), will perturb input data by removing
                 all occurrences of individual words.  Explanations will be in
                 terms of these words. Otherwise, will explain in terms of
