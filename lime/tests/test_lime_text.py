@@ -1,3 +1,4 @@
+import re
 import unittest
 
 import sklearn # noqa
@@ -168,6 +169,22 @@ class TestLimeText(unittest.TestCase):
         self.assertTrue(np.array_equal(indexed_string.string_start, start_positions))
         self.assertTrue(indexed_string.inverse_vocab == inverse_vocab)
         self.assertTrue(np.array_equal(indexed_string.positions, positions))
+
+    def test_indexed_string_inverse_removing_tokenizer(self):
+        s = 'This is a good movie. This is a great movie'
+
+        def tokenizer(string):
+            return re.split(r'(?:\W)|$', string)
+
+        indexed_string = IndexedString(s, tokenizer)
+
+        self.assertEqual(s, indexed_string.inverse_removing([]))
+
+    def test_indexed_string_inverse_removing_regex(self):
+        s = 'This is a good movie. This is a great movie'
+        indexed_string = IndexedString(s)
+
+        self.assertEqual(s, indexed_string.inverse_removing([]))
 
 
 if __name__ == '__main__':
