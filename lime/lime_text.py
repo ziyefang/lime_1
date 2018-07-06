@@ -97,11 +97,18 @@ class IndexedString(object):
         self.raw = raw_string
 
         if callable(split_expression):
-            self.as_list = split_expression(self.raw)
+            tokens = split_expression(self.raw)
+            self.as_list = self._segment_with_tokens(self.raw, tokens)
+            tokens = set(tokens)
+
+            def non_word(string):
+                return string not in tokens
+
         else:
             # with the split_expression as a non-capturing group (?:), we don't need to filter out
             # the separator character from the split results.
-            self.as_list = re.split(r'(?:%s)|$' % split_expression, self.raw)
+            self.as_list = re.split(r'(%s)|$' % split_expression, self.raw)
+            non_word = re.compile(r'(%s)|$' % split_expression).match
 
         self.as_np = np.array(self.as_list)
         self.string_start = np.hstack(
@@ -110,7 +117,13 @@ class IndexedString(object):
         self.inverse_vocab = []
         self.positions = []
         self.bow = bow
+        non_vocab = set()
         for i, word in enumerate(self.as_np):
+            if word in non_vocab:
+                continue
+            if non_word(word):
+                non_vocab.add(word)
+                continue
             if bow:
                 if word not in vocab:
                     vocab[word] = len(vocab)
@@ -161,6 +174,26 @@ class IndexedString(object):
             return ''.join([self.as_list[i] if mask[i]
                             else 'UNKWORDZ' for i in range(mask.shape[0])])
         return ''.join([self.as_list[v] for v in mask.nonzero()[0]])
+
+    @staticmethod
+    def _segment_with_tokens(text, tokens):
+        """Segment a string around the tokens created by a passed-in tokenizer"""
+        list_form = []
+        text_ptr = 0
+        for token in tokens:
+            inter_token_string = []
+            while not text[text_ptr:].startswith(token):
+                inter_token_string.append(text[text_ptr])
+                text_ptr += 1
+                if text_ptr >= len(text):
+                    raise ValueError("Tokenization produced tokens that do not belong in string!")
+            text_ptr += len(token)
+            if inter_token_string:
+                list_form.append(''.join(inter_token_string))
+            list_form.append(token)
+        if text_ptr < len(text):
+            list_form.append(text[text_ptr:])
+        return list_form
 
     def __get_idxs(self, words):
         """Returns indexes to appropriate words."""
