@@ -433,14 +433,14 @@ class LimeTabularExplainer(object):
             inverse[1:] = self.discretizer.undiscretize(inverse[1:])
         inverse[0] = data_row
         return data, inverse
-    
+
     def submodular_pick(self,
-                    data,
-                    predict_fn,
-                    method='sample',
-                    sample_size=1000,
-                    num_exps_desired=5,
-                    num_features=10):
+                        data,
+                        predict_fn,
+                        method='sample',
+                        sample_size=1000,
+                        num_exps_desired=5,
+                        num_features=10):
         """Returns a representative sample of explanation objects using SP-LIME
 
         First, a collection of candidate explanations are generated
@@ -518,7 +518,7 @@ class LimeTabularExplainer(object):
                 W[i, features_dict[feature]] = value
 
         # Create the global importance vector, I_j described in the paper
-        I = np.sum(abs(W), axis=0)**.5
+        importance = np.sum(abs(W), axis=0)**.5
 
         # Now run the SP-LIME greedy algorithm
         All = set(range(len(explanations)))
@@ -529,7 +529,7 @@ class LimeTabularExplainer(object):
             current = 0
             for i in All:
                 current = np.dot(
-                        (np.sum(abs(W)[V + [i]], axis=0) > 0), I
+                        (np.sum(abs(W)[V + [i]], axis=0) > 0), importance
                         )  # coverage function
                 if current >= best:
                     best = current
