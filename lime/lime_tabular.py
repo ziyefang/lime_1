@@ -433,6 +433,112 @@ class LimeTabularExplainer(object):
             inverse[1:] = self.discretizer.undiscretize(inverse[1:])
         inverse[0] = data_row
         return data, inverse
+    
+    def submodular_pick(self,
+                    data,
+                    predict_fn,
+                    method='sample',
+                    sample_size=1000,
+                    num_exps_desired=5,
+                    num_features=10):
+    """Returns a representative sample of explanation objects using SP-LIME
+
+    First, a collection of candidate explanations are generated
+    (see explain_instance). From these candidates, num_exps_desired are
+    chosen using submodular pick. (see marcotcr et al paper).
+
+
+    Args:
+        data: a numpy array where each row is a single input into predict_fn
+        predict_fn: prediction function. For classifiers, this should be a
+                function that takes a numpy array and outputs prediction
+                probabilities. For regressors, this takes a numpy array and
+                returns the predictions. For ScikitClassifiers, this is
+                `classifier.predict_proba()`. For ScikitRegressors, this
+                is `regressor.predict()`. The prediction function needs to work
+                on multiple feature vectors (the vectors randomly perturbed
+                from the data_row).
+        method: The method to use to generate candidate explanations
+                method == 'sample' will sample the data uniformly at
+                random. The sample size is given by sample_size. Otherwise
+                if method == 'full' then explanations will be generated for the
+                entire data.
+        sample_size: The number of instances to explain if method == 'sample'
+        num_exps_desired: The number of explanation objects returned.
+        num_features: maximum number of features present in explanation
+
+
+    Returns:
+        SP_explanations: A list of explanation objects that has a high coverage
+          """
+
+    # Parse args
+    if method == 'sample':
+        if sample_size > data.shape[0]:
+            warnings.warn("""Requested sample size larger than
+                          size of input data. Using all data""")
+            sample_size = data.shape[0]
+        all_indices = np.arange(data.shape[0])
+        np.random.shuffle(all_indices)
+        sample_indices = all_indices[:sample_size]
+    elif method == 'full':
+        sample_indices = np.arange(data.shape[0])
+
+    # Generate Explanations
+    explanations = []
+    for i in sample_indices:
+        explanations.append(
+            self.explain_instance(
+                data[i], predict_fn, num_features=num_features))
+    # Error handling
+    try:
+        num_exps_desired = int(num_exps_desired)
+    except TypeError:
+        return("Requested number of explanations should be an integer")
+    if num_exps_desired > len(explanations):
+        warnings.warn("""Requested number of explanations larger than
+                       total number of explanations, returning all
+                       explanations instead.""")
+    num_exps_desired = min(num_exps_desired, len(explanations))
+
+    # Find all the explanation model features used. Defines the dimension d'
+    features_dict = {}
+    feature_iter = 0
+    for exp in explanations:
+        for feature, _ in exp.as_list():
+            if feature not in features_dict.keys():
+                features_dict[feature] = (feature_iter)
+                feature_iter += 1
+    d_prime = len(features_dict.keys())
+
+    # Create the n x d' dimensional 'explanation matrix', W
+    W = np.zeros((len(explanations), d_prime))
+    for i, exp in enumerate(explanations):
+        for feature, value in exp.as_list():
+            W[i, features_dict[feature]] = value
+
+    # Create the global importance vector, I_j described in the paper
+    I = np.sum(abs(W), axis=0)**.5
+
+    # Now run the SP-LIME greedy algorithm
+    All = set(range(len(explanations)))
+    V = []
+    for _ in range(num_exps_desired):
+        best = 0
+        best_ind = None
+        current = 0
+        for i in All:
+            current = np.dot(
+                    (np.sum(abs(W)[V + [i]], axis=0) > 0), I
+                    )  # coverage function
+            if current >= best:
+                best = current
+                best_ind = i
+        V.append(best_ind)
+        All -= {best_ind}
+
+    SP_explanations = [explanations[i] for i in V]
+    return(SP_explanations)
 
 
 class RecurrentTabularExplainer(LimeTabularExplainer):
