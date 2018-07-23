@@ -87,16 +87,30 @@ class IndexedString(object):
 
         Args:
             raw_string: string with raw text in it
-            split_expression: string will be split by this.
+            split_expression: Regex string or callable. If regex string, will be used with re.split.
+                If callable, the function should return a list of tokens.
             bow: if True, a word is the same everywhere in the text - i.e. we
                  will index multiple occurrences of the same word. If False,
                  order matters, so that the same word will have different ids
                  according to position.
         """
         self.raw = raw_string
-        self.as_list = re.split(r'(%s)|$' % split_expression, self.raw)
+
+        if callable(split_expression):
+            tokens = split_expression(self.raw)
+            self.as_list = self._segment_with_tokens(self.raw, tokens)
+            tokens = set(tokens)
+
+            def non_word(string):
+                return string not in tokens
+
+        else:
+            # with the split_expression as a non-capturing group (?:), we don't need to filter out
+            # the separator character from the split results.
+            self.as_list = re.split(r'(%s)|$' % split_expression, self.raw)
+            non_word = re.compile(r'(%s)|$' % split_expression).match
+
         self.as_np = np.array(self.as_list)
-        non_word = re.compile(r'(%s)|$' % split_expression).match
         self.string_start = np.hstack(
             ([0], np.cumsum([len(x) for x in self.as_np[:-1]])))
         vocab = {}
@@ -160,6 +174,26 @@ class IndexedString(object):
             return ''.join([self.as_list[i] if mask[i]
                             else 'UNKWORDZ' for i in range(mask.shape[0])])
         return ''.join([self.as_list[v] for v in mask.nonzero()[0]])
+
+    @staticmethod
+    def _segment_with_tokens(text, tokens):
+        """Segment a string around the tokens created by a passed-in tokenizer"""
+        list_form = []
+        text_ptr = 0
+        for token in tokens:
+            inter_token_string = []
+            while not text[text_ptr:].startswith(token):
+                inter_token_string.append(text[text_ptr])
+                text_ptr += 1
+                if text_ptr >= len(text):
+                    raise ValueError("Tokenization produced tokens that do not belong in string!")
+            text_ptr += len(token)
+            if inter_token_string:
+                list_form.append(''.join(inter_token_string))
+            list_form.append(token)
+        if text_ptr < len(text):
+            list_form.append(text[text_ptr:])
+        return list_form
 
     def __get_idxs(self, words):
         """Returns indexes to appropriate words."""
@@ -281,7 +315,8 @@ class LimeTextExplainer(object):
                 'forward_selection', 'lasso_path', 'none' or 'auto'.
                 See function 'explain_instance_with_data' in lime_base.py for
                 details on what each of the options does.
-            split_expression: strings will be split by this.
+            split_expression: Regex string or callable. If regex string, will be used with re.split.
+                If callable, the function should return a list of tokens.
             bow: if True (bag of words), will perturb input data by removing
                 all occurrences of individual words.  Explanations will be in
                 terms of these words. Otherwise, will explain in terms of

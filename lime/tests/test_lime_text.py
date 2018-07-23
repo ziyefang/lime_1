@@ -1,3 +1,4 @@
+import re
 import unittest
 
 import sklearn # noqa
@@ -11,7 +12,7 @@ from sklearn.pipeline import make_pipeline
 import numpy as np
 
 from lime.lime_text import LimeTextExplainer
-from lime.lime_text import IndexedCharacters
+from lime.lime_text import IndexedCharacters, IndexedString
 
 
 class TestLimeText(unittest.TestCase):
@@ -138,6 +139,53 @@ class TestLimeText(unittest.TestCase):
         self.assertTrue(np.array_equal(ic.string_start, np.arange(len(s))))
         self.assertTrue(ic.inverse_vocab == list(s))
         self.assertTrue(np.array_equal(ic.positions, np.arange(len(s))))
+
+    def test_indexed_string_regex(self):
+        s = 'Please, take your time. Please'
+        tokenized_string = np.array(
+            ['Please', ', ', 'take', ' ', 'your', ' ', 'time', '. ', 'Please'])
+        inverse_vocab = ['Please', 'take', 'your', 'time']
+        start_positions = [0, 6, 8, 12, 13, 17, 18, 22, 24]
+        positions = [[0, 8], [2], [4], [6]]
+        indexed_string = IndexedString(s)
+
+        self.assertTrue(np.array_equal(indexed_string.as_np, tokenized_string))
+        self.assertTrue(np.array_equal(indexed_string.string_start, start_positions))
+        self.assertTrue(indexed_string.inverse_vocab == inverse_vocab)
+        self.assertTrue(np.array_equal(indexed_string.positions, positions))
+
+    def test_indexed_string_callable(self):
+        s = 'aabbccddaa'
+
+        def tokenizer(string):
+            return [string[i] + string[i + 1] for i in range(0, len(string) - 1, 2)]
+
+        tokenized_string = np.array(['aa', 'bb', 'cc', 'dd', 'aa'])
+        inverse_vocab = ['aa', 'bb', 'cc', 'dd']
+        start_positions = [0, 2, 4, 6, 8]
+        positions = [[0, 4], [1], [2], [3]]
+        indexed_string = IndexedString(s, tokenizer)
+
+        self.assertTrue(np.array_equal(indexed_string.as_np, tokenized_string))
+        self.assertTrue(np.array_equal(indexed_string.string_start, start_positions))
+        self.assertTrue(indexed_string.inverse_vocab == inverse_vocab)
+        self.assertTrue(np.array_equal(indexed_string.positions, positions))
+
+    def test_indexed_string_inverse_removing_tokenizer(self):
+        s = 'This is a good movie. This, it is a great movie.'
+
+        def tokenizer(string):
+            return re.split(r'(?:\W+)|$', string)
+
+        indexed_string = IndexedString(s, tokenizer)
+
+        self.assertEqual(s, indexed_string.inverse_removing([]))
+
+    def test_indexed_string_inverse_removing_regex(self):
+        s = 'This is a good movie. This is a great movie'
+        indexed_string = IndexedString(s)
+
+        self.assertEqual(s, indexed_string.inverse_removing([]))
 
 
 if __name__ == '__main__':
