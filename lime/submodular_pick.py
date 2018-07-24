@@ -1,17 +1,18 @@
 import numpy as np
 import warnings
 
+
 class SubmodularPick(object):
         """Class for submodular pick
 
         Saves a representative sample of explanation objects using SP-LIME,
-        as well as saving all generated explanations 
+        as well as saving all generated explanations
 
         First, a collection of candidate explanations are generated
         (see explain_instance). From these candidates, num_exps_desired are
         chosen using submodular pick. (see marcotcr et al paper)."""
 
-        def __init__(self, 
+        def __init__(self,
                      explainer,
                      data,
                      predict_fn,
@@ -20,7 +21,7 @@ class SubmodularPick(object):
                      num_exps_desired=5,
                      num_features=10,
                      **kwargs):
-            
+
             """
             Args:
                 data: a numpy array where each row is a single input into predict_fn
@@ -46,7 +47,7 @@ class SubmodularPick(object):
                 sp_explanations: A list of explanation objects that has a high coverage
                 explanations: All the candidate explanations saved for potential future use.
                   """
-        
+
             # Parse args
             if method == 'sample':
                 if sample_size > len(data):
@@ -62,7 +63,7 @@ class SubmodularPick(object):
             # Generate Explanations
             self.explanations = []
             for i in sample_indices:
-               self.explanations.append(
+                self.explanations.append(
                     explainer.explain_instance(
                         data[i], predict_fn, num_features=num_features))
             # Error handling
