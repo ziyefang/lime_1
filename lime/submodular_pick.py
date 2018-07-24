@@ -1,3 +1,6 @@
+import numpy as np
+import warnings
+
 class SubmodularPick(object):
         """Class for submodular pick
 
