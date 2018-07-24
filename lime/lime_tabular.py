@@ -434,7 +434,7 @@ class LimeTabularExplainer(object):
         inverse[0] = data_row
         return data, inverse
 
-    
+
 class RecurrentTabularExplainer(LimeTabularExplainer):
     """
     An explainer for keras-style recurrent neural networks, where the
