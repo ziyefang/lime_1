@@ -1,6 +1,13 @@
 class SubmodularPick(object):
-        """Class for submodular pick"""
-        
+        """Class for submodular pick
+
+        Saves a representative sample of explanation objects using SP-LIME,
+        as well as saving all generated explanations 
+
+        First, a collection of candidate explanations are generated
+        (see explain_instance). From these candidates, num_exps_desired are
+        chosen using submodular pick. (see marcotcr et al paper)."""
+
         def __init__(self, 
                      explainer,
                      data,
@@ -11,14 +18,7 @@ class SubmodularPick(object):
                      num_features=10,
                      **kwargs):
             
-            """Saves a representative sample of explanation objects using SP-LIME,
-            as well as saving all generated explanations 
-
-            First, a collection of candidate explanations are generated
-            (see explain_instance). From these candidates, num_exps_desired are
-            chosen using submodular pick. (see marcotcr et al paper).
-
-
+            """
             Args:
                 data: a numpy array where each row is a single input into predict_fn
                 predict_fn: prediction function. For classifiers, this should be a
