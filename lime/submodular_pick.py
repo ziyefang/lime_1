@@ -66,7 +66,7 @@ class SubmodularPick(object):
                 self.explanations.append(
                     explainer.explain_instance(
                         data[i], predict_fn, num_features=num_features,
-                    **kwargs))
+                        **kwargs))
             # Error handling
             try:
                 num_exps_desired = int(num_exps_desired)
