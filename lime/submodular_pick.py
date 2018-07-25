@@ -37,7 +37,7 @@ class SubmodularPick(object):
                         method == 'sample' will sample the data uniformly at
                         random. The sample size is given by sample_size. Otherwise
                         if method == 'full' then explanations will be generated for the
-                        entire data.
+                        entire data. l
                 sample_size: The number of instances to explain if method == 'sample'
                 num_exps_desired: The number of explanation objects returned.
                 num_features: maximum number of features present in explanation
