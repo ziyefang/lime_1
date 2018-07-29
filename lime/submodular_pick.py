@@ -82,11 +82,17 @@ class SubmodularPick(object):
             features_dict = {}
             feature_iter = 0
             for exp in self.explanations:
-                for this_label in exp.available_labels():
-                    for feature, _ in exp.as_list(label=this_label):
+                try:
+                    for this_label in exp.available_labels():
+                        for feature, _ in exp.as_list(label=this_label):
                             if feature not in features_dict.keys():
-                                    features_dict[feature] = (feature_iter)
-                                    feature_iter += 1
+                                features_dict[feature] = (feature_iter)
+                                feature_iter += 1
+                except NotImplementedError:
+                    for feature, _ in exp.as_list():
+                        if feature not in features_dict.keys():
+                            features_dict[feature] = (feature_iter)
+                            feature_iter += 1
             d_prime = len(features_dict.keys())
 
             # Create the n x d' dimensional 'explanation matrix', W
