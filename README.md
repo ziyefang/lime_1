@@ -70,6 +70,9 @@ For image classifiers:
 For regression:
 - [Simple regression](https://marcotcr.github.io/lime/tutorials/Using%2Blime%2Bfor%2Bregression.html)
 
+Submodular Pick :
+- [Submodular Pick](https://github.com/marcotcr/lime/tree/master/doc/notebooks/Submodular%20Pick%20examples.ipynb)
+
 The raw (non-html) notebooks for these tutorials are available [here](https://github.com/marcotcr/lime/tree/master/doc/notebooks).
 
 The api reference is available [here](https://lime-ml.readthedocs.io/en/latest/).
