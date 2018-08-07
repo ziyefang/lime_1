@@ -3,6 +3,7 @@ Functions for explaining text classifiers.
 """
 from __future__ import unicode_literals
 
+from functools import partial
 import itertools
 import json
 import re
@@ -296,6 +297,7 @@ class LimeTextExplainer(object):
 
     def __init__(self,
                  kernel_width=25,
+                 kernel=None,
                  verbose=False,
                  class_names=None,
                  feature_selection='auto',
@@ -306,7 +308,10 @@ class LimeTextExplainer(object):
         """Init function.
 
         Args:
-            kernel_width: kernel width for the exponential kernel
+            kernel_width: kernel width for the exponential kernel.
+            kernel: similarity kernel that takes euclidean distances and kernel
+                width as input and outputs weights in (0,1). If None, defaults to
+                an exponential kernel.
             verbose: if true, print local prediction values from linear model
             class_names: list of class names, ordered according to whatever the
                 classifier is using. If not present, class names will be '0',
@@ -330,11 +335,14 @@ class LimeTextExplainer(object):
                 as an independent occurence in the string
         """
 
-        # exponential kernel
-        def kernel(d): return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
+        if kernel is None:
+            def kernel(d, kernel_width):
+                return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
+
+        kernel_fn = partial(kernel, kernel_width=kernel_width)
 
         self.random_state = check_random_state(random_state)
-        self.base = lime_base.LimeBase(kernel, verbose,
+        self.base = lime_base.LimeBase(kernel_fn, verbose,
                                        random_state=self.random_state)
         self.class_names = class_names
         self.vocabulary = None
