@@ -2,6 +2,7 @@
 Functions for explaining classifiers that use Image data.
 """
 import copy
+from functools import partial
 
 import numpy as np
 import sklearn
@@ -88,13 +89,16 @@ class LimeImageExplainer(object):
     feature that is 1 when the value is the same as the instance being
     explained."""
 
-    def __init__(self, kernel_width=.25, verbose=False,
+    def __init__(self, kernel_width=.25, kernel=None, verbose=False,
                  feature_selection='auto', random_state=None):
         """Init function.
 
         Args:
             kernel_width: kernel width for the exponential kernel.
-            If None, defaults to sqrt(number of columns) * 0.75
+            If None, defaults to sqrt(number of columns) * 0.75.
+            kernel: similarity kernel that takes euclidean distances and kernel
+                width as input and outputs weights in (0,1). If None, defaults to
+                an exponential kernel.
             verbose: if true, print local prediction values from linear model
             feature_selection: feature selection method. can be
                 'forward_selection', 'lasso_path', 'none' or 'auto'.
@@ -106,12 +110,15 @@ class LimeImageExplainer(object):
         """
         kernel_width = float(kernel_width)
 
-        def kernel(d):
-            return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
+        if kernel is None:
+            def kernel(d, kernel_width):
+                return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
+
+        kernel_fn = partial(kernel, kernel_width=kernel_width)
 
         self.random_state = check_random_state(random_state)
         self.feature_selection = feature_selection
-        self.base = lime_base.LimeBase(kernel, verbose, random_state=self.random_state)
+        self.base = lime_base.LimeBase(kernel_fn, verbose, random_state=self.random_state)
 
     def explain_instance(self, image, classifier_fn, labels=(1,),
                          hide_color=None,

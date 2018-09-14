@@ -3,6 +3,7 @@ Functions for explaining classifiers that use tabular data (matrices).
 """
 import collections
 import copy
+from functools import partial
 import json
 import warnings
 
@@ -104,6 +105,7 @@ class LimeTabularExplainer(object):
                  categorical_features=None,
                  categorical_names=None,
                  kernel_width=None,
+                 kernel=None,
                  verbose=False,
                  class_names=None,
                  feature_selection='auto',
@@ -128,6 +130,9 @@ class LimeTabularExplainer(object):
                 column x.
             kernel_width: kernel width for the exponential kernel.
                 If None, defaults to sqrt (number of columns) * 0.75
+            kernel: similarity kernel that takes euclidean distances and kernel
+                width as input and outputs weights in (0,1). If None, defaults to
+                an exponential kernel.
             verbose: if true, print local prediction values from linear model
             class_names: list of class names, ordered according to whatever the
                 classifier is using. If not present, class names will be '0',
@@ -190,11 +195,14 @@ class LimeTabularExplainer(object):
             kernel_width = np.sqrt(training_data.shape[1]) * .75
         kernel_width = float(kernel_width)
 
-        def kernel(d):
-            return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
+        if kernel is None:
+            def kernel(d, kernel_width):
+                return np.sqrt(np.exp(-(d ** 2) / kernel_width ** 2))
+
+        kernel_fn = partial(kernel, kernel_width=kernel_width)
 
         self.feature_selection = feature_selection
-        self.base = lime_base.LimeBase(kernel, verbose, random_state=self.random_state)
+        self.base = lime_base.LimeBase(kernel_fn, verbose, random_state=self.random_state)
         self.scaler = None
         self.class_names = class_names
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
@@ -452,7 +460,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
     def __init__(self, training_data, training_labels=None, feature_names=None,
                  categorical_features=None, categorical_names=None,
-                 kernel_width=None, verbose=False, class_names=None,
+                 kernel_width=None, kernel=None, verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True,
                  discretizer='quartile', random_state=None):
         """
@@ -471,6 +479,9 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
                 column x.
             kernel_width: kernel width for the exponential kernel.
             If None, defaults to sqrt(number of columns) * 0.75
+            kernel: similarity kernel that takes euclidean distances and kernel
+                width as input and outputs weights in (0,1). If None, defaults to
+                an exponential kernel.
             verbose: if true, print local prediction values from linear model
             class_names: list of class names, ordered according to whatever the
                 classifier is using. If not present, class names will be '0',
@@ -507,7 +518,9 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
                 feature_names=feature_names,
                 categorical_features=categorical_features,
                 categorical_names=categorical_names,
-                kernel_width=kernel_width, verbose=verbose,
+                kernel_width=kernel_width,
+                kernel=kernel,
+                verbose=verbose,
                 class_names=class_names,
                 feature_selection=feature_selection,
                 discretize_continuous=discretize_continuous,
