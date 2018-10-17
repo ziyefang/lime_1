@@ -89,10 +89,6 @@ We then learn a linear model (dashed line) that approximates the model well in t
 
 <img src="https://raw.githubusercontent.com/marcotcr/lime/master/doc/images/lime.png" width=300px />
 
-## Feedback
-
-If you've tried LIME and are willing to share what went well, and what didn't, please let me know by creating an issue or sending me an email at my github username @gmail.com. I am very interested in understanding when LIME is useful, when it is not, and why.
-
 ## Contributing
 
 Please read [this](CONTRIBUTING.md).
