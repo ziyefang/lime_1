@@ -9,6 +9,7 @@ setup(name='lime',
       license='BSD',
       packages= find_packages(exclude=['js', 'node_modules', 'tests']),
       install_requires=[
+          'matplotlib==2',
           'numpy',
           'scipy',
           'scikit-learn>=0.18',
@@ -16,4 +17,3 @@ setup(name='lime',
       ],
       include_package_data=True,
       zip_safe=False)
-
