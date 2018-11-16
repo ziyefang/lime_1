@@ -59,6 +59,8 @@ class SubmodularPick(object):
                 sample_indices = all_indices[:sample_size]
             elif method == 'full':
                 sample_indices = np.arange(len(data))
+            else:
+                raise ValueError('Method must be \'sample\' or \'full\'')
 
             # Generate Explanations
             self.explanations = []
