@@ -458,7 +458,8 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
     """
 
-    def __init__(self, training_data, training_labels=None, feature_names=None,
+    def __init__(self, training_data, mode="classification",
+                 training_labels=None, feature_names=None,
                  categorical_features=None, categorical_names=None,
                  kernel_width=None, kernel=None, verbose=False, class_names=None,
                  feature_selection='auto', discretize_continuous=True,
@@ -467,6 +468,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         Args:
             training_data: numpy 3d array with shape
                 (n_samples, n_timesteps, n_features)
+            mode: "classification" or "regression"
             training_labels: labels for training data. Not required, but may be
                 used by discretizer.
             feature_names: list of names (strings) corresponding to the columns
@@ -514,6 +516,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Send off the the super class to do its magic.
         super(RecurrentTabularExplainer, self).__init__(
                 training_data,
+                mode=mode,
                 training_labels=training_labels,
                 feature_names=feature_names,
                 categorical_features=categorical_features,
