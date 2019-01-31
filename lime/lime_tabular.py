@@ -155,8 +155,8 @@ class LimeTabularExplainer(object):
             random_state: an integer or numpy.RandomState that will be used to
                 generate random numbers. If None, the random state will be
                 initialized using the internal numpy seed.
-            training_data_stats: a dict object having the details of training data 
-                statistics.If None, training data information will be used.only matters
+            training_data_stats: a dict object having the details of training data
+                statistics.If None, training data information will be used, only matters
                 if discretize_continuous is True
         """
         self.random_state = check_random_state(random_state)
@@ -165,7 +165,8 @@ class LimeTabularExplainer(object):
         self.sample_around_instance = sample_around_instance
         self.training_data_stats = training_data_stats
 
-        if self.training_data_stats is not None:
+        # Check and raise proper error in stats are supplied in non-descritized path
+        if self.training_data_stats:
             self.validate_training_data_stats(self.training_data_stats)
 
         if categorical_features is None:
@@ -179,23 +180,23 @@ class LimeTabularExplainer(object):
         self.discretizer = None
         if discretize_continuous:
             # Set the discretizer if training data stats are provided
-            if self.training_data_stats is not None:
+            if self.training_data_stats:
                 discretizer = StatsDiscretizer(training_data, self.categorical_features,
                                                self.feature_names, labels=training_labels,
                                                data_stats=self.training_data_stats)
 
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
-                    training_data, self.categorical_features,
-                    self.feature_names, labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
-                    training_data, self.categorical_features,
-                    self.feature_names, labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
-                    training_data, self.categorical_features,
-                    self.feature_names, labels=training_labels)
+                        training_data, self.categorical_features,
+                        self.feature_names, labels=training_labels)
             elif isinstance(discretizer, BaseDiscretizer):
                 self.discretizer = discretizer
             else:
@@ -255,11 +256,14 @@ class LimeTabularExplainer(object):
 
     @staticmethod
     def validate_training_data_stats(training_data_stats: dict):
+        """
+            Method to validate the structure of training data stats
+        """
         stat_keys = list(training_data_stats.keys())
         valid_stat_keys = ["means", "mins", "maxs", "stds", "feature_values", "feature_frequencies"]
         missing_keys = list(set(valid_stat_keys) - set(stat_keys))
         if len(missing_keys) > 0:
-            raise Exception("Missing keys in training_data_stats.Details:" % (missing_keys))
+            raise Exception("Missing keys in training_data_stats. Details:" % (missing_keys))
 
     def explain_instance(self,
                          data_row,
@@ -306,9 +310,9 @@ class LimeTabularExplainer(object):
         scaled_data = (data - self.scaler.mean_) / self.scaler.scale_
 
         distances = sklearn.metrics.pairwise_distances(
-            scaled_data,
-            scaled_data[0].reshape(1, -1),
-            metric=distance_metric
+                scaled_data,
+                scaled_data[0].reshape(1, -1),
+                metric=distance_metric
         ).ravel()
 
         yss = predict_fn(inverse)
@@ -376,7 +380,7 @@ class LimeTabularExplainer(object):
             discretized_feature_names = copy.deepcopy(feature_names)
             for f in self.discretizer.names:
                 discretized_feature_names[f] = self.discretizer.names[f][int(
-                    discretized_instance[f])]
+                        discretized_instance[f])]
 
         domain_mapper = TableDomainMapper(feature_names,
                                           values,
@@ -403,13 +407,13 @@ class LimeTabularExplainer(object):
             (ret_exp.intercept[label],
              ret_exp.local_exp[label],
              ret_exp.score, ret_exp.local_pred) = self.base.explain_instance_with_data(
-                scaled_data,
-                yss,
-                distances,
-                label,
-                num_features,
-                model_regressor=model_regressor,
-                feature_selection=self.feature_selection)
+                    scaled_data,
+                    yss,
+                    distances,
+                    label,
+                    num_features,
+                    model_regressor=model_regressor,
+                    feature_selection=self.feature_selection)
 
         if self.mode == "regression":
             ret_exp.intercept[1] = ret_exp.intercept[0]
@@ -537,7 +541,7 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
         # Reshape X
         n_samples, n_timesteps, n_features = training_data.shape
         training_data = np.transpose(training_data, axes=(0, 2, 1)).reshape(
-            n_samples, n_timesteps * n_features)
+                n_samples, n_timesteps * n_features)
         self.n_timesteps = n_timesteps
         self.n_features = n_features
 
@@ -547,20 +551,20 @@ class RecurrentTabularExplainer(LimeTabularExplainer):
 
         # Send off the the super class to do its magic.
         super(RecurrentTabularExplainer, self).__init__(
-            training_data,
-            mode=mode,
-            training_labels=training_labels,
-            feature_names=feature_names,
-            categorical_features=categorical_features,
-            categorical_names=categorical_names,
-            kernel_width=kernel_width,
-            kernel=kernel,
-            verbose=verbose,
-            class_names=class_names,
-            feature_selection=feature_selection,
-            discretize_continuous=discretize_continuous,
-            discretizer=discretizer,
-            random_state=random_state)
+                training_data,
+                mode=mode,
+                training_labels=training_labels,
+                feature_names=feature_names,
+                categorical_features=categorical_features,
+                categorical_names=categorical_names,
+                kernel_width=kernel_width,
+                kernel=kernel,
+                verbose=verbose,
+                class_names=class_names,
+                feature_selection=feature_selection,
+                discretize_continuous=discretize_continuous,
+                discretizer=discretizer,
+                random_state=random_state)
 
     def _make_predict_proba(self, func):
         """

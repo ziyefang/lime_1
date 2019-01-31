@@ -49,7 +49,7 @@ class BaseDiscretizer():
         bins = [np.unique(x) for x in bins]
 
         # Read the stats from data_stats if exists
-        if(data_stats is not None):
+        if data_stats:
             self.means = self.data_stats.get("means")
             self.stds = self.data_stats.get("stds")
             self.mins = self.data_stats.get("mins")
@@ -70,7 +70,7 @@ class BaseDiscretizer():
             discretized = self.lambdas[feature](data[:, feature])
 
             # If data stats are provided no need to compute the below set of details
-            if(data_stats is not None):
+            if data_stats:
                 continue
 
             self.means[feature] = []
@@ -132,7 +132,7 @@ class BaseDiscretizer():
 
 class StatsDiscretizer(BaseDiscretizer):
     """
-        Class to be used to supply the data stats info when descritize_continuos is true
+        Class to be used to supply the data stats info when discretize_continuous is true
     """
 
     def __init__(self, data, categorical_features, feature_names, labels=None, random_state=None,
