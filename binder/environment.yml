@@ -18,4 +18,4 @@ dependencies:
   - h2oai::h2o
   - pip: 
     # lime source code
-    - -e .
+    - -e ..
