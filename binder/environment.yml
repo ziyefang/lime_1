@@ -10,6 +10,9 @@ dependencies:
   - scipy
   - scikit-learn
   - scikit-image
+  # for testing
+  - flake8
+  - pytest
   # for examples
   - jupyter
   - pandas
