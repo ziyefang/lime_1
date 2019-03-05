@@ -19,6 +19,7 @@ dependencies:
   - keras
   - tensorflow
   - h2oai::h2o
+  - py-xgboost
   - pip: 
     # lime source code
     - -e ..
