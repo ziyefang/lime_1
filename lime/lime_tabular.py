@@ -16,6 +16,7 @@ from lime.discretize import QuartileDiscretizer
 from lime.discretize import DecileDiscretizer
 from lime.discretize import EntropyDiscretizer
 from lime.discretize import BaseDiscretizer
+from lime.discretize import StatsDiscretizer
 from . import explanation
 from . import lime_base
 
@@ -112,7 +113,8 @@ class LimeTabularExplainer(object):
                  discretize_continuous=True,
                  discretizer='quartile',
                  sample_around_instance=False,
-                 random_state=None):
+                 random_state=None,
+                 training_data_stats=None):
         """Init function.
 
         Args:
@@ -153,11 +155,21 @@ class LimeTabularExplainer(object):
             random_state: an integer or numpy.RandomState that will be used to
                 generate random numbers. If None, the random state will be
                 initialized using the internal numpy seed.
+            training_data_stats: a dict object having the details of training data
+                statistics. If None, training data information will be used, only matters
+                if discretize_continuous is True. Must have the following keys:
+                means", "mins", "maxs", "stds", "feature_values",
+                "feature_frequencies"
         """
         self.random_state = check_random_state(random_state)
         self.mode = mode
         self.categorical_names = categorical_names or {}
         self.sample_around_instance = sample_around_instance
+        self.training_data_stats = training_data_stats
+
+        # Check and raise proper error in stats are supplied in non-descritized path
+        if self.training_data_stats:
+            self.validate_training_data_stats(self.training_data_stats)
 
         if categorical_features is None:
             categorical_features = []
@@ -169,6 +181,12 @@ class LimeTabularExplainer(object):
 
         self.discretizer = None
         if discretize_continuous:
+            # Set the discretizer if training data stats are provided
+            if self.training_data_stats:
+                discretizer = StatsDiscretizer(training_data, self.categorical_features,
+                                               self.feature_names, labels=training_labels,
+                                               data_stats=self.training_data_stats)
+
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
                         training_data, self.categorical_features,
@@ -188,7 +206,10 @@ class LimeTabularExplainer(object):
                                  ''' 'decile', 'entropy' or a''' +
                                  ''' BaseDiscretizer instance''')
             self.categorical_features = list(range(training_data.shape[1]))
-            discretized_training_data = self.discretizer.discretize(
+
+            # Get the discretized_training_data when the stats are not provided
+            if(self.training_data_stats is None):
+                discretized_training_data = self.discretizer.discretize(
                     training_data)
 
         if kernel_width is None:
@@ -203,21 +224,27 @@ class LimeTabularExplainer(object):
 
         self.feature_selection = feature_selection
         self.base = lime_base.LimeBase(kernel_fn, verbose, random_state=self.random_state)
-        self.scaler = None
         self.class_names = class_names
+
+        # Though set has no role to play if training data stats are provided
+        self.scaler = None
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
         self.feature_frequencies = {}
 
         for feature in self.categorical_features:
-            if self.discretizer is not None:
-                column = discretized_training_data[:, feature]
-            else:
-                column = training_data[:, feature]
+            if training_data_stats is None:
+                if self.discretizer is not None:
+                    column = discretized_training_data[:, feature]
+                else:
+                    column = training_data[:, feature]
 
-            feature_count = collections.Counter(column)
-            values, frequencies = map(list, zip(*(sorted(feature_count.items()))))
+                feature_count = collections.Counter(column)
+                values, frequencies = map(list, zip(*(sorted(feature_count.items()))))
+            else:
+                values = training_data_stats["feature_values"][feature]
+                frequencies = training_data_stats["feature_frequencies"][feature]
 
             self.feature_values[feature] = values
             self.feature_frequencies[feature] = (np.array(frequencies) /
@@ -228,6 +255,17 @@ class LimeTabularExplainer(object):
     @staticmethod
     def convert_and_round(values):
         return ['%.2f' % v for v in values]
+
+    @staticmethod
+    def validate_training_data_stats(training_data_stats):
+        """
+            Method to validate the structure of training data stats
+        """
+        stat_keys = list(training_data_stats.keys())
+        valid_stat_keys = ["means", "mins", "maxs", "stds", "feature_values", "feature_frequencies"]
+        missing_keys = list(set(valid_stat_keys) - set(stat_keys))
+        if len(missing_keys) > 0:
+            raise Exception("Missing keys in training_data_stats. Details:" % (missing_keys))
 
     def explain_instance(self,
                          data_row,
@@ -414,8 +452,8 @@ class LimeTabularExplainer(object):
         categorical_features = range(data_row.shape[0])
         if self.discretizer is None:
             data = self.random_state.normal(
-                    0, 1, num_samples * data_row.shape[0]).reshape(
-                    num_samples, data_row.shape[0])
+                0, 1, num_samples * data_row.shape[0]).reshape(
+                num_samples, data_row.shape[0])
             if self.sample_around_instance:
                 data = data * self.scaler.scale_ + data_row
             else:
