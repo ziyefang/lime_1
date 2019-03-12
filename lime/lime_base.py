@@ -140,12 +140,13 @@ class LimeBase(object):
                 to model_regressor.fit()
 
         Returns:
-            (intercept, exp, score):
+            (intercept, exp, score, local_pred):
             intercept is a float.
             exp is a sorted list of tuples, where each tuple (x,y) corresponds
             to the feature id (x) and the local weight (y). The list is sorted
             by decreasing absolute value of y.
             score is the R^2 value of the returned explanation
+            local_pred is the prediction of the explanation model on the original instance
         """
 
         weights = self.kernel_fn(distances)
