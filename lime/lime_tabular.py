@@ -217,7 +217,7 @@ class LimeTabularExplainer(object):
                 column = training_data[:, feature]
 
             feature_count = collections.Counter(column)
-            values, frequencies = map(list, zip(*(feature_count.items())))
+            values, frequencies = map(list, zip(*(sorted(feature_count.items()))))
 
             self.feature_values[feature] = values
             self.feature_frequencies[feature] = (np.array(frequencies) /
