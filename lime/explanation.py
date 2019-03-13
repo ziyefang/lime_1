@@ -285,7 +285,7 @@ class Explanation(object):
 
         exp_js = '''var exp_div;
             var exp = new lime.Explanation(%s);
-        ''' % (jsonize(self.class_names))
+        ''' % (jsonize([str(x) for x in self.class_names]))
 
         if self.mode == "classification":
             for label in labels:
