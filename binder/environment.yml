@@ -5,7 +5,7 @@ channels:
 dependencies:
   - python=3.6.*
   # lime install dependencies
-  - matplotlib=2.*
+  - matplotlib
   - numpy
   - scipy
   - scikit-learn
@@ -16,7 +16,8 @@ dependencies:
   # for examples
   - jupyter
   - pandas
-  - keras
+  - keras  # currently requires Python 3.6
+  - pytorch::pytorch-cpu
   - tensorflow
   - h2oai::h2o
   - py-xgboost
