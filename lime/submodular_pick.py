@@ -48,6 +48,9 @@ class SubmodularPick(object):
             explanations: All the candidate explanations saved for potential future use.
               """
 
+        top_labels = kwargs.get('top_labels', 1)
+        if 'top_labels' in kwargs:
+            del kwargs['top_labels']
         # Parse args
         if method == 'sample':
             if sample_size > len(data):
@@ -68,6 +71,7 @@ class SubmodularPick(object):
             self.explanations.append(
                 explainer.explain_instance(
                     data[i], predict_fn, num_features=num_features,
+                    top_labels=top_labels,
                     **kwargs))
         # Error handling
         try:
@@ -84,14 +88,9 @@ class SubmodularPick(object):
         features_dict = {}
         feature_iter = 0
         for exp in self.explanations:
-            try:
-                for this_label in exp.available_labels():
-                    for feature, _ in exp.as_list(label=this_label):
-                        if feature not in features_dict.keys():
-                            features_dict[feature] = (feature_iter)
-                            feature_iter += 1
-            except NotImplementedError:
-                for feature, _ in exp.as_list():
+            labels = exp.available_labels() if exp.mode == 'classification' else [1]
+            for label in labels:
+                for feature, _ in exp.as_list(label=label):
                     if feature not in features_dict.keys():
                         features_dict[feature] = (feature_iter)
                         feature_iter += 1
@@ -100,8 +99,10 @@ class SubmodularPick(object):
         # Create the n x d' dimensional 'explanation matrix', W
         W = np.zeros((len(self.explanations), d_prime))
         for i, exp in enumerate(self.explanations):
-            for feature, value in exp.as_list():
-                W[i, features_dict[feature]] = value
+            labels = exp.available_labels() if exp.mode == 'classification' else [1]
+            for label in labels:
+                for feature, value in exp.as_list(label):
+                    W[i, features_dict[feature]] += value
 
         # Create the global importance vector, I_j described in the paper
         importance = np.sum(abs(W), axis=0)**.5
