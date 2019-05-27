@@ -108,10 +108,9 @@ class IndexedString(object):
         else:
             # with the split_expression as a non-capturing group (?:), we don't need to filter out
             # the separator character from the split results.
-            self.as_list = (
-                [x for x in re.split(r'(%s)|$' % split_expression, self.raw) if
-                 x is not None])
-            non_word = re.compile(r'(%s)|$' % split_expression).match
+            splitter = re.compile(r'(%s)|$' % split_expression)
+            self.as_list = [s for s in splitter.split(self.raw) if s]
+            non_word = splitter.match
 
         self.as_np = np.array(self.as_list)
         self.string_start = np.hstack(
