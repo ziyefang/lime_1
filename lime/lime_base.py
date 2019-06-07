@@ -78,7 +78,7 @@ class LimeBase(object):
             clf = Ridge(alpha=0, fit_intercept=True,
                         random_state=self.random_state)
             clf.fit(data, labels, sample_weight=weights)
-            feature_weights = sorted(zip(range(data.shape[0]),
+            feature_weights = sorted(zip(range(data.shape[1]),
                                          clf.coef_ * data[0]),
                                      key=lambda x: np.abs(x[1]),
                                      reverse=True)
