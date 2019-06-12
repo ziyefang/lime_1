@@ -7,7 +7,7 @@ import sklearn.datasets
 import sklearn.ensemble
 import sklearn.linear_model  # noqa
 from numpy.testing import assert_array_equal
-from sklearn.datasets import load_iris, make_classification
+from sklearn.datasets import load_iris, make_classification, make_multilabel_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LinearRegression
@@ -91,6 +91,26 @@ class TestLimeTabular(unittest.TestCase):
         rf.fit(X, y)
         instance = np.random.randint(0, X.shape[0])
         feature_names = ["feature" + str(i) for i in range(20)]
+        explainer = LimeTabularExplainer(X,
+                                         feature_names=feature_names,
+                                         discretize_continuous=True)
+
+        exp = explainer.explain_instance(X[instance], rf.predict_proba)
+
+        self.assertIsNotNone(exp)
+        self.assertEqual(10, len(exp.as_list()))
+
+    def test_lime_explainer_sparse_synthetic_data(self):
+        n_features = 20
+        X, y = make_multilabel_classification(n_samples=100,
+                                              sparse=True,
+                                              n_features=n_features,
+                                              n_classes=1,
+                                              n_labels=2)
+        rf = RandomForestClassifier(n_estimators=500)
+        rf.fit(X, y)
+        instance = np.random.randint(0, X.shape[0])
+        feature_names = ["feature" + str(i) for i in range(n_features)]
         explainer = LimeTabularExplainer(X,
                                          feature_names=feature_names,
                                          discretize_continuous=True)
