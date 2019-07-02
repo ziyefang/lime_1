@@ -4,6 +4,7 @@ Discretizers classes, to be used in lime_tabular
 import numpy as np
 import sklearn
 import sklearn.tree
+import scipy
 from sklearn.utils import check_random_state
 from abc import ABCMeta, abstractmethod
 
@@ -44,6 +45,9 @@ class BaseDiscretizer():
         self.stds = {}
         self.mins = {}
         self.maxs = {}
+        self.precompute_size = 10000
+        self.undiscretize_idxs = {}
+        self.undiscretize_precomputed = {}
         self.random_state = check_random_state(random_state)
 
         # To override when implementing a custom binning
@@ -63,6 +67,9 @@ class BaseDiscretizer():
             name = feature_names[feature]
 
             self.names[feature] = ['%s <= %.2f' % (name, qts[0])]
+            self.undiscretize_idxs[feature] = (
+                [self.precompute_size] * (n_bins + 1))
+            self.undiscretize_precomputed[feature] = [[]] * (n_bins + 1)
             for i in range(n_bins - 1):
                 self.names[feature].append('%.2f < %s <= %.2f' %
                                            (qts[i], name, qts[i + 1]))
@@ -73,6 +80,8 @@ class BaseDiscretizer():
 
             # If data stats are provided no need to compute the below set of details
             if data_stats:
+                [self.get_undiscretize_value(feature, i)
+                 for i in range(n_bins + 1)]
                 continue
 
             self.means[feature] = []
@@ -86,6 +95,8 @@ class BaseDiscretizer():
                 self.stds[feature].append(std)
             self.mins[feature] = [boundaries[0]] + qts.tolist()
             self.maxs[feature] = qts.tolist() + [boundaries[1]]
+            [self.get_undiscretize_value(feature, i)
+             for i in range(n_bins + 1)]
 
     @abstractmethod
     def bins(self, data, labels):
@@ -112,23 +123,34 @@ class BaseDiscretizer():
                     ret[:, feature]).astype(int)
         return ret
 
-    def undiscretize(self, data):
-        ret = data.copy()
-        for feature in self.means:
+    def get_undiscretize_value(self, feature, val):
+        if self.undiscretize_idxs[feature][val] == self.precompute_size:
+            self.undiscretize_idxs[feature][val] = 0
             mins = self.mins[feature]
             maxs = self.maxs[feature]
             means = self.means[feature]
             stds = self.stds[feature]
+            minz = (mins[val] - means[val]) / stds[val]
+            maxz = (maxs[val] - means[val]) / stds[val]
+            self.undiscretize_precomputed[feature][val] = (
+                scipy.stats.truncnorm.rvs(
+                    minz, maxz, loc=means[val], scale=stds[val],
+                    random_state=self.random_state, size=self.precompute_size))
+        idx = self.undiscretize_idxs[feature][val]
+        ret = self.undiscretize_precomputed[feature][val][idx]
+        self.undiscretize_idxs[feature][val] += 1
+        return ret
 
-            def get_inverse(q):
-                return max(mins[q],
-                           min(self.random_state.normal(means[q], stds[q]), maxs[q]))
+    def undiscretize(self, data):
+        ret = data.copy()
+        for feature in self.means:
             if len(data.shape) == 1:
                 q = int(ret[feature])
-                ret[feature] = get_inverse(q)
+                ret[feature] = self.get_undiscretize_value(feature, q)
             else:
                 ret[:, feature] = (
-                    [get_inverse(int(x)) for x in ret[:, feature]])
+                    [self.get_undiscretize_value(feature, int(x))
+                     for x in ret[:, feature]])
         return ret
 
 
