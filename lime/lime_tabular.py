@@ -87,15 +87,13 @@ class TableDomainMapper(explanation.DomainMapper):
             weights[x[0]] = x[1]
         if self.feature_indexes is not None:
             # Sparse case: only display the non-zero values and importances
-            if show_all:
-                out_list = list(zip(self.exp_feature_names[self.feature_indexes],
+            fnames = [self.exp_feature_names[i] for i in self.feature_indexes]
+            fweights = [weights[i] for i in self.feature_indexes]
+            out_list = list(zip(fnames,
                                     self.feature_values,
-                                    weights[self.feature_indexes]))
-            else:
-                out_dict = dict(zip(self.feature_indexes, (self.exp_feature_names[self.feature_indexes],
-                                                           self.feature_values,
-                                                           weights[self.feature_indexes])))
-                out_list = [out_dict.get(x[0], (str(x[0]), 0.0, 0.0)) for x in exp]
+                                    fweights))
+            if not show_all:
+                out_list = [x for x in out_list if x[2] != 0]
         else:
             out_list = list(zip(self.exp_feature_names,
                                 self.feature_values,
