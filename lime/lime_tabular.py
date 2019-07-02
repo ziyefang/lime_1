@@ -90,8 +90,8 @@ class TableDomainMapper(explanation.DomainMapper):
             fnames = [self.exp_feature_names[i] for i in self.feature_indexes]
             fweights = [weights[i] for i in self.feature_indexes]
             out_list = list(zip(fnames,
-                                    self.feature_values,
-                                    fweights))
+                                self.feature_values,
+                                fweights))
             if not show_all:
                 out_list = [x for x in out_list if x[2] != 0]
         else:
@@ -507,13 +507,19 @@ class LimeTabularExplainer(object):
                 data = data * scale + mean
             if is_sparse:
                 if num_cols == 0:
-                    data = sp.sparse.csr_matrix((num_samples, data_row.shape[1]), dtype=data_row.dtype)
+                    data = sp.sparse.csr_matrix((num_samples,
+                                                 data_row.shape[1]),
+                                                dtype=data_row.dtype)
                 else:
                     indexes = np.tile(non_zero_indexes, num_samples)
-                    indptr = np.array(range(0, len(non_zero_indexes) * (num_samples + 1), len(non_zero_indexes)))
+                    indptr = np.array(
+                        range(0, len(non_zero_indexes) * (num_samples + 1),
+                              len(non_zero_indexes)))
                     data_1d_shape = data.shape[0] * data.shape[1]
                     data_1d = data.reshape(data_1d_shape)
-                    data = sp.sparse.csr_matrix((data_1d, indexes, indptr), shape=(num_samples, data_row.shape[1]))
+                    data = sp.sparse.csr_matrix(
+                        (data_1d, indexes, indptr),
+                        shape=(num_samples, data_row.shape[1]))
             categorical_features = self.categorical_features
             first_row = data_row
         else:
