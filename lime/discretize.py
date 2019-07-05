@@ -132,10 +132,15 @@ class BaseDiscretizer():
             stds = self.stds[feature]
             minz = (mins[val] - means[val]) / stds[val]
             maxz = (maxs[val] - means[val]) / stds[val]
-            self.undiscretize_precomputed[feature][val] = (
-                scipy.stats.truncnorm.rvs(
-                    minz, maxz, loc=means[val], scale=stds[val],
-                    random_state=self.random_state, size=self.precompute_size))
+            if minz == maxz:
+                self.undiscretize_precomputed[feature][val] = (
+                    np.ones(self.precompute_size) * minz)
+            else:
+                self.undiscretize_precomputed[feature][val] = (
+                    scipy.stats.truncnorm.rvs(
+                        minz, maxz, loc=means[val], scale=stds[val],
+                        random_state=self.random_state,
+                        size=self.precompute_size))
         idx = self.undiscretize_idxs[feature][val]
         ret = self.undiscretize_precomputed[feature][val][idx]
         self.undiscretize_idxs[feature][val] += 1
