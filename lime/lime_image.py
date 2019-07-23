@@ -160,7 +160,7 @@ class LimeImageExplainer(object):
                 will be generated using the internal random number generator.
 
         Returns:
-            An Explanation object (see explanation.py) with the corresponding
+            An ImageExplanation object (see lime_image.py) with the corresponding
             explanations.
         """
         if len(image.shape) == 2:
