@@ -3,7 +3,7 @@ name: lime-dev
 channels:
   - conda-forge
 dependencies:
-  - python=3.6.*
+  - python=3.7.*
   # lime install dependencies
   - matplotlib
   - numpy
@@ -16,7 +16,7 @@ dependencies:
   # for examples
   - jupyter
   - pandas
-  - keras  # currently requires Python 3.6
+  - keras
   - pytorch::pytorch-cpu
   - tensorflow
   - h2oai::h2o
