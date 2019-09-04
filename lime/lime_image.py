@@ -66,6 +66,10 @@ class ImageExplanation(object):
         if positive_only:
             fs = [x[0] for x in exp
                   if x[1] > 0 and x[1] > min_weight][:num_features]
+        if negative_only:
+            fs = [x[0] for x in exp
+                  if x[1] < 0 and abs(x[1]) > min_weight][:num_features]
+        if positive_only or negative_only:
             for f in fs:
                 temp[segments == f] = image[segments == f].copy()
                 mask[segments == f] = 1
@@ -75,10 +79,7 @@ class ImageExplanation(object):
                 if np.abs(w) < min_weight:
                     continue
                 c = 0 if w < 0 else 1
-                if not negative_only:
-                    mask[segments == f] = -1 if w < 0 else 1
-                else:
-                    mask[segments == f] = -1 if w < 0 else 0
+                mask[segments == f] = -1 if w < 0 else 1
                 temp[segments == f] = image[segments == f].copy()
                 temp[segments == f, c] = np.max(image)
             return temp, mask

@@ -13,6 +13,7 @@ setup(name='lime',
           'matplotlib;python_version>="3.0"',
           'numpy',
           'scipy',
+          'progressbar',
           'scikit-learn>=0.18',
           'scikit-image>=0.12;python_version>="3.0"',
           'scikit-image<0.15;python_version<"3.0"'
