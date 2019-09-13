@@ -250,7 +250,6 @@ class LimeTabularExplainer(object):
         self.class_names = class_names
 
         # Though set has no role to play if training data stats are provided
-        self.scaler = None
         self.scaler = sklearn.preprocessing.StandardScaler(with_mean=False)
         self.scaler.fit(training_data)
         self.feature_values = {}
@@ -288,7 +287,7 @@ class LimeTabularExplainer(object):
         valid_stat_keys = ["means", "mins", "maxs", "stds", "feature_values", "feature_frequencies"]
         missing_keys = list(set(valid_stat_keys) - set(stat_keys))
         if len(missing_keys) > 0:
-            raise Exception("Missing keys in training_data_stats. Details:" % (missing_keys))
+            raise Exception("Missing keys in training_data_stats. Details: %s" % (missing_keys))
 
     def explain_instance(self,
                          data_row,
@@ -537,8 +536,7 @@ class LimeTabularExplainer(object):
             freqs = self.feature_frequencies[column]
             inverse_column = self.random_state.choice(values, size=num_samples,
                                                       replace=True, p=freqs)
-            binary_column = np.array([1 if x == first_row[column]
-                                      else 0 for x in inverse_column])
+            binary_column = (inverse_column == first_row[column]).astype(int)
             binary_column[0] = 1
             inverse_column[0] = data[0, column]
             data[:, column] = binary_column
