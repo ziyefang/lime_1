@@ -172,5 +172,6 @@ class TestDiscretize(TestCase):
                  'petal width (cm) > 1.85']},
             discretizer.names)
 
+
 if __name__ == '__main__':
     unittest.main()
