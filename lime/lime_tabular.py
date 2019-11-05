@@ -208,20 +208,24 @@ class LimeTabularExplainer(object):
             if self.training_data_stats:
                 discretizer = StatsDiscretizer(training_data, self.categorical_features,
                                                self.feature_names, labels=training_labels,
-                                               data_stats=self.training_data_stats)
+                                               data_stats=self.training_data_stats,
+                                               random_state=self.random_state)
 
             if discretizer == 'quartile':
                 self.discretizer = QuartileDiscretizer(
                         training_data, self.categorical_features,
-                        self.feature_names, labels=training_labels)
+                        self.feature_names, labels=training_labels,
+                        random_state=self.random_state)
             elif discretizer == 'decile':
                 self.discretizer = DecileDiscretizer(
                         training_data, self.categorical_features,
-                        self.feature_names, labels=training_labels)
+                        self.feature_names, labels=training_labels,
+                        random_state=self.random_state)
             elif discretizer == 'entropy':
                 self.discretizer = EntropyDiscretizer(
                         training_data, self.categorical_features,
-                        self.feature_names, labels=training_labels)
+                        self.feature_names, labels=training_labels,
+                        random_state=self.random_state)
             elif isinstance(discretizer, BaseDiscretizer):
                 self.discretizer = discretizer
             else:
