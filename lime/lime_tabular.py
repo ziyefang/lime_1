@@ -382,6 +382,8 @@ class LimeTabularExplainer(object):
         # for regression, the output should be a one-dimensional array of predictions
         else:
             try:
+                if len(yss.shape) != 1 and len(yss[0].shape) == 1:
+                    yss = np.array([v[0] for v in yss])
                 assert isinstance(yss, np.ndarray) and len(yss.shape) == 1
             except AssertionError:
                 raise ValueError("Your model needs to output single-dimensional \
