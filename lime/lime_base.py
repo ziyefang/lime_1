@@ -76,7 +76,7 @@ class LimeBase(object):
         elif method == 'forward_selection':
             return self.forward_selection(data, labels, weights, num_features)
         elif method == 'highest_weights':
-            clf = Ridge(alpha=0, fit_intercept=True,
+            clf = Ridge(alpha=0.01, fit_intercept=True,
                         random_state=self.random_state)
             clf.fit(data, labels, sample_weight=weights)
 
