@@ -4,6 +4,7 @@ Discretizers classes, to be used in lime_tabular
 import numpy as np
 import sklearn
 import sklearn.tree
+import scipy
 from sklearn.utils import check_random_state
 from abc import ABCMeta, abstractmethod
 
@@ -112,23 +113,37 @@ class BaseDiscretizer():
                     ret[:, feature]).astype(int)
         return ret
 
+    def get_undiscretize_values(self, feature, values):
+        mins = np.array(self.mins[feature])[values]
+        maxs = np.array(self.maxs[feature])[values]
+
+        means = np.array(self.means[feature])[values]
+        stds = np.array(self.stds[feature])[values]
+        minz = (mins - means) / stds
+        maxz = (maxs - means) / stds
+        min_max_unequal = (minz != maxz)
+
+        ret = minz
+        ret[np.where(min_max_unequal)] = scipy.stats.truncnorm.rvs(
+            minz[min_max_unequal],
+            maxz[min_max_unequal],
+            loc=means[min_max_unequal],
+            scale=stds[min_max_unequal],
+            random_state=self.random_state
+        )
+        return ret
+
     def undiscretize(self, data):
         ret = data.copy()
         for feature in self.means:
-            mins = self.mins[feature]
-            maxs = self.maxs[feature]
-            means = self.means[feature]
-            stds = self.stds[feature]
-
-            def get_inverse(q):
-                return max(mins[q],
-                           min(self.random_state.normal(means[q], stds[q]), maxs[q]))
             if len(data.shape) == 1:
-                q = int(ret[feature])
-                ret[feature] = get_inverse(q)
+                ret[feature] = self.get_undiscretize_values(
+                    feature, ret[feature].astype(int).reshape(-1, 1)
+                )
             else:
-                ret[:, feature] = (
-                    [get_inverse(int(x)) for x in ret[:, feature]])
+                ret[:, feature] = self.get_undiscretize_values(
+                    feature, ret[:, feature].astype(int)
+                )
         return ret
 
 

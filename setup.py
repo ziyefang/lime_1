@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='lime',
-      version='0.1.1.34',
+      version='0.1.1.37',
       description='Local Interpretable Model-Agnostic Explanations for machine learning classifiers',
       url='http://github.com/marcotcr/lime',
       author='Marco Tulio Ribeiro',
@@ -13,6 +13,7 @@ setup(name='lime',
           'matplotlib',
           'numpy',
           'scipy',
+          'progressbar',
           'scikit-learn>=0.18',
           'scikit-image>=0.12',
       ],
