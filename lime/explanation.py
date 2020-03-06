@@ -98,7 +98,6 @@ class Explanation(object):
         self.intercept = {}
         self.score = None
         self.local_pred = None
-        self.scaled_data = None
         if mode == 'classification':
             self.class_names = class_names
             self.top_labels = None

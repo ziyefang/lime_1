@@ -435,7 +435,6 @@ class LimeTabularExplainer(object):
         ret_exp = explanation.Explanation(domain_mapper,
                                           mode=self.mode,
                                           class_names=self.class_names)
-        ret_exp.scaled_data = scaled_data
         if self.mode == "classification":
             ret_exp.predict_proba = yss[0]
             if top_labels:
