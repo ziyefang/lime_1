@@ -27,6 +27,8 @@ Or clone the repository and run:
 pip install .
 ```
 
+We dropped python2 support in `0.2.0`, `0.1.1.37` was the last version before that.
+
 ## Screenshots
 
 Below are some screenshots of lime explanations. These are generated in html, and can be easily produced and embedded in ipython notebooks. We also support visualizations using matplotlib, although they don't look as nice as these ones.
