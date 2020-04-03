@@ -9,7 +9,8 @@ import sklearn
 import sklearn.preprocessing
 from sklearn.utils import check_random_state
 from skimage.color import gray2rgb
-from progressbar import ProgressBar
+from tqdm.auto import tqdm
+
 
 from . import lime_base
 from .wrappers.scikit_image import SegmentationAlgorithm
@@ -248,9 +249,7 @@ class LimeImageExplainer(object):
         labels = []
         data[0, :] = 1
         imgs = []
-        pbar = ProgressBar(num_samples)
-        pbar.start()
-        for row in data:
+        for row in tqdm(data):
             temp = copy.deepcopy(image)
             zeros = np.where(row == 0)[0]
             mask = np.zeros(segments.shape).astype(bool)
@@ -262,9 +261,6 @@ class LimeImageExplainer(object):
                 preds = classifier_fn(np.array(imgs))
                 labels.extend(preds)
                 imgs = []
-            pbar.currval += 1
-            pbar.update()
-        pbar.finish()
         if len(imgs) > 0:
             preds = classifier_fn(np.array(imgs))
             labels.extend(preds)
