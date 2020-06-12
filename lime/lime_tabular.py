@@ -344,7 +344,7 @@ class LimeTabularExplainer(object):
         if sp.sparse.issparse(data_row) and not sp.sparse.isspmatrix_csr(data_row):
             # Preventative code: if sparse, convert to csr format if not in csr format already
             data_row = data_row.tocsr()
-        data, inverse = self.__data_inverse(data_row, num_samples)
+        data, inverse = self.__data_inverse(data_row, num_samples,sampling_method)
         if sp.sparse.issparse(data):
             # Note in sparse case we don't subtract mean since data would become dense
             scaled_data = data.multiply(self.scaler.scale_)
@@ -474,7 +474,8 @@ class LimeTabularExplainer(object):
 
     def __data_inverse(self,
                        data_row,
-                       num_samples):
+                       num_samples,
+                       sampling_method):
         """Generates a neighborhood around a prediction.
 
         For numerical features, perturb them by sampling from a Normal(0,1) and
@@ -487,6 +488,7 @@ class LimeTabularExplainer(object):
         Args:
             data_row: 1d numpy array, corresponding to a row
             num_samples: size of the neighborhood to learn the linear model
+            sampling_method: gaussian or lhs 
 
         Returns:
             A tuple (data, inverse), where:
