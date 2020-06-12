@@ -190,7 +190,7 @@ class LimeTabularExplainer(object):
         self.categorical_names = categorical_names or {}
         self.sample_around_instance = sample_around_instance
         self.training_data_stats = training_data_stats
-        self.Model = None #to access model after the fact
+        self.model = None #to access model after the fact
 
         # Check and raise proper error in stats are supplied in non-descritized path
         if self.training_data_stats:
@@ -339,7 +339,7 @@ class LimeTabularExplainer(object):
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
-        self.Model = model_regressor
+        self.model = model_regressor
         
         if sp.sparse.issparse(data_row) and not sp.sparse.isspmatrix_csr(data_row):
             # Preventative code: if sparse, convert to csr format if not in csr format already
