@@ -12,6 +12,7 @@ import scipy as sp
 import sklearn
 import sklearn.preprocessing
 from sklearn.utils import check_random_state
+import pyDOE2 as pydoe
 
 from lime.discretize import QuartileDiscretizer
 from lime.discretize import DecileDiscretizer
@@ -189,6 +190,7 @@ class LimeTabularExplainer(object):
         self.categorical_names = categorical_names or {}
         self.sample_around_instance = sample_around_instance
         self.training_data_stats = training_data_stats
+        self.Model = None #to access model after the fact
 
         # Check and raise proper error in stats are supplied in non-descritized path
         if self.training_data_stats:
@@ -301,7 +303,8 @@ class LimeTabularExplainer(object):
                          num_features=10,
                          num_samples=5000,
                          distance_metric='euclidean',
-                         model_regressor=None):
+                         model_regressor=None,
+                         sampling_method = 'gauss'):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features
@@ -329,11 +332,15 @@ class LimeTabularExplainer(object):
             model_regressor: sklearn regressor to use in explanation. Defaults
                 to Ridge regression in LimeBase. Must have model_regressor.coef_
                 and 'sample_weight' as a parameter to model_regressor.fit()
+            sampling_method: Method to sample synthetic data. Defaults to Gaussian sample. Can also use
+                Latin Hypercube Sampling (lhs).
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
             explanations.
         """
+        self.Model = model_regressor
+        
         if sp.sparse.issparse(data_row) and not sp.sparse.isspmatrix_csr(data_row):
             # Preventative code: if sparse, convert to csr format if not in csr format already
             data_row = data_row.tocsr()
@@ -508,9 +515,21 @@ class LimeTabularExplainer(object):
                 instance_sample = data_row[:, non_zero_indexes]
                 scale = scale[non_zero_indexes]
                 mean = mean[non_zero_indexes]
-            data = self.random_state.normal(
-                0, 1, num_samples * num_cols).reshape(
-                num_samples, num_cols)
+                
+            if sampling_method == 'gauss':
+                data = self.random_state.normal(0, 1, num_samples * num_cols).reshape(num_samples, num_cols)
+                data = np.array(data)
+
+            if sampling_method == 'lhs':
+                data = pydoe2.lhs(num_cols,samples=num_samples).reshape(num_samples, num_cols)
+                #ppf
+                from scipy.stats.distributions import norm
+                means = np.zeros(num_cols)
+                stdvs = np.array([1]*num_cols)
+                for i in range(num_cols):
+                    data[:, i] = norm(loc=means[i], scale=stdvs[i]).ppf(data[:, i])
+                data = np.array(data)
+                
             if self.sample_around_instance:
                 data = data * scale + instance_sample
             else:
