@@ -12,7 +12,8 @@ import scipy as sp
 import sklearn
 import sklearn.preprocessing
 from sklearn.utils import check_random_state
-import pyDOE2 as pydoe
+from pyDOE2 import lhs
+from scipy.stats.distributions import norm
 
 from lime.discretize import QuartileDiscretizer
 from lime.discretize import DecileDiscretizer
@@ -488,7 +489,7 @@ class LimeTabularExplainer(object):
         Args:
             data_row: 1d numpy array, corresponding to a row
             num_samples: size of the neighborhood to learn the linear model
-            sampling_method: gaussian or lhs 
+            sampling_method: 'gauss' or 'lhs'
 
         Returns:
             A tuple (data, inverse), where:
@@ -522,14 +523,18 @@ class LimeTabularExplainer(object):
                 data = self.random_state.normal(0, 1, num_samples * num_cols).reshape(num_samples, num_cols)
                 data = np.array(data)
 
-            if sampling_method == 'lhs':
-                data = pydoe2.lhs(num_cols,samples=num_samples).reshape(num_samples, num_cols)
+            elif sampling_method == 'lhs':
+                data = lhs(num_cols,samples=num_samples).reshape(num_samples, num_cols)
                 #ppf
-                from scipy.stats.distributions import norm
                 means = np.zeros(num_cols)
                 stdvs = np.array([1]*num_cols)
                 for i in range(num_cols):
                     data[:, i] = norm(loc=means[i], scale=stdvs[i]).ppf(data[:, i])
+                data = np.array(data)
+                
+            else:
+                warnings.warn('''Invalid input for sampling_method. Defaulting to Gaussian sampling.''',UserWarning)
+                data = self.random_state.normal(0, 1, num_samples * num_cols).reshape(num_samples, num_cols)
                 data = np.array(data)
                 
             if self.sample_around_instance:
