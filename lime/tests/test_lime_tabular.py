@@ -9,7 +9,6 @@ import sklearn.linear_model  # noqa
 from numpy.testing import assert_array_equal
 from sklearn.datasets import load_iris, make_classification, make_multilabel_classification
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import Lasso
 from sklearn.linear_model import LinearRegression
 from lime.discretize import QuartileDiscretizer, DecileDiscretizer, EntropyDiscretizer
 
@@ -36,10 +35,8 @@ class TestLimeTabular(unittest.TestCase):
          self.labels_train,
          self.labels_test) = train_test_split(iris.data, iris.target, train_size=0.80)
 
-
     def test_lime_explainer_good_regressor(self):
         np.random.seed(1)
-
         rf = RandomForestClassifier(n_estimators=500)
         rf.fit(self.train, self.labels_train)
         i = np.random.randint(0, self.test.shape[0])

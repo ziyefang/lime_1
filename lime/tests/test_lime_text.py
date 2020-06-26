@@ -4,7 +4,6 @@ import unittest
 import sklearn # noqa
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import Lasso
 from sklearn.metrics import f1_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
@@ -38,7 +37,6 @@ class TestLimeText(unittest.TestCase):
                                          c.predict_proba, num_features=6)
         self.assertIsNotNone(exp)
         self.assertEqual(6, len(exp.as_list()))
-
 
     def test_lime_text_tabular_equal_random_state(self):
         categories = ['alt.atheism', 'soc.religion.christian']
