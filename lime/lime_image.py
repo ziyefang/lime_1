@@ -133,7 +133,8 @@ class LimeImageExplainer(object):
                          segmentation_fn=None,
                          distance_metric='cosine',
                          model_regressor=None,
-                         random_seed=None):
+                         random_seed=None,
+                         progress_bar=True):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features
@@ -164,6 +165,7 @@ class LimeImageExplainer(object):
             random_seed: integer used as random seed for the segmentation
                 algorithm. If None, a random integer, between 0 and 1000,
                 will be generated using the internal random number generator.
+            progress_bar: if True, show tqdm progress bar.
 
         Returns:
             An ImageExplanation object (see lime_image.py) with the corresponding
@@ -197,7 +199,8 @@ class LimeImageExplainer(object):
 
         data, labels = self.data_labels(image, fudged_image, segments,
                                         classifier_fn, num_samples,
-                                        batch_size=batch_size)
+                                        batch_size=batch_size,
+                                        progress_bar=progress_bar)
 
         distances = sklearn.metrics.pairwise_distances(
             data,
@@ -225,7 +228,8 @@ class LimeImageExplainer(object):
                     segments,
                     classifier_fn,
                     num_samples,
-                    batch_size=10):
+                    batch_size=10,
+                    progress_bar=True):
         """Generates images and predictions in the neighborhood of this image.
 
         Args:
@@ -237,6 +241,7 @@ class LimeImageExplainer(object):
                 matrix of prediction probabilities
             num_samples: size of the neighborhood to learn the linear model
             batch_size: classifier_fn will be called on batches of this size.
+            progress_bar: if True, show tqdm progress bar.
 
         Returns:
             A tuple (data, labels), where:
@@ -249,7 +254,9 @@ class LimeImageExplainer(object):
         labels = []
         data[0, :] = 1
         imgs = []
-        for row in tqdm(data):
+        if progress_bar:
+            data = tqdm(data)
+        for row in data:
             temp = copy.deepcopy(image)
             zeros = np.where(row == 0)[0]
             mask = np.zeros(segments.shape).astype(bool)
