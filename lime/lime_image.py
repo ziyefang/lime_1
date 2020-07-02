@@ -254,9 +254,8 @@ class LimeImageExplainer(object):
         labels = []
         data[0, :] = 1
         imgs = []
-        if progress_bar:
-            data = tqdm(data)
-        for row in data:
+        rows = tqdm(data) if progress_bar else data
+        for row in rows:
             temp = copy.deepcopy(image)
             zeros = np.where(row == 0)[0]
             mask = np.zeros(segments.shape).astype(bool)
