@@ -486,7 +486,7 @@ class LimeTabularExplainer(object):
         Args:
             data_row: 1d numpy array, corresponding to a row
             num_samples: size of the neighborhood to learn the linear model
-            sampling_method: 'gauss' or 'lhs'
+            sampling_method: 'gaussian' or 'lhs'
 
         Returns:
             A tuple (data, inverse), where:
