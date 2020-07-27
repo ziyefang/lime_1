@@ -522,17 +522,17 @@ class LimeTabularExplainer(object):
                 data = np.array(data)
             elif sampling_method == 'lhs':
                 data = lhs(num_cols, samples=num_samples
-                          ).reshape(num_samples, num_cols)
+                           ).reshape(num_samples, num_cols)
                 means = np.zeros(num_cols)
                 stdvs = np.array([1]*num_cols)
                 for i in range(num_cols):
                     data[:, i] = norm(loc=means[i], scale=stdvs[i]).ppf(data[:, i])
-                data = np.array(data) 
+                data = np.array(data)
             else:
-                warnings.warn('''Invalid input for sampling_method. 
+                warnings.warn('''Invalid input for sampling_method.
                                  Defaulting to Gaussian sampling.''', UserWarning)
                 data = self.random_state.normal(0, 1, num_samples * num_cols
-                                               ).reshape(num_samples, num_cols)
+                                                ).reshape(num_samples, num_cols)
                 data = np.array(data)
 
             if self.sample_around_instance:
