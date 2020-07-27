@@ -57,6 +57,7 @@ For example usage for text classifiers, take a look at the following two tutoria
 
 - [Basic usage, two class. We explain random forest classifiers.](https://marcotcr.github.io/lime/tutorials/Lime%20-%20basic%20usage%2C%20two%20class%20case.html)
 - [Multiclass case](https://marcotcr.github.io/lime/tutorials/Lime%20-%20multiclass.html)
+- [Latin Hypercube Sampling](https://github.com/elacx/lime/blob/master/doc/notebooks/LatinHyperCubeSampling.ipynb)
 
 For classifiers that use numerical or categorical data, take a look at the following tutorial (this is newer, so please let me know if you find something wrong):
 
