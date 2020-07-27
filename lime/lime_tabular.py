@@ -332,7 +332,7 @@ class LimeTabularExplainer(object):
             model_regressor: sklearn regressor to use in explanation. Defaults
                 to Ridge regression in LimeBase. Must have model_regressor.coef_
                 and 'sample_weight' as a parameter to model_regressor.fit()
-            sampling_method: Method to sample synthetic data. Defaults to Gaussian 
+            sampling_method: Method to sample synthetic data. Defaults to Gaussian
                 sampling. Can also use Latin Hypercube Sampling.
 
         Returns:
@@ -518,11 +518,11 @@ class LimeTabularExplainer(object):
 
             if sampling_method == 'gaussian':
                 data = self.random_state.normal(0, 1, num_samples * num_cols
-                    ).reshape(num_samples, num_cols)
+                                               ).reshape(num_samples, num_cols)
                 data = np.array(data)
             elif sampling_method == 'lhs':
                 data = lhs(num_cols, samples=num_samples
-                    ).reshape(num_samples, num_cols)
+                          ).reshape(num_samples, num_cols)
                 means = np.zeros(num_cols)
                 stdvs = np.array([1]*num_cols)
                 for i in range(num_cols):
@@ -530,9 +530,9 @@ class LimeTabularExplainer(object):
                 data = np.array(data) 
             else:
                 warnings.warn('''Invalid input for sampling_method. 
-                    Defaulting to Gaussian sampling.''', UserWarning)
+                                 Defaulting to Gaussian sampling.''', UserWarning)
                 data = self.random_state.normal(0, 1, num_samples * num_cols
-                    ).reshape(num_samples, num_cols)
+                                               ).reshape(num_samples, num_cols)
                 data = np.array(data)
 
             if self.sample_around_instance:
