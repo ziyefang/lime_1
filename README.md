@@ -62,7 +62,7 @@ For classifiers that use numerical or categorical data, take a look at the follo
 
 - [Tabular data](https://marcotcr.github.io/lime/tutorials/Tutorial%20-%20continuous%20and%20categorical%20features.html)
 - [Tabular data with H2O models](https://marcotcr.github.io/lime/tutorials/Tutorial_H2O_continuous_and_cat.html)
-- [Latin Hypercube Sampling](https://github.com/elacx/lime/blob/master/doc/notebooks/Latin%20Hypercube%20Sampling.ipynb)
+- [Latin Hypercube Sampling](doc/notebooks/Latin%20Hypercube%20Sampling.ipynb)
 
 For image classifiers:
 
