@@ -12,6 +12,8 @@ import scipy as sp
 import sklearn
 import sklearn.preprocessing
 from sklearn.utils import check_random_state
+from pyDOE2 import lhs
+from scipy.stats.distributions import norm
 
 from lime.discretize import QuartileDiscretizer
 from lime.discretize import DecileDiscretizer
@@ -301,7 +303,8 @@ class LimeTabularExplainer(object):
                          num_features=10,
                          num_samples=5000,
                          distance_metric='euclidean',
-                         model_regressor=None):
+                         model_regressor=None,
+                         sampling_method='gaussian'):
         """Generates explanations for a prediction.
 
         First, we generate neighborhood data by randomly perturbing features
@@ -329,6 +332,8 @@ class LimeTabularExplainer(object):
             model_regressor: sklearn regressor to use in explanation. Defaults
                 to Ridge regression in LimeBase. Must have model_regressor.coef_
                 and 'sample_weight' as a parameter to model_regressor.fit()
+            sampling_method: Method to sample synthetic data. Defaults to Gaussian
+                sampling. Can also use Latin Hypercube Sampling.
 
         Returns:
             An Explanation object (see explanation.py) with the corresponding
@@ -337,7 +342,7 @@ class LimeTabularExplainer(object):
         if sp.sparse.issparse(data_row) and not sp.sparse.isspmatrix_csr(data_row):
             # Preventative code: if sparse, convert to csr format if not in csr format already
             data_row = data_row.tocsr()
-        data, inverse = self.__data_inverse(data_row, num_samples)
+        data, inverse = self.__data_inverse(data_row, num_samples, sampling_method)
         if sp.sparse.issparse(data):
             # Note in sparse case we don't subtract mean since data would become dense
             scaled_data = data.multiply(self.scaler.scale_)
@@ -467,7 +472,8 @@ class LimeTabularExplainer(object):
 
     def __data_inverse(self,
                        data_row,
-                       num_samples):
+                       num_samples,
+                       sampling_method):
         """Generates a neighborhood around a prediction.
 
         For numerical features, perturb them by sampling from a Normal(0,1) and
@@ -480,6 +486,7 @@ class LimeTabularExplainer(object):
         Args:
             data_row: 1d numpy array, corresponding to a row
             num_samples: size of the neighborhood to learn the linear model
+            sampling_method: 'gaussian' or 'lhs'
 
         Returns:
             A tuple (data, inverse), where:
@@ -508,9 +515,26 @@ class LimeTabularExplainer(object):
                 instance_sample = data_row[:, non_zero_indexes]
                 scale = scale[non_zero_indexes]
                 mean = mean[non_zero_indexes]
-            data = self.random_state.normal(
-                0, 1, num_samples * num_cols).reshape(
-                num_samples, num_cols)
+
+            if sampling_method == 'gaussian':
+                data = self.random_state.normal(0, 1, num_samples * num_cols
+                                                ).reshape(num_samples, num_cols)
+                data = np.array(data)
+            elif sampling_method == 'lhs':
+                data = lhs(num_cols, samples=num_samples
+                           ).reshape(num_samples, num_cols)
+                means = np.zeros(num_cols)
+                stdvs = np.array([1]*num_cols)
+                for i in range(num_cols):
+                    data[:, i] = norm(loc=means[i], scale=stdvs[i]).ppf(data[:, i])
+                data = np.array(data)
+            else:
+                warnings.warn('''Invalid input for sampling_method.
+                                 Defaulting to Gaussian sampling.''', UserWarning)
+                data = self.random_state.normal(0, 1, num_samples * num_cols
+                                                ).reshape(num_samples, num_cols)
+                data = np.array(data)
+
             if self.sample_around_instance:
                 data = data * scale + instance_sample
             else:
