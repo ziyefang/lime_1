@@ -208,7 +208,7 @@ class LimeTabularExplainer(object):
         if discretize_continuous and not sp.sparse.issparse(training_data):
             # Set the discretizer if training data stats are provided
             if self.training_data_stats:
-                self.discretizer = StatsDiscretizer(
+                discretizer = StatsDiscretizer(
                     training_data, self.categorical_features,
                     self.feature_names, labels=training_labels,
                     data_stats=self.training_data_stats,
